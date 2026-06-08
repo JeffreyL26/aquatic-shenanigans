@@ -39,6 +39,7 @@ public class GameFrame extends JFrame {
     private MapPanel mapPanel;
     private LogPanel logPanel;
     private InspectorPanel inspector;
+    private QuestLogPanel questLog;
     private ZoneTabs zoneTabs;
     private OverlayHost overlay;
 
@@ -58,6 +59,7 @@ public class GameFrame extends JFrame {
         mapPanel = new MapPanel(this);
         logPanel = new LogPanel(this);
         inspector = new InspectorPanel(this);
+        questLog = new QuestLogPanel(this);
         zoneTabs = new ZoneTabs(this);
 
         JPanel center = new JPanel(new BorderLayout());
@@ -65,10 +67,15 @@ public class GameFrame extends JFrame {
         center.add(zoneTabs, BorderLayout.NORTH);
         center.add(mapPanel, BorderLayout.CENTER);
 
+        JPanel east = new JPanel(new BorderLayout());
+        east.setBackground(Palette.PANEL);
+        east.add(questLog, BorderLayout.NORTH);
+        east.add(inspector, BorderLayout.CENTER);
+
         add(topBar, BorderLayout.NORTH);
         add(sidePanel, BorderLayout.WEST);
         add(center, BorderLayout.CENTER);
-        add(inspector, BorderLayout.EAST);
+        add(east, BorderLayout.EAST);
         add(logPanel, BorderLayout.SOUTH);
 
         overlay = new OverlayHost(this);
@@ -105,6 +112,7 @@ public class GameFrame extends JFrame {
         mapPanel.repaint();
         logPanel.refresh();
         inspector.refresh();
+        questLog.refresh();
     }
 
     // ===================== Overlay-Steuerung (Tutorial / Popups) =====================

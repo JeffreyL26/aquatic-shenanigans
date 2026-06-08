@@ -25,6 +25,41 @@ public final class QuestContent {
         einzelquests();
         krillkill();
         akwanov();
+        attachObjectives();
+    }
+
+    /** Bindet Ketten-Stufen an messbare Produktions-Ziele (macht das Spiel deutlich laenger). */
+    private static void obj(String id, Condition c, String text) {
+        Quest q = QS.get(id);
+        if (q != null) { q.objective = c; q.objectiveText = text; q.chainOnly = true; q.trigger = Condition.never(); }
+    }
+
+    private static void attachObjectives() {
+        // Story-Ketten
+        obj("beh_pruefung", Condition.buildCount(BuildingType.SHRIMP_TANK, 4), "Betreibe 4 Shrimp-Becken");
+        obj("beh_plakette", Condition.rep(60), "Reputation auf 60 bringen");
+        obj("tier_demo", Condition.tierProduced(ShrimpTier.BIO, 200), "Produziere 200 Bio-Shrimps");
+        obj("tier_gewerkschaft", Condition.sold(500), "Verkaufe insgesamt 500 Shrimps");
+        obj("inf_sponsor", Condition.money(15000), "Erreiche 15.000 Vermögen");
+        obj("inf_cancel", Condition.rep(70), "Reputation auf 70 bringen");
+        obj("konk_angebot", Condition.money(30000), "Erreiche 30.000 Vermögen");
+        // General Krillkill
+        obj("krillkill_1", Condition.shrimpProduced(300), "Produziere insgesamt 300 Shrimps");
+        obj("krillkill_2", Condition.shrimpProduced(800), "Produziere insgesamt 800 Shrimps");
+        obj("krillkill_3", Condition.money(20000), "Spare 20.000 Vermögen fürs Bootcamp");
+        obj("krillkill_4", Condition.sold(400), "Verkaufe 400 Shrimps (Feldzug gegen Brenda)");
+        obj("krillkill_5", Condition.buildCount(BuildingType.LAB, 1), "Betreibe ein Forschungslabor");
+        obj("krillkill_6", Condition.tierProduced(ShrimpTier.PROTEIN, 200), "Produziere 200 Protein-Bomben");
+        obj("krillkill_7", Condition.tierProduced(ShrimpTier.WARKRILL, 120), "Züchte 120 Kampf-Krill");
+        // Aussenminister Akwanov
+        obj("akwanov_1", Condition.money(35000), "Erreiche 35.000 Vermögen");
+        obj("akwanov_2", Condition.sold(900), "Verkaufe 900 Shrimps trotz Tarif");
+        obj("akwanov_3", Condition.buildCount(BuildingType.ALGAE_FARM, 3), "3 Algenfarmen für die Versorgung");
+        obj("akwanov_4", Condition.money(45000), "Erreiche 45.000 Vermögen");
+        obj("akwanov_5", Condition.rep(60), "Halte die Reputation bei 60");
+        obj("akwanov_6", Condition.money(60000), "Erreiche 60.000 Vermögen (Embargo aushalten)");
+        obj("akwanov_7", Condition.buildCount(BuildingType.SOLAR_ROOF, 2), "Strom-Unabhängigkeit (2 Solar-Dächer)");
+        obj("akwanov_8", Condition.money(80000), "Erreiche 80.000 Vermögen (Finale)");
     }
 
     // ---- Helfer ----

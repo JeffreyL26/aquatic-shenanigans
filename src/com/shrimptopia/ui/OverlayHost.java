@@ -136,9 +136,10 @@ public class OverlayHost extends JComponent {
             }
         } else if (mode == Mode.POPUP && quest != null) {
             int cw = Math.min(660, W - 120);
-            bodyLines = wrap(quest.body, fm, cw - 130);
-            int headerH = 96;
-            int textH = bodyLines.size() * 20 + 10;
+            // Fliesstext volle Breite UNTER Portrait/Titel (kein Overlap mehr)
+            bodyLines = wrap(quest.body, fm, cw - 48);
+            int headerH = 108;
+            int textH = bodyLines.size() * 20 + 12;
             int btnH = Math.max(1, buttons.size()) * 46 + 8;
             int ch = headerH + textH + btnH + 16;
             int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
@@ -201,7 +202,7 @@ public class OverlayHost extends JComponent {
         if (mode == Mode.POPUP) {
             g.setFont(Palette.FONT_H2);
             g.setColor(Palette.ACCENT2);
-            g.drawString(quest.title, tx, card.y + 72);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), quest.title, card.width - 104 - 20), tx, card.y + 74);
         } else {
             g.setFont(Palette.FONT_SMALL);
             g.setColor(Palette.TEXT_DIM);
@@ -211,7 +212,7 @@ public class OverlayHost extends JComponent {
         // Fließtext
         g.setFont(Palette.FONT_BODY);
         g.setColor(Palette.TEXT);
-        int yy = card.y + (mode == Mode.POPUP ? 96 : 86);
+        int yy = card.y + (mode == Mode.POPUP ? 112 : 86);
         int bx = card.x + (mode == Mode.POPUP ? 24 : 104);
         for (String line : bodyLines) { g.drawString(line, bx, yy); yy += 20; }
 

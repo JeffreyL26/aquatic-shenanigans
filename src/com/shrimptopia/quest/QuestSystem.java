@@ -6,13 +6,15 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Verwaltet Quests/Storylines: prüft Auslöse-Bedingungen, reiht Popups ein und
- * wendet Auswahl-Konsequenzen an. Wird vom GameFrame nach jedem Tick aktualisiert.
+ * Verwaltet Quests/Storylines. Neu in v3: Ketten-Stufen mit ZIEL ("armiert") erscheinen erst
+ * als Popup, wenn ihr Ziel ueber Zeit erfuellt wurde - das macht das Spiel deutlich laenger.
+ * Aktive Ziele sind ueber activeTasks() jederzeit im Quest-Log sichtbar.
  */
 public class QuestSystem {
 
@@ -22,21 +24,37 @@ public class QuestSystem {
     private final Set<String> triggered = new HashSet<>();
     private final Set<String> flags = new HashSet<>();
     private final Deque<Quest> pending = new ArrayDeque<>();
+    /** Quests, die auf die Erfuellung ihres Ziels warten (Reihenfolge = Anzeige im Log). */
+    private final LinkedHashMap<String, Quest> armed = new LinkedHashMap<>();
 
     private int lastShownDay = -100;
-    private final int minGap = 3;   // Tage Mindestabstand zwischen automatischen Quests
-    private int rival = 0;          // Akwanov-Rivalität 0..100
+    private final int minGap = 4;   // Mindestabstand zwischen AUTOMATISCHEN Quests
+    private int rival = 0;
 
     public QuestSystem() { QuestContent.populate(this); }
 
     public void add(Quest q) { all.add(q); byId.put(q.id, q); }
 
-    /** Pro Tick: höchstens eine neue (nicht-Ketten-)Quest einreihen. */
+    /** Pro Tick aufgerufen. */
     public void update(GameState gs) {
         if (!pending.isEmpty()) return;
+
+        // 1) Armiertes Ziel erfuellt? -> Popup (ohne Gap, das Ziel wurde erarbeitet)
+        for (Map.Entry<String, Quest> e : armed.entrySet()) {
+            Quest q = e.getValue();
+            if (q.objective == null || q.objective.test(gs, this)) {
+                armed.remove(e.getKey());
+                triggered.add(q.id);
+                pending.add(q);
+                lastShownDay = gs.getDay();
+                return;
+            }
+        }
+
+        // 2) Neue automatische Quest (mit Gap)
         if (gs.getDay() - lastShownDay < minGap) return;
         for (Quest q : all) {
-            if (q.chainOnly || triggered.contains(q.id)) continue;
+            if (q.chainOnly || triggered.contains(q.id) || armed.containsKey(q.id)) continue;
             if (q.trigger.test(gs, this)) {
                 triggered.add(q.id);
                 pending.add(q);
@@ -49,6 +67,15 @@ public class QuestSystem {
     public boolean hasPending() { return !pending.isEmpty(); }
     public Quest peek() { return pending.peek(); }
     public int pendingCount() { return pending.size(); }
+    public Quest get(String id) { return byId.get(id); }
+
+    /** Aktive Aufgaben (armierte Ziel-Quests) fuer das Quest-Log. */
+    public List<Quest> activeTasks() {
+        List<Quest> out = new ArrayList<>();
+        for (Quest q : armed.values()) if (q.objective != null) out.add(q);
+        return out;
+    }
+    public int doneCount() { return done.size(); }
 
     public void resolve(GameState gs, int choiceIndex) {
         Quest q = pending.poll();
@@ -64,9 +91,12 @@ public class QuestSystem {
         if (c.nextQuestId != null) forceStart(c.nextQuestId);
     }
 
+    /** Startet eine (Ketten-)Quest: mit Ziel -> armieren (wartet); ohne Ziel -> sofort anzeigen. */
     public void forceStart(String id) {
         Quest q = byId.get(id);
-        if (q != null && !triggered.contains(id)) { triggered.add(id); pending.add(q); }
+        if (q == null || triggered.contains(id) || armed.containsKey(id)) return;
+        if (q.objective != null) armed.put(id, q);
+        else { triggered.add(id); pending.add(q); }
     }
 
     public void setFlag(String f) { flags.add(f); }

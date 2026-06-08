@@ -5,7 +5,7 @@ import java.awt.Color;
 
 /** Die im HUD angezeigten Ressourcen. */
 public enum ResourceType {
-    MONEY     ("Geld",       Palette.MONEY,   IconKind.COIN),
+    MONEY     ("Vermögen",       Palette.MONEY,   IconKind.COIN),
     POWER     ("Strom",      Palette.POWER,   IconKind.BOLT),
     WATER     ("Wasser",     Palette.WATER,   IconKind.DROP),
     FEED      ("Futter",     Palette.FEED,    IconKind.LEAF),

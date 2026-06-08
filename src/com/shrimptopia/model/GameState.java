@@ -21,7 +21,7 @@ import java.util.Set;
 public class GameState {
 
     public static final int LOG_INFO = 0, LOG_GOOD = 1, LOG_BAD = 2, LOG_WARN = 3;
-    public static final double GOAL_MONEY = 50_000;
+    public static final double GOAL_MONEY = 200_000;
     public static final int COLS = 12;
     public static final int ROWS = 8;
 
@@ -51,6 +51,12 @@ public class GameState {
     private int negativeStreak = 0;
     private double totalShrimpProduced = 0;   // kumuliert (für Charakter-Trigger)
     private double exportTariff = 0;          // Akwanov-Embargo: 0..0.6 Preisabschlag auf Märkte
+
+    // v3: zusaetzliche Bestaende & Tracking
+    private final java.util.EnumMap<ShrimpTier, Double> producedByTier = new java.util.EnumMap<>(ShrimpTier.class);
+    private double totalSold = 0;
+    private double armyStrength = 0;
+    private double shells = 0, energy = 0, robots = 0;
 
     private final Random rng;
     private final EventSystem eventSystem;
@@ -247,6 +253,7 @@ public class GameState {
                 double made = b.lastStats.shrimpProduce * opsEff * tankServe;
                 ShrimpTier tier = isTierUnlocked(b.lastStats.tier) ? b.lastStats.tier : ShrimpTier.STANDARD;
                 addStock(tier, made);
+                producedByTier.merge(tier, made, Double::sum);
                 shrimpIn += made;
             }
         }
@@ -293,6 +300,7 @@ public class GameState {
         }
         sellPriceEff = bestPrice;
         shrimpSoldLast = soldTotal;
+        totalSold += soldTotal;
 
         // --- Reputation aus Gebäuden (Modi, Restaurant, Besucher, Solar, Kraftwerk ...) ---
         for (Building b : buildings) reputation += b.lastStats.repPerTick;
@@ -462,6 +470,23 @@ public class GameState {
     public double getShrimp()      { return getShrimpTotal(); }
     public EnumMap<ShrimpTier, Double> getShrimpStocks() { return shrimpStock; }
     public double getTotalShrimpProduced() { return totalShrimpProduced; }
+    public double getProducedByTier(ShrimpTier t) { return t == null ? 0 : producedByTier.getOrDefault(t, 0.0); }
+    public double getTotalSold() { return totalSold; }
+    public double getArmy() { return armyStrength; }
+    public void addArmy(double d) { armyStrength = Math.max(0, armyStrength + d); }
+    public double getShells() { return shells; }
+    public double getEnergy() { return energy; }
+    public double getRobots() { return robots; }
+    public void addShells(double d) { shells = Math.max(0, shells + d); }
+    public void addEnergy(double d) { energy = Math.max(0, energy + d); }
+    public void addRobots(double d) { robots = Math.max(0, robots + d); }
+    public double getResource(String key) {
+        return switch (key == null ? "" : key) {
+            case "money" -> money; case "water" -> water; case "feed" -> feed;
+            case "shells" -> shells; case "energy" -> energy; case "robots" -> robots;
+            case "shrimp" -> getShrimpTotal(); default -> 0;
+        };
+    }
 
     public double getMoneyNet()  { return moneyNet; }
     public double getWaterNet()  { return waterNet; }

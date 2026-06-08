@@ -105,18 +105,19 @@ public class Main {
 
                 // 1) Tutorial-Overlay (Schritt 1 ist aktiv)
                 f.validate(); f.debugRefreshOverlay();
-                snap(f.getRootPane(), "shrimptopia_v2_tutorial.png");
+                snap(f.getRootPane(), "shrimptopia_v3_tutorial.png");
 
                 // 2) Haupt-UI mit ausgewähltem Becken (Inspektor)
                 f.tutorialSkip();
                 f.selectBuilding(gs.at(Zone.PRODUKTION, 5, 0));
+                f.debugForceQuest("krillkill_1"); f.debugForceQuest("akwanov_1");
                 f.validate(); f.debugRefreshOverlay();
-                snap(f.getRootPane(), "shrimptopia_v2_main.png");
+                snap(f.getRootPane(), "shrimptopia_v3_main.png");
 
                 // 3) Quest-Popup (General Krillkill)
                 f.debugForceQuest("krillkill_intro");
                 f.validate(); f.debugRefreshOverlay();
-                snap(f.getRootPane(), "shrimptopia_v2_popup.png");
+                snap(f.getRootPane(), "shrimptopia_v3_popup.png");
             });
         } catch (Exception e) {
             System.out.println("GUITEST FAIL: " + e);
