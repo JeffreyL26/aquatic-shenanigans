@@ -199,7 +199,7 @@ public class GameFrame extends JFrame {
     public void afterAlmanacClosed() { applyTimerState(); refreshAll(); }
 
     public void selectBuilding(Building b) {
-        if (b != null && b.type == BuildingType.HEADQUARTERS) { openAlmanac(0); return; }
+        if (b != null && b.type == BuildingType.HEADQUARTERS) { openAlmanac(5); return; }
         selectedBuilding = b;
         inspector.setBuilding(b);
         if (b != null) tutorial.onInspectorOpened();

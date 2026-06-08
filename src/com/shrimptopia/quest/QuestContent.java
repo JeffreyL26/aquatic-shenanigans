@@ -25,7 +25,50 @@ public final class QuestContent {
         einzelquests();
         krillkill();
         akwanov();
+        conflicts();
         attachObjectives();
+    }
+
+    // ===================== KONFLIKTE (Armee-Stärke vs. Bedrohung) =====================
+    private static void conflicts() {
+        auto("conf_border", GameCharacter.AKWANOV, null, Condition.any(Condition.rival(12), Condition.day(45)), 2,
+            "Garnelen-Grenzzwischenfall",
+            "Eine usbekische 'Forschungsdrohne' verirrt sich über deine Halle. Akwanov: 'Reiner Zufall, mein "
+            + "Freund. Wir kartieren nur... Ihre Lüftungsschächte.' General Krillkill steht schon stramm.",
+            c("Verteidigen (Armee einsetzen)", "Die Stellung wird gehalten - oder auch nicht.", QuestEffect.battle(30, 1500)),
+            c("Diplomatie (-800)", "Du erkaufst Ruhe. Krillkill ist enttäuscht.", money(-800), rival(-10)));
+
+        auto("conf_flotilla", GameCharacter.AKWANOV, null, Condition.rival(30), 2,
+            "Die Embargo-Flottille",
+            "Akwanov schickt eine Flotte von LKW (kein Meer, schon vergessen?), um deine Lieferketten zu "
+            + "blockieren. 'Bedauerlich. Höhere Gewalt. Ich habe Tee dabei.'",
+            c("Gegenangriff mit Kampf-Krill", "Die Garde rückt aus.", QuestEffect.battle(56, 2600)),
+            c("Roboter-Blitz", "Stahl gegen Diplomatie.", QuestEffect.battle(64, 2400)),
+            c("Diplomatie (-1500)", "Frieden, aber teuer.", money(-1500), rival(-12)));
+
+        auto("conf_raid", GameCharacter.AKWANOV, null, Condition.rival(45), 2,
+            "Spionage-Razzia",
+            "Dmitri ist zurück - diesmal mit Verstärkung und einem Bolzenschneider. Akwanov: 'Wir nennen es "
+            + "Wissensaustausch. Sehr einseitig.'",
+            c("Verteidigen", "Die Halle wehrt sich.", QuestEffect.battle(120, 4000)),
+            c("Gegenangriff mit Kampf-Krill", "Krillkill brüllt 'ANGRIFF!'.", QuestEffect.battle(96, 3800)),
+            c("Diplomatie (-3000)", "Schweigegeld.", money(-3000), rival(-15)));
+
+        auto("conf_siege", GameCharacter.AKWANOV, null, Condition.all(Condition.rival(60), Condition.money(50000)), 2,
+            "Die Belagerung",
+            "Akwanov riegelt die Zufahrt komplett ab. 'Ein doppelt eingeschlossenes Land weiß, wie man jemanden "
+            + "einschließt.' Jetzt zählt nur die Armee.",
+            c("Bis zum letzten Krill verteidigen", "Alles oder nichts.", QuestEffect.battle(200, 7000)),
+            c("Roboter-Blitz", "Die Maschinen-Brigade rollt.", QuestEffect.battle(170, 6000)),
+            c("Kapitulieren (-6000, -Ruf)", "Du beugst dich. Vorerst.", money(-6000), rep(-8), rival(-20)));
+
+        auto("conf_war", GameCharacter.KRILLKILL, null,
+            Condition.all(Condition.rival(66), Condition.money(80000), Condition.army(200)), 1,
+            "DER FINALE KRILL-KRIEG",
+            "General Krillkill: 'DAS IST ES, REKRUT! Alles, wofür wir gezüchtet haben! Akwanov vor den Toren, "
+            + "die Suppe im Rücken - HEUTE schreiben wir GESCHICHTE!' Akwanov: 'Oder eine Rechnung. Ich nehme auch das.'",
+            c("Großoffensive (volle Armee)", "Der entscheidende Schlag.", QuestEffect.battle(400, 30000), rival(-40)),
+            c("Verhandeln statt verheizen (-15000)", "Ein ehrenhafter, sündhaft teurer Frieden.", money(-15000), rep(10), rival(-50)));
     }
 
     /** Bindet Ketten-Stufen an messbare Produktions-Ziele (macht das Spiel deutlich laenger). */

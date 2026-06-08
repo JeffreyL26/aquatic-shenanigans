@@ -60,6 +60,7 @@ public class GameState {
     private double totalBoostProduced = 0, totalRobotsProduced = 0;
     private final java.util.EnumMap<BuildingType, Double> incomeByType = new java.util.EnumMap<>(BuildingType.class);
     private double incomeLast = 0, shellsNet = 0, boostNet = 0, robotsNet = 0;
+    private final java.util.EnumSet<Edict> activeEdicts = java.util.EnumSet.noneOf(Edict.class);
 
     private final Random rng;
     private final EventSystem eventSystem;
@@ -145,6 +146,19 @@ public class GameState {
         return true;
     }
 
+    public boolean isEdictActive(Edict e) { return activeEdicts.contains(e); }
+    public java.util.Set<Edict> getActiveEdicts() { return activeEdicts; }
+    /** Schaltet ein Edikt um; Edikte derselben Gruppe schließen sich aus. */
+    public void toggleEdict(Edict e) {
+        if (activeEdicts.remove(e)) { log("Edikt aufgehoben: " + e.name, LOG_INFO); return; }
+        if (e.group != null) {
+            java.util.Iterator<Edict> it = activeEdicts.iterator();
+            while (it.hasNext()) { Edict o = it.next(); if (e.group.equals(o.group)) { it.remove(); log("Edikt '" + o.name + "' weicht '" + e.name + "'.", LOG_INFO); } }
+        }
+        activeEdicts.add(e);
+        log("Edikt erlassen: " + e.name, LOG_GOOD);
+    }
+
     public WorkerPolicy getWorkerPolicy() { return workerPolicy; }
     public boolean setWorkerPolicy(WorkerPolicy p) {
         if (p.requiresFlag != null && !isUnlocked(p.requiresFlag)) return false;
@@ -204,6 +218,7 @@ public class GameState {
                 if (u != null && u.global != null) fm.apply(u.global);
             }
         workerPolicy.apply(fm);
+        for (Edict e : activeEdicts) e.apply(fm);
 
         // --- Effektive Stats je Gebäude + Aggregate ---
         double wProvide = 0, wNeed = 0, pProd = 0, pUse = 0;

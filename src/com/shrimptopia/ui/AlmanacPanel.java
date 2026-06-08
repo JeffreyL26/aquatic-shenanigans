@@ -1,6 +1,7 @@
 package com.shrimptopia.ui;
 
 import com.shrimptopia.model.BuildingType;
+import com.shrimptopia.model.Edict;
 import com.shrimptopia.model.GameState;
 import com.shrimptopia.model.ResourceType;
 import com.shrimptopia.model.ShrimpTier;
@@ -15,10 +16,12 @@ import java.util.Map;
 /** Tropico-artiger Almanach: tiefe Kennzahlen in Tabs (Vermögen, Ressourcen, Tiers, Effekte, Statistik). */
 public class AlmanacPanel extends JComponent {
 
-    private static final String[] TABS = { "Vermögen", "Ressourcen", "Shrimp-Tiers", "Effekte", "Statistik" };
+    private static final String[] TABS = { "Vermögen", "Ressourcen", "Shrimp-Tiers", "Effekte", "Statistik", "HQ-Kommando" };
     private final GameFrame frame;
     private int tab = 0;
     private final Rectangle card = new Rectangle();
+    private final java.util.List<Rectangle> edictRects = new java.util.ArrayList<>();
+    private final java.util.List<Edict> edictAt = new java.util.ArrayList<>();
     private final ThemeButton.FlatToggle[] tabBtn = new ThemeButton.FlatToggle[TABS.length];
     private final ThemeButton.FlatButton closeBtn;
 
@@ -39,7 +42,15 @@ public class AlmanacPanel extends JComponent {
         closeBtn.addActionListener(e -> close());
         add(closeBtn);
         addMouseListener(new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) { if (!card.contains(e.getPoint())) close(); }
+            @Override public void mousePressed(MouseEvent e) {
+                if (!card.contains(e.getPoint())) { close(); return; }
+                if (tab == TABS.length - 1) {   // HQ-Kommando: Edikte umschalten
+                    for (int i = 0; i < edictRects.size(); i++)
+                        if (edictRects.get(i).contains(e.getPoint())) {
+                            frame.game().toggleEdict(edictAt.get(i)); frame.refreshAll(); repaint(); return;
+                        }
+                }
+            }
         });
     }
 
@@ -86,7 +97,8 @@ public class AlmanacPanel extends JComponent {
             case 1 -> drawResources(g, gs, cx, cy, cw);
             case 2 -> drawTiers(g, gs, cx, cy, cw, bottom);
             case 3 -> drawEffects(g, gs, cx, cy, cw, bottom);
-            default -> drawStats(g, gs, cx, cy, cw);
+            case 4 -> drawStats(g, gs, cx, cy, cw);
+            default -> drawKommando(g, gs, cx, cy, cw, bottom);
         }
         g.dispose();
     }
@@ -213,5 +225,40 @@ public class AlmanacPanel extends JComponent {
         y = row(g, x, y, w, "Roboter insgesamt gebaut", n(gs.getTotalRobotsProduced()), Palette.ROBOT);
         y = row(g, x, y, w, "Armee-Stärke", n(gs.getArmy()), Palette.ARMY);
         y = row(g, x, y, w, "Reputation", n(gs.getReputation()) + "/100", Palette.REP);
+    }
+
+    // ---------------- HQ-Kommando & Edikte ----------------
+    private void drawKommando(Graphics2D g, GameState gs, int x, int y, int w, int bottom) {
+        edictRects.clear(); edictAt.clear();
+        g.setFont(Palette.FONT_BODY); g.setColor(Palette.TEXT);
+        g.drawString("Imperium: " + rank(gs.getMoney()) + "   -   Tag " + n(gs.getDay())
+            + "   -   Gebäude " + n(gs.buildingCount()) + "   -   Armee-Stärke " + n(gs.getArmy()), x, y);
+        int yy = y + 26;
+        head(g, x, yy, "Edikte - Klick erlässt/hebt auf; Edikte derselben Gruppe schließen sich aus"); yy += 18;
+        int rowH = 38;
+        for (Edict e : Edict.values()) {
+            boolean on = gs.isEdictActive(e);
+            Rectangle rr = new Rectangle(x, yy, w, rowH - 4);
+            edictRects.add(rr); edictAt.add(e);
+            g.setColor(on ? new Color(0, 90, 84) : Palette.PANEL_LIGHT);
+            g.fillRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8);
+            if (on) { g.setColor(Palette.ACCENT); g.setStroke(new BasicStroke(1.5f)); g.drawRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8); }
+            g.setFont(Palette.FONT_BOLD); g.setColor(Palette.TEXT);
+            g.drawString(e.name + (e.group != null ? "   [" + e.group + "]" : "   [frei]"), rr.x + 12, rr.y + 15);
+            g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), e.desc, w - 90), rr.x + 12, rr.y + 30);
+            g.setFont(Palette.FONT_BOLD); g.setColor(on ? Palette.GOOD : Palette.TEXT_DIM);
+            String tag = on ? "AN" : "AUS";
+            g.drawString(tag, rr.x + w - g.getFontMetrics().stringWidth(tag) - 14, rr.y + 22);
+            yy += rowH;
+        }
+    }
+    private static String rank(double money) {
+        if (money >= 200000) return "Shrimp-Imperator";
+        if (money >= 100000) return "Garnelen-Magnat";
+        if (money >= 50000) return "Shrimp-Tycoon";
+        if (money >= 20000) return "Etablierter Züchter";
+        if (money >= 5000) return "Aufsteiger";
+        return "Hinterhof-Start-up";
     }
 }

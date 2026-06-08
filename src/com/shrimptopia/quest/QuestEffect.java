@@ -5,10 +5,11 @@ import com.shrimptopia.model.ShrimpTier;
 
 /** Konsequenz einer Quest-Auswahl. */
 public class QuestEffect {
-    public enum Type { MONEY, REP, FEED, WATER, SHRIMP, MULT_SHRIMP, UNLOCK, GRANT_FLAG, START_QUEST, TARIFF, RIVAL }
+    public enum Type { MONEY, REP, FEED, WATER, SHRIMP, MULT_SHRIMP, UNLOCK, GRANT_FLAG, START_QUEST, TARIFF, RIVAL, BATTLE }
 
     public final Type type;
     public double amount;
+    public double amount2;   // BATTLE: Belohnung/Einsatz
     public ShrimpTier tier;
     public String key;
 
@@ -25,6 +26,7 @@ public class QuestEffect {
     public static QuestEffect startQuest(String id){ QuestEffect e = new QuestEffect(Type.START_QUEST); e.key = id; return e; }
     public static QuestEffect tariff(double t)      { QuestEffect e = new QuestEffect(Type.TARIFF); e.amount = t; return e; }
     public static QuestEffect rival(double r)       { QuestEffect e = new QuestEffect(Type.RIVAL); e.amount = r; return e; }
+    public static QuestEffect battle(double threat, double reward) { QuestEffect e = new QuestEffect(Type.BATTLE); e.amount = threat; e.amount2 = reward; return e; }
 
     public void apply(GameState gs, QuestSystem qs) {
         switch (type) {
@@ -39,6 +41,20 @@ public class QuestEffect {
             case START_QUEST -> qs.forceStart(key);
             case TARIFF -> gs.setExportTariff(amount);
             case RIVAL -> qs.addRival(amount);
+            case BATTLE -> {
+                double army = gs.getArmy();
+                double ratio = amount <= 0 ? 2 : army / amount;
+                if (ratio >= 1.2) {
+                    gs.addMoney(amount2); gs.addReputation(5); gs.addArmy(-amount * 0.1);
+                    gs.log("SIEG! Armee-Stärke " + (int) army + " schlägt Bedrohung " + (int) amount + ".", GameState.LOG_GOOD);
+                } else if (ratio >= 0.85) {
+                    gs.addMoney(amount2 * 0.4); gs.addReputation(1); gs.addArmy(-amount * 0.2);
+                    gs.log("Teilerfolg gegen Bedrohung " + (int) amount + " (Armee " + (int) army + ").", GameState.LOG_INFO);
+                } else {
+                    gs.addMoney(-amount2 * 0.6); gs.addReputation(-6); gs.addArmy(-amount * 0.3); gs.multShrimp(0.9);
+                    gs.log("NIEDERLAGE! Armee " + (int) army + " war zu schwach (Bedrohung " + (int) amount + ").", GameState.LOG_BAD);
+                }
+            }
         }
     }
 }

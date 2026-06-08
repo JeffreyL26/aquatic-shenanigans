@@ -126,6 +126,13 @@ public class Main {
                 f.openAlmanac(0);
                 f.validate();
                 snap(f.getRootPane(), "shrimptopia_v3_almanac.png");
+
+                // 5) HQ-Kommando (Edikte)
+                gs.toggleEdict(com.shrimptopia.model.Edict.OPEN_HOUSE);
+                gs.toggleEdict(com.shrimptopia.model.Edict.FREE_TRADE);
+                f.openAlmanac(5);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_hq.png");
             });
         } catch (Exception e) {
             System.out.println("GUITEST FAIL: " + e);
