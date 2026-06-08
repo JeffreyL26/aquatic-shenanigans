@@ -120,6 +120,12 @@ public class Main {
                 f.debugForceQuest("krillkill_intro");
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_popup.png");
+
+                // 4) Almanach (Vermögen-Tab)
+                f.resolveQuest(0);
+                f.openAlmanac(0);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_almanac.png");
             });
         } catch (Exception e) {
             System.out.println("GUITEST FAIL: " + e);

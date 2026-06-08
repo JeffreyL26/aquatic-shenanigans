@@ -42,6 +42,7 @@ public class GameFrame extends JFrame {
     private QuestLogPanel questLog;
     private ZoneTabs zoneTabs;
     private OverlayHost overlay;
+    private AlmanacPanel almanac;
 
     public GameFrame() {
         super("ShrimpTopia v2 - Indoor Shrimp Farming Tycoon");
@@ -81,6 +82,9 @@ public class GameFrame extends JFrame {
         overlay = new OverlayHost(this);
         setGlassPane(overlay);
 
+        almanac = new AlmanacPanel(this);
+        getLayeredPane().add(almanac, JLayeredPane.MODAL_LAYER);
+
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
@@ -92,6 +96,12 @@ public class GameFrame extends JFrame {
         setSize(1440, 900);
         setLocationRelativeTo(null);
 
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override public void componentResized(java.awt.event.ComponentEvent e) {
+                if (almanac != null && almanac.isVisible())
+                    almanac.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+            }
+        });
         animTimer.start();
         updateOverlays();   // startet mit dem Tutorial
     }
@@ -132,7 +142,7 @@ public class GameFrame extends JFrame {
     private boolean overlayShowing() { return overlay.mode() != OverlayHost.Mode.NONE; }
 
     private void applyTimerState() {
-        if (userPaused || overlayShowing()) timer.stop();
+        if (userPaused || overlayShowing() || (almanac != null && almanac.isVisible())) timer.stop();
         else timer.start();
         topBar.setPausedVisual(userPaused);
     }
@@ -181,7 +191,15 @@ public class GameFrame extends JFrame {
     public void toggleDemolish() { if (tool == Tool.DEMOLISH) clearTool(); else { tool = Tool.DEMOLISH; selectedType = null; refreshAll(); } }
     public void clearTool() { tool = Tool.NONE; selectedType = null; refreshAll(); }
 
+    public void openAlmanac(int tab) {
+        almanac.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        almanac.open(tab);
+        applyTimerState();
+    }
+    public void afterAlmanacClosed() { applyTimerState(); refreshAll(); }
+
     public void selectBuilding(Building b) {
+        if (b != null && b.type == BuildingType.HEADQUARTERS) { openAlmanac(0); return; }
         selectedBuilding = b;
         inspector.setBuilding(b);
         if (b != null) tutorial.onInspectorOpened();

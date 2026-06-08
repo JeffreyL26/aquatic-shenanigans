@@ -58,6 +58,8 @@ public class GameState {
     private double armyStrength = 0;
     private double shells = 0, energy = 0, robots = 0;   // energy = SHRIMPBOOST
     private double totalBoostProduced = 0, totalRobotsProduced = 0;
+    private final java.util.EnumMap<BuildingType, Double> incomeByType = new java.util.EnumMap<>(BuildingType.class);
+    private double incomeLast = 0, shellsNet = 0, boostNet = 0, robotsNet = 0;
 
     private final Random rng;
     private final EventSystem eventSystem;
@@ -191,6 +193,8 @@ public class GameState {
         if (bankrupt) return;
         day++;
         double moneyBefore = money;
+        double shellsBefore = shells, boostBefore = energy, robotsBefore = robots;
+        incomeByType.clear();
 
         // --- Farm-Modifikatoren aus globalen Upgrades + Arbeiter-Politik ---
         FarmModifiers fm = new FarmModifiers();
@@ -322,7 +326,9 @@ public class GameState {
         standCap *= opsEff;
         double boostSold = Math.min(standCap, energy);
         energy -= boostSold;
-        money += boostSold * 90 * repMultLocal;
+        double boostRevenue = boostSold * 90 * repMultLocal;
+        money += boostRevenue;
+        if (boostRevenue > 0) incomeByType.merge(BuildingType.BOOST_STAND, boostRevenue, Double::sum);
 
         int labCount = countType(BuildingType.LAB);
         double labBonus = labCount * 0.12;
@@ -347,6 +353,7 @@ public class GameState {
                 if (take <= 0) continue;
                 double unitPrice = t.baseValue * b.type.priceMult() * priceGlobal;
                 money += take * unitPrice;
+                incomeByType.merge(b.type, take * unitPrice, Double::sum);
                 addStock(t, -take);
                 cap -= take;
                 soldTotal += take;
@@ -394,6 +401,10 @@ public class GameState {
 
         // --- HUD-Flüsse ---
         moneyNet = money - moneyBefore;
+        shellsNet = shells - shellsBefore;
+        boostNet = energy - boostBefore;
+        robotsNet = robots - robotsBefore;
+        incomeLast = 0; for (double v : incomeByType.values()) incomeLast += v;
         waterNet = waterIn - algaeWaterDemand * algaeServe - tankWaterDemand * tankServe;
         feedNet = feedIn - tankFeedDemand * tankServe;
         shrimpNet = shrimpIn - soldTotal;
@@ -558,6 +569,39 @@ public class GameState {
     public void addRobots(double d) { robots = Math.max(0, robots + d); }
     public double getTotalBoostProduced() { return totalBoostProduced; }
     public double getTotalRobotsProduced() { return totalRobotsProduced; }
+    public double getIncomeLast() { return incomeLast; }
+    public double getShellsNet() { return shellsNet; }
+    public double getBoostNet() { return boostNet; }
+    public double getRobotsNet() { return robotsNet; }
+    public java.util.Map<BuildingType, Double> incomeByType() { return incomeByType; }
+
+    /** Liste aller aktiven farmweiten Modifikatoren samt Quelle (fuer Almanach/Transparenz). */
+    public java.util.List<String> activeEffects() {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        for (Building b : buildings)
+            for (String id : b.upgrades) {
+                Upgrade u = findUpgrade(b.type, id);
+                if (u != null && u.global != null)
+                    out.add(b.type.shortName() + " - " + u.name + ": " + effectDesc(u.global));
+            }
+        if (workerPolicy != WorkerPolicy.REGULAR) out.add("Arbeiter-Politik: " + workerPolicy.displayName);
+        if (exportTariff > 0) out.add("Akwanov-Embargo: -" + (int) (exportTariff * 100) + "% Verkaufspreis");
+        return out;
+    }
+    private static String effectDesc(GlobalEffect g) {
+        String pct = (g.magnitude >= 1 ? "+" : "-") + Math.round(Math.abs(g.magnitude - 1) * 100) + "%";
+        return switch (g.type) {
+            case TANK_SHRIMP_MULT -> pct + " Becken-Output";
+            case POWERUSE_MULT -> pct + " Stromverbrauch";
+            case UPKEEP_MULT -> pct + " Betriebskosten";
+            case PRICE_MULT -> pct + " Verkaufspreis";
+            case WATER_PRODUCE_MULT -> pct + " Wasserproduktion";
+            case FEED_PRODUCE_MULT -> pct + " Futterproduktion";
+            case WORKER_MULT -> pct + " Arbeiter";
+            case SELLCAP_MULT -> pct + " Verkaufskapazität";
+            case REP_PER_TICK -> (g.magnitude >= 0 ? "+" : "") + g.magnitude + " Reputation/Tag";
+        };
+    }
     public double getResource(String key) {
         return switch (key == null ? "" : key) {
             case "money" -> money; case "water" -> water; case "feed" -> feed;

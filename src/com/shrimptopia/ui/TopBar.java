@@ -43,6 +43,10 @@ public class TopBar extends JPanel {
         controls.add(speedButton(speed, "2x", 2, false));
         controls.add(speedButton(speed, "3x", 3, false));
 
+        ThemeButton.FlatButton alm = new ThemeButton.FlatButton("Almanach");
+        alm.addActionListener(e -> frame.openAlmanac(0));
+        controls.add(alm);
+
         ThemeButton.FlatButton neu = new ThemeButton.FlatButton("Neu");
         neu.addActionListener(e -> frame.restartGame());
         controls.add(neu);
@@ -82,7 +86,21 @@ public class TopBar extends JPanel {
 
     /** Zeichnet die Ressourcen-Anzeige. */
     private class ResourceStrip extends JComponent {
-        ResourceStrip() { setOpaque(false); }
+        private java.util.List<ResourceType> lastOrder = new java.util.ArrayList<>();
+        ResourceStrip() {
+            setOpaque(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override public void mousePressed(java.awt.event.MouseEvent e) {
+                    if (lastOrder.isEmpty()) return;
+                    int pad = 12; double slotW = (getWidth() - pad * 2.0) / lastOrder.size();
+                    int idx = (int) ((e.getX() - pad) / slotW);
+                    if (idx < 0 || idx >= lastOrder.size()) return;
+                    ResourceType r = lastOrder.get(idx);
+                    frame.openAlmanac(r == ResourceType.MONEY ? 0 : r == ResourceType.SHRIMP ? 2 : 1);
+                }
+            });
+        }
 
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
@@ -97,6 +115,7 @@ public class TopBar extends JPanel {
             if (gs.isUnlocked("build.shrimpboost")) order.add(ResourceType.SHRIMPBOOST);
             if (gs.isUnlocked("build.robotworks")) order.add(ResourceType.ROBOTS);
             if (gs.getArmy() > 0 || gs.isUnlocked("build.barracks")) order.add(ResourceType.ARMY);
+            lastOrder = order;
             int n = order.size();
             int pad = 12;
             double slotW = (getWidth() - pad * 2.0) / n;
