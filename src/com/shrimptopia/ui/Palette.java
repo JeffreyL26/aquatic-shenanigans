@@ -44,6 +44,12 @@ public final class Palette {
     public static final Color BAD  = new Color(255, 92, 92);
     public static final Color WARN = new Color(255, 190, 70);
 
+    // v3-Ressourcen
+    public static final Color SHELL = new Color(214, 192, 150);
+    public static final Color BOOST = new Color(40, 224, 220);
+    public static final Color ROBOT = new Color(150, 168, 196);
+    public static final Color ARMY  = new Color(140, 152, 92);
+
     // Schriften
     public static final Font FONT_H1    = new Font("SansSerif", Font.BOLD, 20);
     public static final Font FONT_H2    = new Font("SansSerif", Font.BOLD, 14);

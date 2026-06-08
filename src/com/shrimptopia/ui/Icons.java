@@ -26,6 +26,10 @@ public final class Icons {
             case SHRIMP -> shrimp(g, cx, cy, size, color);
             case PERSON -> person(g, cx, cy, size, color);
             case STAR   -> star(g, cx, cy, size, color);
+            case SHELL  -> shellIcon(g, cx, cy, size, color);
+            case CAN    -> can(g, cx, cy, size, color);
+            case ROBOT  -> robot(g, cx, cy, size, color);
+            case SHIELD -> shield(g, cx, cy, size, color);
             default     -> { }
         }
     }
@@ -51,6 +55,10 @@ public final class Icons {
             case BLACKMARKET -> blackmarket(g, cx, cy, size);
             case VISITOR     -> visitor(g, cx, cy, size);
             case GARDEN      -> garden(g, cx, cy, size);
+            case SHELL       -> shellIcon(g, cx, cy, size, new Color(214, 192, 150));
+            case CAN         -> can(g, cx, cy, size, new Color(40, 200, 200));
+            case ROBOT       -> robot(g, cx, cy, size, new Color(150, 168, 196));
+            case SHIELD      -> shield(g, cx, cy, size, new Color(140, 152, 92));
             default    -> { }
         }
     }
@@ -375,6 +383,62 @@ public final class Icons {
         leaf(g, cx - s * 0.18, cy - s * 0.10, s * 0.5, new Color(90, 175, 80));
         leaf(g, cx + s * 0.04, cy - s * 0.18, s * 0.55, new Color(110, 195, 95));
         leaf(g, cx + s * 0.22, cy - s * 0.06, s * 0.45, new Color(70, 150, 70));
+    }
+
+    // ===================== v3-Ressourcen-Symbole =====================
+
+    private static void shellIcon(Graphics2D g, double cx, double cy, double s, Color c) {
+        double hx = cx, hy = cy + s * 0.30, r = s * 0.42;
+        g.setColor(c);
+        g.fill(new Arc2D.Double(hx - r, hy - r, 2 * r, 2 * r, 35, 110, Arc2D.PIE));
+        g.setColor(darker(c, 0.72));
+        g.setStroke(new BasicStroke((float) (s * 0.04)));
+        for (int i = 0; i <= 4; i++) {
+            double a = Math.toRadians(38 + i * 26);
+            g.draw(new Line2D.Double(hx, hy, hx + Math.cos(a) * r * 0.92, hy - Math.sin(a) * r * 0.92));
+        }
+    }
+
+    private static void can(Graphics2D g, double cx, double cy, double s, Color c) {
+        RoundRectangle2D body = new RoundRectangle2D.Double(cx - s * 0.22, cy - s * 0.36, s * 0.44, s * 0.74, s * 0.1, s * 0.1);
+        g.setColor(c); g.fill(body);
+        g.setColor(brighter(c, 1.25));
+        g.fill(new Ellipse2D.Double(cx - s * 0.22, cy - s * 0.42, s * 0.44, s * 0.12));
+        g.setColor(darker(c, 0.55));
+        g.setStroke(new BasicStroke((float) (s * 0.045)));
+        g.draw(body);
+        Path2D bolt = poly(cx, cy, s, 0.10, -0.16, -0.10, 0.04, 0.03, 0.04, -0.07, 0.22, 0.13, -0.02, 0.0, -0.02);
+        g.setColor(new Color(255, 240, 120));
+        g.fill(bolt);
+    }
+
+    private static void robot(Graphics2D g, double cx, double cy, double s, Color c) {
+        g.setColor(darker(c, 0.6));
+        g.setStroke(new BasicStroke((float) (s * 0.05)));
+        g.draw(new Line2D.Double(cx, cy - s * 0.22, cx, cy - s * 0.42));
+        g.fill(new Ellipse2D.Double(cx - s * 0.05, cy - s * 0.48, s * 0.1, s * 0.1));
+        g.setColor(c);
+        g.fill(new RoundRectangle2D.Double(cx - s * 0.3, cy - s * 0.22, s * 0.6, s * 0.5, s * 0.14, s * 0.14));
+        g.setColor(new Color(36, 52, 64));
+        g.fill(new RoundRectangle2D.Double(cx - s * 0.21, cy - s * 0.12, s * 0.42, s * 0.18, s * 0.06, s * 0.06));
+        g.setColor(Palette.ACCENT);
+        g.fill(new Ellipse2D.Double(cx - s * 0.14, cy - s * 0.08, s * 0.09, s * 0.09));
+        g.fill(new Ellipse2D.Double(cx + s * 0.05, cy - s * 0.08, s * 0.09, s * 0.09));
+    }
+
+    private static void shield(Graphics2D g, double cx, double cy, double s, Color c) {
+        Path2D sh = new Path2D.Double();
+        sh.moveTo(cx - s * 0.32, cy - s * 0.34);
+        sh.lineTo(cx + s * 0.32, cy - s * 0.34);
+        sh.lineTo(cx + s * 0.30, cy + s * 0.06);
+        sh.lineTo(cx, cy + s * 0.44);
+        sh.lineTo(cx - s * 0.30, cy + s * 0.06);
+        sh.closePath();
+        g.setColor(c); g.fill(sh);
+        g.setColor(darker(c, 0.6));
+        g.setStroke(new BasicStroke((float) (s * 0.05)));
+        g.draw(sh);
+        star(g, cx, cy - s * 0.02, s * 0.34, new Color(245, 250, 252));
     }
 
     // ===================== Charakter-Portraits =====================

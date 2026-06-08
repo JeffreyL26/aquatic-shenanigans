@@ -56,7 +56,8 @@ public class GameState {
     private final java.util.EnumMap<ShrimpTier, Double> producedByTier = new java.util.EnumMap<>(ShrimpTier.class);
     private double totalSold = 0;
     private double armyStrength = 0;
-    private double shells = 0, energy = 0, robots = 0;
+    private double shells = 0, energy = 0, robots = 0;   // energy = SHRIMPBOOST
+    private double totalBoostProduced = 0, totalRobotsProduced = 0;
 
     private final Random rng;
     private final EventSystem eventSystem;
@@ -165,6 +166,12 @@ public class GameState {
     }
 
     private void checkMilestoneUnlocks() {
+        if (isUnlocked("zone.FORSCHUNG") && money >= 12_000)
+            unlock("build.shrimpboost", "Freigeschaltet: SHRIMPBOOST-Fabrik & -Stand! Aus Shrimps + Schalen wird Energydrink.");
+        if (isUnlocked("zone.LOGISTIK") && money >= 28_000)
+            unlock("build.robotworks", "Freigeschaltet: Garnelen-Roboter-Werk! Roboter zählen als +2 Arbeiter.");
+        if (isUnlocked("tier.WARKRILL"))
+            unlock("build.barracks", "Freigeschaltet: Krill-Kaserne - jetzt lässt sich eine Armee aufbauen.");
         if (money >= 5_000)  unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
         if (buildingCount() >= 5 || day >= 8)
             unlock("zone.FORSCHUNG", "Neue Zone: Forschungsflügel (Labore). Oben die Reiter wechseln!");
@@ -204,6 +211,7 @@ public class GameState {
             pProd += s.powerProduce;
             pUse += s.powerUse;
         }
+        wProvide += robots * 2;   // v3: jeder Roboter = +2 Arbeiter (Automatisierung)
         workersAvail = (int) Math.round(wProvide);
         workersUsed = (int) Math.round(wNeed);
         powerProduced = (int) Math.round(pProd);
@@ -255,6 +263,7 @@ public class GameState {
                 addStock(tier, made);
                 producedByTier.merge(tier, made, Double::sum);
                 shrimpIn += made;
+                shells += made * 0.6 * shellMult(tier);   // v3: Schalen als Nebenprodukt
             }
         }
         totalShrimpProduced += shrimpIn;
@@ -268,6 +277,53 @@ public class GameState {
         }
 
         // --- Preisfaktoren ---
+        // --- v3: Verarbeitung (Schalen -> SHRIMPBOOST -> Roboter / Kaserne) ---
+        double repMultLocal = 0.6 + (reputation / 100.0) * 0.8;
+        for (Building b : buildings) shells += b.lastStats.shellProduce * opsEff;   // Schälerei
+
+        double bsShrimp = 0, bsShell = 0, bsOut = 0;
+        for (Building b : buildings) if (b.type == BuildingType.SHRIMPBOOST_FACTORY) {
+            bsShrimp += b.lastStats.shrimpUse; bsShell += b.lastStats.shellUse; bsOut += b.lastStats.boostProduce;
+        }
+        bsShrimp *= opsEff; bsShell *= opsEff;
+        double bsServe = Math.min(bsShrimp <= 0 ? 1 : clamp01(getShrimpTotal() / bsShrimp),
+                                  bsShell  <= 0 ? 1 : clamp01(shells / bsShell));
+        consumeShrimpLowest(bsShrimp * bsServe);
+        shells -= bsShell * bsServe;
+        double boostMade = bsOut * opsEff * bsServe;
+        energy += boostMade; totalBoostProduced += boostMade;
+
+        double rwShell = 0, rwBoost = 0, rwOut = 0;
+        for (Building b : buildings) if (b.type == BuildingType.ROBOT_WORKS) {
+            rwShell += b.lastStats.shellUse; rwBoost += b.lastStats.boostUse; rwOut += b.lastStats.robotProduce;
+        }
+        rwShell *= opsEff; rwBoost *= opsEff;
+        double rwServe = Math.min(rwShell <= 0 ? 1 : clamp01(shells / rwShell),
+                                  rwBoost <= 0 ? 1 : clamp01(energy / rwBoost));
+        shells -= rwShell * rwServe; energy -= rwBoost * rwServe;
+        double robotsMade = rwOut * opsEff * rwServe;
+        robots += robotsMade; totalRobotsProduced += robotsMade;
+
+        double ksWar = 0, ksBoost = 0, ksArmy = 0;
+        for (Building b : buildings) if (b.type == BuildingType.KRILL_BARRACKS) {
+            ksWar += 2; ksBoost += b.lastStats.boostUse; ksArmy += b.lastStats.armyProduce;
+        }
+        ksWar *= opsEff; ksBoost *= opsEff;
+        double warHave = shrimpStock.getOrDefault(ShrimpTier.WARKRILL, 0.0);
+        double ksServe = Math.min(ksWar <= 0 ? 1 : clamp01(warHave / ksWar),
+                                  ksBoost <= 0 ? 1 : clamp01(energy / ksBoost));
+        addStock(ShrimpTier.WARKRILL, -ksWar * ksServe);
+        energy -= ksBoost * ksServe;
+        armyStrength += ksArmy * opsEff * ksServe;
+        if (ksArmy <= 0) armyStrength = Math.max(0, armyStrength - 1);   // Verfall ohne Kaserne
+
+        double standCap = 0;
+        for (Building b : buildings) if (b.type == BuildingType.BOOST_STAND) standCap += b.lastStats.boostUse;
+        standCap *= opsEff;
+        double boostSold = Math.min(standCap, energy);
+        energy -= boostSold;
+        money += boostSold * 90 * repMultLocal;
+
         int labCount = countType(BuildingType.LAB);
         double labBonus = labCount * 0.12;
         double repMult = 0.6 + (reputation / 100.0) * 0.8;
@@ -402,6 +458,12 @@ public class GameState {
         s.workerProvide = (int) Math.round(s.workerProvide * fm.workerMult);
         if (!isTierUnlocked(s.tier)) s.tier = ShrimpTier.STANDARD;
         s.repPerTick = rep;
+        Flows fl = t.flows();
+        s.shrimpUse = fl.shrimpUse;
+        s.shellProduce = fl.shellProduce; s.shellUse = fl.shellUse;
+        s.boostProduce = fl.boostProduce; s.boostUse = fl.boostUse;
+        s.robotProduce = fl.robotProduce; s.robotUse = fl.robotUse;
+        s.armyProduce = fl.armyProduce;
         return s;
     }
 
@@ -450,6 +512,20 @@ public class GameState {
     // ===================== Helfer =====================
 
     private static double clamp01(double v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    private static double shellMult(ShrimpTier t) {
+        return switch (t) {
+            case GOURMET -> 1.1; case PROTEIN -> 1.3; case GENTECH -> 1.4; case WARKRILL -> 1.6;
+            default -> 1.0;
+        };
+    }
+    private void consumeShrimpLowest(double amount) {
+        for (ShrimpTier t : ShrimpTier.values()) {
+            if (amount <= 0) break;
+            double have = shrimpStock.getOrDefault(t, 0.0);
+            double take = Math.min(have, amount);
+            if (take > 0) { shrimpStock.put(t, have - take); amount -= take; }
+        }
+    }
     private static double clamp(double v, double lo, double hi) { return v < lo ? lo : (v > hi ? hi : v); }
 
     // ===================== Getter =====================
@@ -480,10 +556,12 @@ public class GameState {
     public void addShells(double d) { shells = Math.max(0, shells + d); }
     public void addEnergy(double d) { energy = Math.max(0, energy + d); }
     public void addRobots(double d) { robots = Math.max(0, robots + d); }
+    public double getTotalBoostProduced() { return totalBoostProduced; }
+    public double getTotalRobotsProduced() { return totalRobotsProduced; }
     public double getResource(String key) {
         return switch (key == null ? "" : key) {
             case "money" -> money; case "water" -> water; case "feed" -> feed;
-            case "shells" -> shells; case "energy" -> energy; case "robots" -> robots;
+            case "shells" -> shells; case "boost", "energy" -> energy; case "robots" -> robots;
             case "shrimp" -> getShrimpTotal(); default -> 0;
         };
     }

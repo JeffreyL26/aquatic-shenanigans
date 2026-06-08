@@ -91,6 +91,7 @@ public class Main {
                 // Freischaltungen, damit Zonen/Tiers in der UI sichtbar sind
                 for (String flag : new String[]{"zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
                         "build.water_hub", "build.export", "build.military", "build.genlab",
+                        "build.shrimpboost", "build.robotworks", "build.barracks", "tier.WARKRILL",
                         "tier.BIO", "tier.GOURMET", "tier.PROTEIN", "krillkill.bootcamp"})
                     gs.unlock(flag, null);
 
@@ -98,8 +99,9 @@ public class Main {
                 BuildingType[] prod = {
                     BuildingType.POWER_PLANT, BuildingType.SOLAR_ROOF, BuildingType.WATER_PLANT,
                     BuildingType.WATER_HUB, BuildingType.ALGAE_FARM, BuildingType.SHRIMP_TANK,
-                    BuildingType.SHRIMP_TANK, BuildingType.HOUSING, BuildingType.SALES_OFFICE };
-                int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1} };
+                    BuildingType.SHRIMP_TANK, BuildingType.HOUSING, BuildingType.SALES_OFFICE,
+                    BuildingType.SHELL_PRESS, BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS };
+                int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1},{2,1},{3,1},{4,1} };
                 for (int i = 0; i < prod.length; i++) gs.place(prod[i], Zone.PRODUKTION, pos[i][0], pos[i][1], false);
                 for (int i = 0; i < 30; i++) gs.tick();
 

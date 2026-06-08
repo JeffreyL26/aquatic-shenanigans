@@ -11,7 +11,11 @@ public enum ResourceType {
     FEED      ("Futter",     Palette.FEED,    IconKind.LEAF),
     SHRIMP    ("Shrimps",    Palette.SHRIMP,  IconKind.SHRIMP),
     WORKERS   ("Arbeiter",   Palette.WORKERS, IconKind.PERSON),
-    REPUTATION("Reputation", Palette.REP,     IconKind.STAR);
+    REPUTATION("Reputation", Palette.REP,     IconKind.STAR),
+    SHELLS     ("Schalen",     Palette.SHELL, IconKind.SHELL),
+    SHRIMPBOOST("SHRIMPBOOST",  Palette.BOOST, IconKind.CAN),
+    ROBOTS     ("Roboter",      Palette.ROBOT, IconKind.ROBOT),
+    ARMY       ("Armee-Stärke", Palette.ARMY,  IconKind.SHIELD);
 
     public final String displayName;
     public final Color color;

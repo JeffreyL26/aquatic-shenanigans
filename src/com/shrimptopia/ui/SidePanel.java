@@ -227,6 +227,11 @@ public class SidePanel extends JPanel {
             case BLACK_MARKET -> "Top-Tiers, -Ruf";
             case VISITOR_CENTER -> "viel Reputation";
             case ZEN_GARDEN   -> "+Reputation, Deko";
+            case SHELL_PRESS         -> "+6 Schalen/Tag";
+            case SHRIMPBOOST_FACTORY -> "Shrimp+Schalen zu Boost";
+            case BOOST_STAND         -> "verkauft Boost ~90/Dose";
+            case ROBOT_WORKS         -> "Roboter = je +2 Arbeiter";
+            case KRILL_BARRACKS      -> "+Armee-Stärke";
             default           -> "";
         };
     }

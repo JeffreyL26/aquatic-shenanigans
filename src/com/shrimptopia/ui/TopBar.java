@@ -90,16 +90,19 @@ public class TopBar extends JPanel {
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             GameState gs = frame.game();
 
-            ResourceType[] order = {
+            java.util.List<ResourceType> order = new java.util.ArrayList<>(java.util.List.of(
                 ResourceType.MONEY, ResourceType.POWER, ResourceType.WATER,
-                ResourceType.FEED, ResourceType.SHRIMP, ResourceType.WORKERS, ResourceType.REPUTATION
-            };
-            int n = order.length;
+                ResourceType.FEED, ResourceType.SHRIMP, ResourceType.WORKERS, ResourceType.REPUTATION));
+            if (gs.getShells() > 0) order.add(ResourceType.SHELLS);
+            if (gs.isUnlocked("build.shrimpboost")) order.add(ResourceType.SHRIMPBOOST);
+            if (gs.isUnlocked("build.robotworks")) order.add(ResourceType.ROBOTS);
+            if (gs.getArmy() > 0 || gs.isUnlocked("build.barracks")) order.add(ResourceType.ARMY);
+            int n = order.size();
             int pad = 12;
             double slotW = (getWidth() - pad * 2.0) / n;
             for (int i = 0; i < n; i++) {
                 double x = pad + i * slotW;
-                drawSlot(g, gs, order[i], x, slotW);
+                drawSlot(g, gs, order.get(i), x, slotW);
                 if (i > 0) {
                     g.setColor(Palette.BG_DARK);
                     g.fillRect((int) x, 16, 1, getHeight() - 32);
@@ -148,11 +151,16 @@ public class TopBar extends JPanel {
                     sub = "Bedarf " + gs.getWorkersUsed();
                     subColor = ok ? Palette.TEXT_DIM : Palette.BAD;
                 }
-                default -> { // REPUTATION
+                case REPUTATION -> {
                     value = fmtInt(gs.getReputation()) + "/100";
                     double repMult = 0.6 + gs.getReputation() / 100.0 * 0.8;
                     sub = String.format("Preis x%.2f", repMult);
                 }
+                case SHELLS      -> { value = fmtInt(gs.getShells()); sub = "Lager"; }
+                case SHRIMPBOOST -> { value = fmtInt(gs.getEnergy()); sub = "Dosen"; }
+                case ROBOTS      -> { value = fmtInt(gs.getRobots()); sub = "je +2 Arbeiter"; }
+                case ARMY        -> { value = fmtInt(gs.getArmy()); sub = "Stärke"; }
+                default -> { value = ""; sub = ""; }
             }
 
             double tx = x + 44;

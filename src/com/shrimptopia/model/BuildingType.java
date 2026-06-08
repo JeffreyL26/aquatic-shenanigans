@@ -193,7 +193,54 @@ public enum BuildingType {
         0, 0, 0, 0.12, 1,
         IconKind.GARDEN, new Color(90, 160, 90),
         "Ein begrünter Ruheort mit plätschernden Algenbecken. Gut fürs Image, "
-        + "gut für die Mitarbeiterseele.");
+        + "gut für die Mitarbeiterseele."),
+
+    // ===================== v3-Gebäude (zweite Wirtschaftsstufe) =====================
+
+    SHELL_PRESS(
+        "Schälerei & Schalen-Presse", 700,
+        0, 2, 0, 3,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 4,
+        IconKind.SHELL, new Color(200, 180, 140),
+        "Brian war Suppe. Brians Schale ist jetzt Wirtschaftswachstum. Presst Becken-Abfall "
+        + "zu Industrie-Schalen für die zweite Wirtschaftsstufe (+6 Schalen/Tag)."),
+
+    SHRIMPBOOST_FACTORY(
+        "SHRIMPBOOST-Fabrik", 1600,
+        0, 3, 0, 6,
+        0, 0, 0, 0,
+        0, 0, 0, -0.01, 9,
+        IconKind.CAN, new Color(40, 200, 200),
+        "Löst Shrimps und Schalen zu Energydrink auf: 100% natürlich, 0% FDA-genehmigt. "
+        + "Verbraucht 3 Shrimp + 4 Schalen, macht 2 SHRIMPBOOST/Tag. 'Mut in Dosen.'"),
+
+    BOOST_STAND(
+        "SHRIMPBOOST-Stand", 1300,
+        0, 2, 0, 5,
+        0, 0, 0, 0,
+        0, 0, 0, 0.05, 7,
+        IconKind.CAN, new Color(255, 90, 180),
+        "Verkauft SHRIMPBOOST-Dosen zum Premium-Preis (~90 Geld/Dose). Influencer lieben "
+        + "den Stand; Chad Krabbowski steht heimlich in der Schlange."),
+
+    ROBOT_WORKS(
+        "Garnelen-Roboter-Werk", 2400,
+        0, 4, 0, 12,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 14,
+        IconKind.ROBOT, new Color(120, 140, 170),
+        "Baut garnelenbetriebene Roboter - eine echte Garnele sitzt im Cockpit und denkt, "
+        + "sie fährt Bagger. Braucht Schalen + SHRIMPBOOST. Jeder Roboter zählt als +2 Arbeiter."),
+
+    KRILL_BARRACKS(
+        "Krill-Kaserne", 2000,
+        0, 3, 0, 8,
+        0, 0, 0, 0,
+        0, 0, 0, -0.02, 12,
+        IconKind.SHIELD, new Color(120, 130, 80),
+        "Drillt Kampf-Krill zu einer stehenden Armee. 'WER BRAUCHT EINE MARINE, WENN MAN "
+        + "EINE HALLE HAT?' Verbraucht Kampf-Krill + SHRIMPBOOST, erzeugt Armee-Stärke.");
 
     public final String displayName;
     public final int    cost;
@@ -259,6 +306,11 @@ public enum BuildingType {
             case BLACK_MARKET   -> "Schwarzm.";
             case VISITOR_CENTER -> "Besucher";
             case ZEN_GARDEN     -> "Garten";
+            case SHELL_PRESS         -> "Schälerei";
+            case SHRIMPBOOST_FACTORY -> "Boost-Fabrik";
+            case BOOST_STAND         -> "Boost-Stand";
+            case ROBOT_WORKS         -> "Roboter-Werk";
+            case KRILL_BARRACKS      -> "Kaserne";
         };
     }
 
@@ -267,7 +319,8 @@ public enum BuildingType {
         return new BuildingType[] {
             POWER_PLANT, SOLAR_ROOF, WATER_PLANT, WATER_HUB, ALGAE_FARM, SHRIMP_TANK,
             HOUSING, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
-            EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET, VISITOR_CENTER, ZEN_GARDEN
+            EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET, VISITOR_CENTER, ZEN_GARDEN,
+            SHELL_PRESS, SHRIMPBOOST_FACTORY, BOOST_STAND, ROBOT_WORKS, KRILL_BARRACKS
         };
     }
 
@@ -314,6 +367,12 @@ public enum BuildingType {
         META.put(GENLAB,         m(Zone.FORSCHUNG,  "build.genlab"));
         META.put(VISITOR_CENTER, m(Zone.EMPFANG,    "zone.EMPFANG"));
         META.put(ZEN_GARDEN,     m(Zone.EMPFANG,    "zone.EMPFANG"));
+
+        META.put(SHELL_PRESS,         m(Zone.PRODUKTION, null));
+        META.put(SHRIMPBOOST_FACTORY, m(Zone.FORSCHUNG,  "build.shrimpboost"));
+        META.put(BOOST_STAND,         m(Zone.EMPFANG,    "build.shrimpboost"));
+        META.put(ROBOT_WORKS,         m(Zone.LOGISTIK,   "build.robotworks"));
+        META.put(KRILL_BARRACKS,      m(Zone.LOGISTIK,   "build.barracks"));
     }
 
     public Meta meta() { return META.getOrDefault(this, DEFAULT_META); }
@@ -326,4 +385,16 @@ public enum BuildingType {
     public ShrimpTier producesTier()   { return meta().producesTier; }
     /** null = von Anfang an verfügbar; sonst das benötigte Freischalt-Flag. */
     public String unlockFlag()         { return meta().unlockFlag; }
+
+    // ===================== v3-Flows (Schalen/SHRIMPBOOST/Roboter/Armee) =====================
+    private static final java.util.EnumMap<BuildingType, Flows> FLOWS = new java.util.EnumMap<>(BuildingType.class);
+    static {
+        FLOWS.put(SHELL_PRESS,         new Flows().shellsOut(6));
+        FLOWS.put(SHRIMPBOOST_FACTORY, new Flows().shrimp(3).shellsIn(4).boostOut(2));
+        FLOWS.put(BOOST_STAND,         new Flows().boostIn(5));
+        FLOWS.put(ROBOT_WORKS,         new Flows().shellsIn(5).boostIn(1).robotsOut(0.25));
+        FLOWS.put(KRILL_BARRACKS,      new Flows().boostIn(1).army(4));
+    }
+    private static final Flows NO_FLOWS = new Flows();
+    public Flows flows() { return FLOWS.getOrDefault(this, NO_FLOWS); }
 }
