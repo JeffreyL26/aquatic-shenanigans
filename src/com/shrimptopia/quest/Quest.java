@@ -17,6 +17,7 @@ public class Quest {
     public int kind = 0;                     // 0 info, 1 gut, 2 schlecht (Log-Farbe)
     public Condition objective = null;       // muss ueber Zeit erfuellt werden, bevor das Popup erscheint
     public String objectiveText = null;      // Anzeige im Quest-Log (Aufgabe)
+    public boolean ending = false;           // Spielende-Quest (eines von mehreren Finals)
 
     public Quest(String id, GameCharacter giver, String title, String body, Choice... choices) {
         this.id = id; this.giver = giver; this.title = title; this.body = body;
@@ -27,6 +28,7 @@ public class Quest {
     public Quest chain()           { this.chainOnly = true; this.trigger = Condition.never(); return this; }
     public Quest by(String name)   { this.giverName = name; return this; }
     public Quest kind(int k)       { this.kind = k; return this; }
+    public Quest asEnding()        { this.ending = true; this.kind = 1; return this; }
     /** Ketten-Stufe mit Ziel: erscheint erst, wenn das Ziel ueber Zeit erfuellt ist. */
     public Quest goal(Condition obj, String text) {
         this.objective = obj; this.objectiveText = text;

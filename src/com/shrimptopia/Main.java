@@ -121,7 +121,13 @@ public class Main {
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_popup.png");
 
-                // 4) Almanach (Vermögen-Tab)
+                // 4) Spielende-Popup
+                f.resolveQuest(0);
+                f.debugForceQuest("end_imperator");
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_ending.png");
+
+                // 5) Almanach (Vermögen-Tab)
                 f.resolveQuest(0);
                 f.openAlmanac(0);
                 f.validate();

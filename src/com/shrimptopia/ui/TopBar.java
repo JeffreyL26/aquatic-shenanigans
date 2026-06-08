@@ -78,9 +78,12 @@ public class TopBar extends JPanel {
     public void refresh() {
         GameState gs = frame.game();
         int pct = (int) Math.min(100, gs.getMoney() / GameState.GOAL_MONEY * 100);
-        String state = gs.isBankrupt() ? "  PLEITE" : (gs.isGoalReached() ? "  TYCOON!" : "");
+        boolean won = frame.questSystem().hasEnding();
+        String et = frame.questSystem().lastEndingTitle();
+        String state = gs.isBankrupt() ? "  PLEITE" : (won ? "  GEWONNEN" : "");
+        String line2 = won ? (et == null ? "Gewonnen!" : et.replace("ENDE: ", "")) : "Reichtum " + pct + "%";
         statusLabel.setText("<html>Tag " + gs.getDay() + state
-            + "<br><font color='#8aa0b0'>Ziel " + pct + "%</font></html>");
+            + "<br><font color='#8aa0b0'>" + line2 + "</font></html>");
         strip.repaint();
     }
 

@@ -174,12 +174,17 @@ public class OverlayHost extends JComponent {
 
         if (mode == Mode.NONE) { g.dispose(); return; }
 
-        // Karte
+        // Karte (Spielende-Popups golden hervorgehoben)
+        boolean isEnding = mode == Mode.POPUP && quest != null && quest.ending;
         g.setColor(Palette.PANEL);
         g.fill(new RoundRectangle2D.Double(card.x, card.y, card.width, card.height, 16, 16));
-        g.setColor(Palette.ACCENT);
-        g.setStroke(new BasicStroke(2f));
+        g.setColor(isEnding ? Palette.MONEY : Palette.ACCENT);
+        g.setStroke(new BasicStroke(isEnding ? 3f : 2f));
         g.draw(new RoundRectangle2D.Double(card.x, card.y, card.width, card.height, 16, 16));
+        if (isEnding) {
+            g.setFont(Palette.FONT_TINY); g.setColor(Palette.MONEY);
+            g.drawString(">>> SPIELENDE ERREICHT <<<", card.x + 104, card.y + 14);
+        }
 
         // Portrait + Sprecher
         GameCharacter giver = (mode == Mode.POPUP) ? quest.giver : GameCharacter.ADVISOR;

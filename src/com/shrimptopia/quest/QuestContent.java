@@ -26,6 +26,7 @@ public final class QuestContent {
         krillkill();
         akwanov();
         conflicts();
+        endings();
         attachObjectives();
     }
 
@@ -72,6 +73,55 @@ public final class QuestContent {
     }
 
     /** Bindet Ketten-Stufen an messbare Produktions-Ziele (macht das Spiel deutlich laenger). */
+    // ===================== SPIELENDEN (Kombi aus Quests + Reichtum + Produktion) =====================
+    private static Quest endingQ(String id, GameCharacter g, Condition trig, String title, String body, Choice... cs) {
+        Quest q = new Quest(id, g, title, body, cs).when(trig).asEnding();
+        QS.add(q);
+        return q;
+    }
+    private static void endings() {
+        endingQ("end_imperator", GameCharacter.MAYOR, Condition.money(500000),
+            "ENDE: Shrimp-Imperator",
+            "500.000 auf dem Konto. Du sitzt auf einem Thron aus Garnelen-Schalen, die halbe Stadt arbeitet "
+            + "für dich, und irgendwo weint ein Buchhalter vor Glück. Der reichste Krustentier-Magnat der Geschichte.",
+            c("Lang lebe der Imperator!", "REICHTUMS-ENDE erreicht!"));
+
+        endingQ("end_vertical", GameCharacter.ADVISOR, Condition.all(Condition.money(150000),
+                Condition.resource("robots", 40), Condition.resource("boost", 200), Condition.resource("shells", 1000)),
+            "ENDE: Vertikal integriert",
+            "Schalen werden zu Energydrink, Energydrink zu Robotern, Roboter zu noch mehr Robotern. Greg nickt "
+            + "anerkennend aus dem Wasserglas. Du hast keine Farm mehr - du hast ein selbstlaufendes Industrie-Imperium.",
+            c("Die Maschine läuft.", "INDUSTRIE-ENDE erreicht!"));
+
+        endingQ("end_protein", GameCharacter.KRILLKILL, Condition.all(Condition.questDone("krillkill_7"),
+                Condition.questDone("conf_war"), Condition.army(250)),
+            "ENDE: Operation Protein-Sturm vollendet",
+            "General Krillkill salutiert mit Tränen im Auge: 'WIR HABEN ES GESCHAFFT, REKRUT! Die Suppe ist "
+            + "besiegt, die Garde steht, kein Akwanov nimmt uns die Halle. Heute sind wir GESCHICHTE.' (Er heult doch.)",
+            c("Esprit de Corps!", "MILITÄR-ENDE erreicht!"));
+
+        endingQ("end_union", GameCharacter.AKWANOV, Condition.all(Condition.flag("akwanov_ally"),
+                Condition.money(120000), Condition.rep(70)),
+            "ENDE: Vereinigte Hallen-Garnelen-Union",
+            "Akwanov hebt das Teeglas: 'Mein Freund, gemeinsam haben wir den Ozean endgültig arbeitslos gemacht. "
+            + "Usbekistan und Sie - die Garnelen-Supermacht ohne einen Tropfen Meer. Auf die HALLEN!'",
+            c("Auf die Hallen!", "ALLIANZ-ENDE erreicht!"));
+
+        endingQ("end_saint", GameCharacter.PRESS, Condition.all(Condition.rep(95),
+                Condition.questDone("tier_gewerkschaft"), Condition.tierProduced(ShrimpTier.BIO, 3000)),
+            "ENDE: Garnelen-Heiliger",
+            "Deine Shrimps haben Gewerkschaft, Wellness und Mitbestimmung. Lena weint vor Rührung, die Presse "
+            + "feiert dich als ethischsten Tycoon aller Zeiten. Eine Garnele hält eine erstaunlich eloquente Dankesrede.",
+            c("Für die Würde der Garnele!", "ETHIK-ENDE erreicht!"));
+
+        endingQ("end_meme", GameCharacter.MAYOR, Condition.all(Condition.questDone("inf_cancel"),
+                Condition.rep(85), Condition.sold(5000)),
+            "ENDE: Meme-Legende",
+            "Du hast den Shitstorm überlebt, #JusticeForBrian in #LegendForBrian verwandelt und nebenbei 5000 "
+            + "Shrimps verkauft. Mira: 'Chef, wir sind nicht nur trending - wir SIND der Trend.'",
+            c("Ruhm ist Geld.", "KULTUR-ENDE erreicht!")).by("Assistentin Mira");
+    }
+
     private static void obj(String id, Condition c, String text) {
         Quest q = QS.get(id);
         if (q != null) { q.objective = c; q.objectiveText = text; q.chainOnly = true; q.trigger = Condition.never(); }

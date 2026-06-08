@@ -21,7 +21,7 @@ import java.util.Set;
 public class GameState {
 
     public static final int LOG_INFO = 0, LOG_GOOD = 1, LOG_BAD = 2, LOG_WARN = 3;
-    public static final double GOAL_MONEY = 200_000;
+    public static final double GOAL_MONEY = 500_000;
     public static final int COLS = 12;
     public static final int ROWS = 8;
 
@@ -429,7 +429,7 @@ public class GameState {
         // --- Sieg / Pleite ---
         if (!goalReached && money >= GOAL_MONEY) {
             goalReached = true;
-            log("ZIEL ERREICHT! " + (int) GOAL_MONEY + " Geld - du bist Shrimp-Tycoon!", LOG_GOOD);
+            log("Reichtums-Meilenstein erreicht! Es gibt aber mehrere Wege zum Sieg - siehe Almanach.", LOG_GOOD);
         }
         if (money < 0) {
             negativeStreak++;

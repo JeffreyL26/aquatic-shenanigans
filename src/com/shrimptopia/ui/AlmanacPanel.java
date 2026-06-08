@@ -5,6 +5,7 @@ import com.shrimptopia.model.Edict;
 import com.shrimptopia.model.GameState;
 import com.shrimptopia.model.ResourceType;
 import com.shrimptopia.model.ShrimpTier;
+import com.shrimptopia.quest.Quest;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -225,6 +226,18 @@ public class AlmanacPanel extends JComponent {
         y = row(g, x, y, w, "Roboter insgesamt gebaut", n(gs.getTotalRobotsProduced()), Palette.ROBOT);
         y = row(g, x, y, w, "Armee-Stärke", n(gs.getArmy()), Palette.ARMY);
         y = row(g, x, y, w, "Reputation", n(gs.getReputation()) + "/100", Palette.REP);
+        y += 12;
+        head(g, x, y, "Erreichte Spielenden (von 6)"); y += 22;
+        java.util.List<Quest> ends = frame.questSystem().achievedEndings();
+        if (ends.isEmpty()) {
+            g.setFont(Palette.FONT_BODY); g.setColor(Palette.TEXT_DIM);
+            g.drawString("Noch keines. Wege zum Sieg: Reichtum, Industrie, Militär, Allianz, Ethik, Kultur.", x, y);
+        } else for (Quest q : ends) {
+            g.setColor(Palette.MONEY); g.fillOval(x, y - 9, 8, 8);
+            g.setFont(Palette.FONT_BODY); g.setColor(Palette.TEXT);
+            g.drawString(q.title.replace("ENDE: ", ""), x + 16, y);
+            y += 22;
+        }
     }
 
     // ---------------- HQ-Kommando & Edikte ----------------

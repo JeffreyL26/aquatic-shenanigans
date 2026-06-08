@@ -30,6 +30,7 @@ public class QuestSystem {
     private int lastShownDay = -100;
     private final int minGap = 4;   // Mindestabstand zwischen AUTOMATISCHEN Quests
     private int rival = 0;
+    private String lastEnding = null;
 
     public QuestSystem() { QuestContent.populate(this); }
 
@@ -51,10 +52,18 @@ public class QuestSystem {
             }
         }
 
+        // Spielende-Quests: sofort (ohne Gap), sobald die Kombi-Bedingung erfuellt ist
+        for (Quest q : all) {
+            if (!q.ending || triggered.contains(q.id)) continue;
+            if (q.trigger.test(gs, this)) {
+                triggered.add(q.id); pending.add(q); lastShownDay = gs.getDay(); lastEnding = q.title; return;
+            }
+        }
+
         // 2) Neue automatische Quest (mit Gap)
         if (gs.getDay() - lastShownDay < minGap) return;
         for (Quest q : all) {
-            if (q.chainOnly || triggered.contains(q.id) || armed.containsKey(q.id)) continue;
+            if (q.ending || q.chainOnly || triggered.contains(q.id) || armed.containsKey(q.id)) continue;
             if (q.trigger.test(gs, this)) {
                 triggered.add(q.id);
                 pending.add(q);
@@ -68,6 +77,13 @@ public class QuestSystem {
     public Quest peek() { return pending.peek(); }
     public int pendingCount() { return pending.size(); }
     public Quest get(String id) { return byId.get(id); }
+    public boolean hasEnding() { for (Quest q : all) if (q.ending && triggered.contains(q.id)) return true; return false; }
+    public String lastEndingTitle() { return lastEnding; }
+    public java.util.List<Quest> achievedEndings() {
+        java.util.List<Quest> out = new java.util.ArrayList<>();
+        for (Quest q : all) if (q.ending && triggered.contains(q.id)) out.add(q);
+        return out;
+    }
 
     /** Aktive Aufgaben (armierte Ziel-Quests) fuer das Quest-Log. */
     public List<Quest> activeTasks() {
@@ -96,7 +112,7 @@ public class QuestSystem {
         Quest q = byId.get(id);
         if (q == null || triggered.contains(id) || armed.containsKey(id)) return;
         if (q.objective != null) armed.put(id, q);
-        else { triggered.add(id); pending.add(q); }
+        else { triggered.add(id); pending.add(q); if (q.ending) lastEnding = q.title; }
     }
 
     public void setFlag(String f) { flags.add(f); }
