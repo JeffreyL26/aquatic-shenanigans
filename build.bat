@@ -1,0 +1,54 @@
+@echo off
+REM ============================================================
+REM  ShrimpTopia - Build-Skript (Windows)
+REM  Kompiliert alle Java-Quellen und baut die ausfuehrbare JAR.
+REM  Voraussetzung: JDK 17+ (javac und jar im PATH).
+REM ============================================================
+setlocal enabledelayedexpansion
+cd /d "%~dp0"
+
+echo [ShrimpTopia] Pruefe Java...
+where javac >nul 2>nul
+if errorlevel 1 (
+  echo FEHLER: 'javac' nicht gefunden. Bitte ein JDK 17+ installieren.
+  pause
+  exit /b 1
+)
+
+echo [ShrimpTopia] Kompiliere Quellcode...
+if exist out rmdir /s /q out
+mkdir out
+REM Quelldateien sammeln. Pfade quoten (Leerzeichen) UND \ -> / (sonst frisst
+REM das javac-@argfile die Backslashes als Escape-Zeichen).
+if exist sources.txt del sources.txt
+dir /s /b src\*.java > sources.tmp
+for /f "usebackq delims=" %%F in ("sources.tmp") do (
+  set "p=%%F"
+  echo "!p:\=/!">>sources.txt
+)
+del sources.tmp
+javac -encoding UTF-8 -d out @sources.txt
+if errorlevel 1 (
+  echo [ShrimpTopia] BUILD FEHLGESCHLAGEN.
+  del sources.txt
+  pause
+  exit /b 1
+)
+del sources.txt
+
+echo [ShrimpTopia] Baue ShrimpTopia.jar...
+REM Alte JAR zuerst entfernen - das Ueberschreiben einer (von OneDrive
+REM synchronisierten) bestehenden Datei kann sonst einen leeren Stub erzeugen.
+if exist ShrimpTopia.jar del ShrimpTopia.jar
+jar --create --file ShrimpTopia.jar --main-class com.shrimptopia.Main -C out .
+if errorlevel 1 (
+  echo [ShrimpTopia] JAR-Erstellung fehlgeschlagen.
+  pause
+  exit /b 1
+)
+
+echo.
+echo [ShrimpTopia] Fertig. Erzeugt: ShrimpTopia.jar
+echo Starten mit:  run.bat   (oder:  java -jar ShrimpTopia.jar)
+echo.
+pause

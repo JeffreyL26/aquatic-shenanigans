@@ -1,0 +1,7 @@
+# Zeilenenden normalisieren: Quelltext LF, Windows-Skripte CRLF, Binaerdateien unangetastet
+* text=auto eol=lf
+*.java text eol=lf
+*.md   text eol=lf
+*.bat  text eol=crlf
+*.png  binary
+*.jar  binary

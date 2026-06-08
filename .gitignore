@@ -1,0 +1,19 @@
+# Build-Artefakte (werden von build.bat erzeugt)
+out/
+*.class
+*.jar
+sources.txt
+sources.tmp
+
+# temporäre Hilfsdateien
+_umlaut_map.txt
+COMMIT_MSG.txt
+preview*.png
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
