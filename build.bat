@@ -8,9 +8,18 @@ setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
 echo [ShrimpTopia] Pruefe Java...
-where javac >nul 2>nul
+REM Bevorzugt das JDK aus JAVA_HOME (immun gegen PATH-Reihenfolge, z.B. eine
+REM aeltere Java-8-Shim im System-PATH); sonst Rueckfall auf javac/jar aus dem PATH.
+set "JAVAC=javac"
+set "JARBIN=jar"
+if defined JAVA_HOME if exist "%JAVA_HOME%\bin\javac.exe" (
+  set "JAVAC=%JAVA_HOME%\bin\javac.exe"
+  set "JARBIN=%JAVA_HOME%\bin\jar.exe"
+)
+"%JAVAC%" -version >nul 2>nul
 if errorlevel 1 (
-  echo FEHLER: 'javac' nicht gefunden. Bitte ein JDK 17+ installieren.
+  echo FEHLER: 'javac' nicht gefunden. Bitte ein JDK 17+ installieren
+  echo         oder JAVA_HOME auf ein JDK 17+ setzen.
   pause
   exit /b 1
 )
@@ -29,7 +38,7 @@ for /f "usebackq delims=" %%F in ("sources.tmp") do (
 del sources.tmp
 REM --release 17: erzeugt Java-17-Bytecode auch unter neueren JDKs, damit die
 REM JAR (wie im README versprochen) auf jeder Java-17+-Laufzeit startet.
-javac --release 17 -encoding UTF-8 -d out @sources.txt
+"%JAVAC%" --release 17 -encoding UTF-8 -d out @sources.txt
 if errorlevel 1 (
   echo [ShrimpTopia] BUILD FEHLGESCHLAGEN.
   del sources.txt
@@ -49,7 +58,7 @@ echo [ShrimpTopia] Baue ShrimpTopia.jar...
 REM Alte JAR zuerst entfernen - das Ueberschreiben einer (von OneDrive
 REM synchronisierten) bestehenden Datei kann sonst einen leeren Stub erzeugen.
 if exist ShrimpTopia.jar del ShrimpTopia.jar
-jar --create --file ShrimpTopia.jar --main-class com.shrimptopia.Main -C out .
+"%JARBIN%" --create --file ShrimpTopia.jar --main-class com.shrimptopia.Main -C out .
 if errorlevel 1 (
   echo [ShrimpTopia] JAR-Erstellung fehlgeschlagen.
   pause
