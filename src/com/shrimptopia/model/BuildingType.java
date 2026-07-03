@@ -19,8 +19,82 @@ public enum BuildingType {
         /*shrimpProduce*/ 0, /*shrimpSell*/ 0, /*sellPrice*/ 0,
         /*repProduce*/ 0,    /*upkeep*/ 0,
         IconKind.HQ, new Color(126, 137, 152),
-        "Dein Büro, dein Reich. Stellt 8 motivierte (na ja) Verwaltungs-Arbeiter. "
-        + "Lebt von Kaffee und Quartalszahlen."),
+        "Die Garage, in der alles begann - jetzt mit Schreibtisch. Stellt 8 motivierte (na ja) "
+        + "Verwaltungs-Arbeiter. Lebt von Kaffee und Quartalszahlen."),
+
+    // ===================== Garagen-Stufe (Start-Tier, ausbaubar) =====================
+
+    GARAGE_TANK(
+        "Garagen-Aquarium", 120,
+        0, 0,
+        0, 2,
+        0, 1,
+        0, 0.8,
+        1.2, 0, 0,
+        0, 0.8,
+        IconKind.TANK, new Color(60, 130, 138),
+        "Ein 200-Liter-Aquarium vom Flohmarkt, geflickt mit Aquarien-Silikon. +1,2 Shrimps/Tag. "
+        + "Später an gleicher Stelle zum großen Shrimp-Becken ausbaubar."),
+
+    OLD_GENERATOR(
+        "Rostiger Diesel-Generator", 150,
+        0, 0,
+        12, 0,
+        0, 0,
+        0, 0,
+        0, 0, 0,
+        0, 2.5,
+        IconKind.POWER, new Color(150, 96, 70),
+        "Springt beim dritten Tritt an und riecht nach Berufsschule. +12 Strom. "
+        + "Die Nachbarn üben schon Beschwerdebriefe (-Reputation)."),
+
+    RAIN_BARREL(
+        "Regentonne & Gartenschlauch", 80,
+        0, 0,
+        0, 1,
+        4, 0,
+        0, 0,
+        0, 0, 0,
+        0, 0.5,
+        IconKind.WATER, new Color(70, 120, 160),
+        "Regenwasser, ein Kohlefilter und Vertrauen. +4 Wasser. Dr. Perla nennt es "
+        + "'improvisierte Aquakultur-Infrastruktur' und weint dabei ein bisschen."),
+
+    ALGAE_BUCKET(
+        "Algen-Eimer", 100,
+        0, 0,
+        0, 1,
+        0, 0.6,
+        2.5, 0,
+        0, 0, 0,
+        0, 0.8,
+        IconKind.ALGAE, new Color(96, 140, 76),
+        "Baueimer + Fensterbank + Geduld = +2,5 Futter. Eine der Algen heißt inzwischen "
+        + "Ingrid und gilt als Familienmitglied."),
+
+    CAMPER(
+        "Wohnwagen im Hof", 180,
+        3, 0,
+        0, 1,
+        0, 0,
+        0, 0,
+        0, 0, 0,
+        0, 1,
+        IconKind.HOUSE, new Color(140, 118, 96),
+        "Ein geerbter Wohnwagen mit Gasherd und Charakter. +3 Arbeiter, "
+        + "die 'übergangsweise' hier wohnen. Seit zwei Jahren."),
+
+    YARD_SALE(
+        "Klapptisch-Verkauf", 100,
+        0, 1,
+        0, 1,
+        0, 0,
+        0, 0,
+        0, 3, 22,
+        0, 1,
+        IconKind.SALES, new Color(170, 146, 70),
+        "Klapptisch, Kühlbox, handgemaltes Schild: 'SHRIMPS (ECHT)'. Verkauft bis zu "
+        + "3 Standard-Shrimps/Tag an Spaziergänger - mehr Nachfrage bringt nur Marketing."),
 
     POWER_PLANT(
         "Schalentier-Kraftwerk", 600,
@@ -203,8 +277,9 @@ public enum BuildingType {
         0, 0, 0, 0,
         0, 0, 0, 0, 4,
         IconKind.SHELL, new Color(200, 180, 140),
-        "Brian war Suppe. Brians Schale ist jetzt Wirtschaftswachstum. Presst Becken-Abfall "
-        + "zu Industrie-Schalen für die zweite Wirtschaftsstufe (+6 Schalen/Tag)."),
+        "Irgendeine Garnele - nennen wir sie Brian - war Suppe. Ihre Schale ist jetzt "
+        + "Wirtschaftswachstum: Presst Becken-Abfall zu Industrie-Schalen für die zweite "
+        + "Wirtschaftsstufe (+6 Schalen/Tag)."),
 
     SHRIMPBOOST_FACTORY(
         "SHRIMPBOOST-Fabrik", 1600,
@@ -222,7 +297,7 @@ public enum BuildingType {
         0, 0, 0, 0.05, 7,
         IconKind.CAN, new Color(255, 90, 180),
         "Verkauft SHRIMPBOOST-Dosen zum Premium-Preis (~90 Geld/Dose). Influencer lieben "
-        + "den Stand; Chad Krabbowski steht heimlich in der Schlange."),
+        + "den Stand; sogar die Konkurrenz steht heimlich in der Schlange."),
 
     ROBOT_WORKS(
         "Garnelen-Roboter-Werk", 2400,
@@ -290,6 +365,12 @@ public enum BuildingType {
     public String shortName() {
         return switch (this) {
             case HEADQUARTERS -> "HQ";
+            case GARAGE_TANK   -> "Aquarium";
+            case OLD_GENERATOR -> "Generator";
+            case RAIN_BARREL   -> "Regentonne";
+            case ALGAE_BUCKET  -> "Algen-Eimer";
+            case CAMPER        -> "Wohnwagen";
+            case YARD_SALE     -> "Klapptisch";
             case POWER_PLANT  -> "Kraftwerk";
             case SOLAR_ROOF   -> "Solar";
             case WATER_PLANT  -> "Wasser";
@@ -317,6 +398,7 @@ public enum BuildingType {
     /** Alle baubaren Gebäude (HQ ist vorplatziert). Das Menü filtert nach Zone & Freischaltung. */
     public static BuildingType[] buildable() {
         return new BuildingType[] {
+            OLD_GENERATOR, RAIN_BARREL, ALGAE_BUCKET, GARAGE_TANK, CAMPER, YARD_SALE,
             POWER_PLANT, SOLAR_ROOF, WATER_PLANT, WATER_HUB, ALGAE_FARM, SHRIMP_TANK,
             HOUSING, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
             EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET, VISITOR_CENTER, ZEN_GARDEN,
@@ -334,6 +416,7 @@ public enum BuildingType {
         public double priceMult = 1.0;
         public ShrimpTier producesTier = null;   // Becken: Standard-Tier
         public String unlockFlag = null;          // null = von Anfang an verfügbar
+        public BuildingType upgradesTo = null;    // Tropico-Stil: Ausbau zur nächsten Stufe am selben Platz
     }
 
     private static final java.util.EnumMap<BuildingType, Meta> META = new java.util.EnumMap<>(BuildingType.class);
@@ -345,19 +428,32 @@ public enum BuildingType {
         Meta meta = m(zone, unlockFlag); meta.market = true; meta.priceMult = priceMult; meta.acceptedTiers = accepted; return meta;
     }
 
+    private static Meta up(Meta meta, BuildingType next) { meta.upgradesTo = next; return meta; }
+
     static {
         META.put(HEADQUARTERS,  m(Zone.PRODUKTION, null));
-        META.put(POWER_PLANT,   m(Zone.PRODUKTION, null));
-        META.put(SOLAR_ROOF,    m(Zone.PRODUKTION, null));
-        META.put(WATER_PLANT,   m(Zone.PRODUKTION, null));
-        META.put(ALGAE_FARM,    m(Zone.PRODUKTION, null));
-        META.put(HOUSING,       m(Zone.PRODUKTION, null));
+
+        // Garagen-Stufe: sofort baubar, ausbaubar zur Hallen-Stufe (era.HALLE)
+        Meta gTank = up(m(Zone.PRODUKTION, null), SHRIMP_TANK); gTank.producesTier = ShrimpTier.STANDARD;
+        META.put(GARAGE_TANK, gTank);
+        META.put(OLD_GENERATOR, up(m(Zone.PRODUKTION, null), POWER_PLANT));
+        META.put(RAIN_BARREL,   up(m(Zone.PRODUKTION, null), WATER_PLANT));
+        META.put(ALGAE_BUCKET,  up(m(Zone.PRODUKTION, null), ALGAE_FARM));
+        META.put(CAMPER,        up(m(Zone.PRODUKTION, null), HOUSING));
+        META.put(YARD_SALE,     up(market(Zone.PRODUKTION, null, 0.85, ShrimpTier.STANDARD), SALES_OFFICE));
+
+        // Hallen-Stufe: erst nach dem Garagen-Ausbau (Quest "era.HALLE")
+        META.put(POWER_PLANT,   m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(SOLAR_ROOF,    m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(WATER_PLANT,   m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(ALGAE_FARM,    m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(HOUSING,       m(Zone.PRODUKTION, "era.HALLE"));
         META.put(LAB,           m(Zone.FORSCHUNG,  "zone.FORSCHUNG"));
 
-        Meta tank = m(Zone.PRODUKTION, null); tank.producesTier = ShrimpTier.STANDARD;
+        Meta tank = m(Zone.PRODUKTION, "era.HALLE"); tank.producesTier = ShrimpTier.STANDARD;
         META.put(SHRIMP_TANK, tank);
 
-        META.put(SALES_OFFICE,   market(Zone.PRODUKTION, null,            1.0, ShrimpTier.STANDARD, ShrimpTier.BIO));
+        META.put(SALES_OFFICE,   market(Zone.PRODUKTION, "era.HALLE",     1.0, ShrimpTier.STANDARD, ShrimpTier.BIO));
         META.put(RESTAURANT,     market(Zone.EMPFANG,    "zone.EMPFANG",  1.7, ShrimpTier.STANDARD, ShrimpTier.BIO, ShrimpTier.GOURMET));
         META.put(EXPORT_DOCK,    market(Zone.LOGISTIK,   "build.export",  1.3, ShrimpTier.BIO, ShrimpTier.GOURMET, ShrimpTier.GENTECH));
         META.put(MILITARY_DEPOT, market(Zone.LOGISTIK,   "build.military",1.5, ShrimpTier.PROTEIN, ShrimpTier.WARKRILL));
@@ -368,7 +464,7 @@ public enum BuildingType {
         META.put(VISITOR_CENTER, m(Zone.EMPFANG,    "zone.EMPFANG"));
         META.put(ZEN_GARDEN,     m(Zone.EMPFANG,    "zone.EMPFANG"));
 
-        META.put(SHELL_PRESS,         m(Zone.PRODUKTION, null));
+        META.put(SHELL_PRESS,         m(Zone.PRODUKTION, "era.HALLE"));
         META.put(SHRIMPBOOST_FACTORY, m(Zone.FORSCHUNG,  "build.shrimpboost"));
         META.put(BOOST_STAND,         m(Zone.EMPFANG,    "build.shrimpboost"));
         META.put(ROBOT_WORKS,         m(Zone.LOGISTIK,   "build.robotworks"));
@@ -385,6 +481,12 @@ public enum BuildingType {
     public ShrimpTier producesTier()   { return meta().producesTier; }
     /** null = von Anfang an verfügbar; sonst das benötigte Freischalt-Flag. */
     public String unlockFlag()         { return meta().unlockFlag; }
+    /** Nächste Ausbaustufe (Tropico-Stil) oder null. */
+    public BuildingType upgradesTo()   { return meta().upgradesTo; }
+    /** Produziert dieses Gebäude Shrimps (Becken jeder Stufe)? */
+    public boolean isTank()            { return this == SHRIMP_TANK || this == GARAGE_TANK; }
+    /** Erzeugt dieses Gebäude Futter aus Wasser (Algen jeder Stufe)? */
+    public boolean isAlgae()           { return this == ALGAE_FARM || this == ALGAE_BUCKET; }
 
     // ===================== v3-Flows (Schalen/SHRIMPBOOST/Roboter/Armee) =====================
     private static final java.util.EnumMap<BuildingType, Flows> FLOWS = new java.util.EnumMap<>(BuildingType.class);

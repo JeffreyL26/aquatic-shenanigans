@@ -43,6 +43,11 @@ public class TopBar extends JPanel {
         controls.add(speedButton(speed, "2x", 2, false));
         controls.add(speedButton(speed, "3x", 3, false));
 
+        ThemeButton.FlatButton quests = new ThemeButton.FlatButton("Quest-Baum");
+        quests.setToolTipText("Alle Handlungsstränge, Missionen & Freischaltungen (Taste Q)");
+        quests.addActionListener(e -> frame.openQuestTree());
+        controls.add(quests);
+
         ThemeButton.FlatButton alm = new ThemeButton.FlatButton("Almanach");
         alm.addActionListener(e -> frame.openAlmanac(0));
         controls.add(alm);

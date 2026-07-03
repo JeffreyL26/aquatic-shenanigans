@@ -46,6 +46,26 @@ public class InspectorPanel extends JPanel {
             content.add(hint("Klick ein Gebäude an, um Details, Modi und Upgrades zu sehen."));
         } else {
             content.add(new Header());
+            BuildingType next = building.type.upgradesTo();
+            if (next != null) {
+                content.add(section("AUSBAU (GLEICHE STELLE)"));
+                boolean nextUnlocked = frame.game().isBuildingUnlocked(next);
+                double upCost = Math.max(0, next.cost - building.type.cost * 0.5);
+                ThemeButton.FlatButton up = new ThemeButton.FlatButton(
+                    nextUnlocked ? "Ausbauen: " + next.displayName + " (-" + Math.round(upCost) + ")"
+                                 : next.displayName + " (gesperrt)");
+                if (nextUnlocked) up.base = new Color(0, 90, 84);
+                up.addActionListener(e -> {
+                    Building nb = frame.game().upgradeBuilding(building);
+                    if (nb != null) frame.selectBuilding(nb);
+                    frame.refreshAll();
+                });
+                content.add(wrapFull(up));
+                if (!nextUnlocked) {
+                    String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(next.unlockFlag(), frame.questSystem());
+                    content.add(hint("Freischaltung: " + (hint != null ? hint : "durch Spielfortschritt.")));
+                }
+            }
             List<Mode> modes = BuildingCatalog.modes(building.type);
             if (!modes.isEmpty()) {
                 content.add(section("BETRIEBS-MODUS"));
@@ -160,7 +180,9 @@ public class InspectorPanel extends JPanel {
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
             setPreferredSize(new Dimension(290, 50));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setToolTipText("<html><body style='width:230px'>" + m.desc + "</body></html>");
+            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(m.requiresFlag, frame.questSystem());
+            setToolTipText("<html><body style='width:230px'>" + m.desc
+                + (hint != null ? "<br><br><b>Freischaltung:</b> " + hint : "") + "</body></html>");
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e) { hover = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { hover = false; repaint(); }
@@ -185,7 +207,12 @@ public class InspectorPanel extends JPanel {
             g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
             g.drawString(m.name + (lock ? "  (gesperrt)" : ""), 24, 22);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), m.desc, w - 48), 24, 38);
+            String sub = m.desc;
+            if (lock) {
+                String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(m.requiresFlag, frame.questSystem());
+                if (hint != null) sub = hint;
+            }
+            g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 48), 24, 38);
             g.dispose();
         }
     }
@@ -199,7 +226,9 @@ public class InspectorPanel extends JPanel {
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
             setPreferredSize(new Dimension(290, 50));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setToolTipText("<html><body style='width:230px'>" + u.desc + "</body></html>");
+            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(u.requiresFlag, frame.questSystem());
+            setToolTipText("<html><body style='width:230px'>" + u.desc
+                + (hint != null ? "<br><br><b>Freischaltung:</b> " + hint : "") + "</body></html>");
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e) { hover = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { hover = false; repaint(); }
@@ -223,7 +252,12 @@ public class InspectorPanel extends JPanel {
             g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
             g.drawString(u.name, 24, 22);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), u.desc, w - 90), 24, 38);
+            String sub = u.desc;
+            if (lock) {
+                String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(u.requiresFlag, frame.questSystem());
+                if (hint != null) sub = hint;
+            }
+            g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 90), 24, 38);
             g.setFont(Palette.FONT_BOLD);
             String tag = own ? "gekauft" : lock ? "gesperrt" : String.valueOf(u.cost);
             g.setColor(own ? Palette.GOOD : lock ? Palette.TEXT_DIM : afford ? Palette.MONEY : Palette.BAD);

@@ -43,6 +43,7 @@ public class GameFrame extends JFrame {
     private ZoneTabs zoneTabs;
     private OverlayHost overlay;
     private AlmanacPanel almanac;
+    private QuestTreePanel questTree;
 
     public GameFrame() {
         super("ShrimpTopia v2 - Indoor Shrimp Farming Tycoon");
@@ -85,10 +86,13 @@ public class GameFrame extends JFrame {
         almanac = new AlmanacPanel(this);
         getLayeredPane().add(almanac, JLayeredPane.MODAL_LAYER);
 
+        questTree = new QuestTreePanel(this);
+        getLayeredPane().add(questTree, JLayeredPane.MODAL_LAYER);
+
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
-        animTimer = new Timer(60, e -> mapPanel.advanceAnim());
+        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); });
 
         refreshAll();
         pack();
@@ -100,6 +104,8 @@ public class GameFrame extends JFrame {
             @Override public void componentResized(java.awt.event.ComponentEvent e) {
                 if (almanac != null && almanac.isVisible())
                     almanac.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+                if (questTree != null && questTree.isVisible())
+                    questTree.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
             }
         });
         animTimer.start();
@@ -127,10 +133,34 @@ public class GameFrame extends JFrame {
 
     // ===================== Overlay-Steuerung (Tutorial / Popups) =====================
 
+    /** true, wenn der Almanach vom Tutorial (Tier-/Marketing-Schritt) geöffnet wurde - nicht vom Spieler. */
+    private boolean tutorialAlmanac = false;
+    private int tutorialAlmanacTab = -1;
+    /** Konsequenzen der letzten Entscheidung (Ergebnis-Karte) und wartende Freischalt-Ansage. */
+    private com.shrimptopia.quest.ChoiceOutcome pendingOutcome;
+    private String[] pendingAnnouncement;
+
     private void updateOverlays() {
+        // Almanach-Schritte des Tutorials (Tiers, Marketing): Menü automatisch auf-/zuklappen
+        TutorialStep cur = tutorial.isActive() ? tutorial.current() : null;
+        boolean wantsAlmanac = cur != null && cur.region == TutorialStep.Region.ALMANAC;
+        if (wantsAlmanac && (!almanac.isVisible() || tutorialAlmanacTab != cur.almanacTab)) {
+            openAlmanac(cur.almanacTab);
+            tutorialAlmanac = true;
+            tutorialAlmanacTab = cur.almanacTab;
+        } else if (!wantsAlmanac && tutorialAlmanac) {
+            tutorialAlmanac = false;
+            tutorialAlmanacTab = -1;
+            if (almanac.isVisible()) almanac.setVisible(false);
+        }
+
         if (tutorial.isActive()) {
             TutorialStep s = tutorial.current();
             overlay.showTutorial(s, regionRect(s), tutorial.index(), tutorial.total());
+        } else if (pendingOutcome != null) {
+            overlay.showOutcome(pendingOutcome);
+        } else if (nextAnnouncement() != null) {
+            overlay.showAnnouncement(pendingAnnouncement[0], pendingAnnouncement[1]);
         } else if (questSystem.hasPending()) {
             overlay.showPopup(questSystem.peek());
         } else {
@@ -139,16 +169,29 @@ public class GameFrame extends JFrame {
         applyTimerState();
     }
 
+    private String[] nextAnnouncement() {
+        if (pendingAnnouncement == null) pendingAnnouncement = game.pollAnnouncement();
+        return pendingAnnouncement;
+    }
+
+    public void dismissOutcome()      { pendingOutcome = null; refreshAll(); updateOverlays(); }
+    public void dismissAnnouncement() { pendingAnnouncement = null; refreshAll(); updateOverlays(); }
+
     private boolean overlayShowing() { return overlay.mode() != OverlayHost.Mode.NONE; }
 
     private void applyTimerState() {
-        if (userPaused || overlayShowing() || (almanac != null && almanac.isVisible())) timer.stop();
+        if (userPaused || overlayShowing() || (almanac != null && almanac.isVisible())
+            || (questTree != null && questTree.isVisible())) timer.stop();
         else timer.start();
         topBar.setPausedVisual(userPaused);
     }
 
     private Rectangle regionRect(TutorialStep s) {
         if (s == null) return null;
+        if (s.region == TutorialStep.Region.ALMANAC)
+            return almanac.isVisible()
+                ? SwingUtilities.convertRectangle(almanac, almanac.cardBounds(), overlay)
+                : null;
         JComponent c = switch (s.region) {
             case BUILD_MENU -> sidePanel;
             case MAP -> mapPanel;
@@ -163,7 +206,12 @@ public class GameFrame extends JFrame {
 
     public void tutorialAdvance() { tutorial.next(); refreshAll(); updateOverlays(); }
     public void tutorialSkip()    { tutorial.skip(); refreshAll(); updateOverlays(); }
-    public void resolveQuest(int i) { questSystem.resolve(game, i); refreshAll(); updateOverlays(); }
+    public void resolveQuest(int i) {
+        com.shrimptopia.quest.ChoiceOutcome out = questSystem.resolve(game, i);
+        if (out != null && !out.isEmpty()) pendingOutcome = out;
+        refreshAll();
+        updateOverlays();
+    }
 
     // ===================== Steuerung =====================
 
@@ -177,6 +225,8 @@ public class GameFrame extends JFrame {
         currentZone = Zone.PRODUKTION;
         selectedBuilding = null;
         tool = Tool.NONE; selectedType = null;
+        pendingOutcome = null;
+        pendingAnnouncement = null;
         userPaused = false;
         speed = 1;
         topBar.selectSpeed(1);
@@ -192,14 +242,25 @@ public class GameFrame extends JFrame {
     public void clearTool() { tool = Tool.NONE; selectedType = null; refreshAll(); }
 
     public void openAlmanac(int tab) {
+        if (questTree.isVisible()) questTree.setVisible(false);
         almanac.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
         almanac.open(tab);
         applyTimerState();
     }
-    public void afterAlmanacClosed() { applyTimerState(); refreshAll(); }
+    // updateOverlays() öffnet den Almanach im Tier-Tutorial-Schritt ggf. direkt wieder
+    public void afterAlmanacClosed() { refreshAll(); updateOverlays(); }
+
+    public void openQuestTree() {
+        if (almanac.isVisible()) almanac.setVisible(false);
+        questTree.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        getLayeredPane().moveToFront(questTree);
+        questTree.open();
+        applyTimerState();
+    }
+    public void afterQuestTreeClosed() { applyTimerState(); refreshAll(); }
 
     public void selectBuilding(Building b) {
-        if (b != null && b.type == BuildingType.HEADQUARTERS) { openAlmanac(5); return; }
+        if (b != null && b.type == BuildingType.HEADQUARTERS) { openAlmanac(AlmanacPanel.TAB_HQ); return; }
         selectedBuilding = b;
         inspector.setBuilding(b);
         if (b != null) tutorial.onInspectorOpened();
@@ -259,6 +320,9 @@ public class GameFrame extends JFrame {
         bind(root, KeyEvent.VK_1, "s1", () -> setSpeed(1));
         bind(root, KeyEvent.VK_2, "s2", () -> setSpeed(2));
         bind(root, KeyEvent.VK_3, "s3", () -> setSpeed(3));
+        bind(root, KeyEvent.VK_Q, "questtree", () -> {
+            if (questTree.isVisible()) questTree.close(); else openQuestTree();
+        });
     }
     private void bind(JComponent c, int key, String name, Runnable action) {
         c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(key, 0), name);
@@ -270,6 +334,7 @@ public class GameFrame extends JFrame {
     // Test-Hooks (für --guitest)
     public void debugRefreshOverlay() { updateOverlays(); }
     public void debugForceQuest(String id) { questSystem.forceStart(id); refreshAll(); updateOverlays(); }
+    public void debugScrollQuestTree(int y) { questTree.scrollTo(y); }
 
     public GameState game()            { return game; }
     public QuestSystem questSystem()    { return questSystem; }

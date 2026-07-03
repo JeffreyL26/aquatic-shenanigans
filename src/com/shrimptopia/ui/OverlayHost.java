@@ -1,12 +1,15 @@
 package com.shrimptopia.ui;
 
+import com.shrimptopia.quest.ChoiceOutcome;
 import com.shrimptopia.quest.GameCharacter;
 import com.shrimptopia.quest.Quest;
 import com.shrimptopia.tutorial.TutorialStep;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +19,7 @@ import java.util.List;
  */
 public class OverlayHost extends JComponent {
 
-    public enum Mode { NONE, TUTORIAL, POPUP }
+    public enum Mode { NONE, TUTORIAL, POPUP, OUTCOME, ANNOUNCE }
 
     private final GameFrame frame;
     private Mode mode = Mode.NONE;
@@ -25,8 +28,12 @@ public class OverlayHost extends JComponent {
     private TutorialStep step;
     private Rectangle spotlight;
     private int stepIdx, stepTotal;
-    // Popup
+    // Popup / Ergebnis
     private Quest quest;
+    private ChoiceOutcome outcome;
+    // Freischalt-Ankündigung
+    private String annTitle, annBody, annHint;
+    private List<String> annHintLines = new ArrayList<>();
 
     private Rectangle card = new Rectangle();
     private List<String> bodyLines = new ArrayList<>();
@@ -48,7 +55,7 @@ public class OverlayHost extends JComponent {
      * hervorgehobene UI bedienen kann (z.B. Gebäude bauen).
      */
     @Override public boolean contains(int x, int y) {
-        if (mode == Mode.POPUP) return true;
+        if (mode == Mode.POPUP || mode == Mode.OUTCOME || mode == Mode.ANNOUNCE) return true;
         if (mode == Mode.TUTORIAL) return card.contains(x, y);
         return false;
     }
@@ -62,14 +69,52 @@ public class OverlayHost extends JComponent {
     }
 
     public void showPopup(Quest q) {
-        this.mode = Mode.POPUP; this.quest = q; this.step = null; this.spotlight = null;
+        this.mode = Mode.POPUP; this.quest = q; this.step = null; this.spotlight = null; this.outcome = null;
         rebuildPopupButtons();
         setVisible(true);
         relayout(); repaint();
     }
 
+    /** Ergebnis-Karte nach einer Entscheidung: Ergebnistext + konkrete Konsequenzen. */
+    public void showOutcome(ChoiceOutcome o) {
+        this.mode = Mode.OUTCOME; this.outcome = o; this.quest = o.quest;
+        this.step = null; this.spotlight = null;
+        clearButtons();
+        ThemeButton.FlatButton ok = new ThemeButton.FlatButton("Weiter");
+        ok.addActionListener(e -> frame.dismissOutcome());
+        add(ok); buttons.add(ok);
+        setVisible(true);
+        relayout(); repaint();
+    }
+
+    /** Freischalt-Ansage (Dr. Perla): was ist neu und wo findet man es. */
+    public void showAnnouncement(String flag, String msg) {
+        this.mode = Mode.ANNOUNCE; this.quest = null; this.outcome = null;
+        this.step = null; this.spotlight = null;
+        this.annTitle = "FREIGESCHALTET!";
+        this.annBody = msg;
+        this.annHint = hintFor(flag);
+        clearButtons();
+        ThemeButton.FlatButton ok = new ThemeButton.FlatButton("Verstanden!");
+        ok.addActionListener(e -> frame.dismissAnnouncement());
+        add(ok); buttons.add(ok);
+        setVisible(true);
+        relayout(); repaint();
+    }
+
+    /** Wo findet der Spieler die Neuerung? */
+    private static String hintFor(String flag) {
+        if (flag == null) return null;
+        if (flag.startsWith("zone.")) return "Neue Karte! Oben über die ZONEN-REITER wechseln.";
+        if (flag.equals("era.HALLE")) return "Neue Gebäude im Baumenü links - Garagen-Technik lässt sich im Inspektor AUSBAUEN.";
+        if (flag.startsWith("mkt."))  return "Buchbar im Almanach unter MARKETING.";
+        if (flag.startsWith("build.")) return "Neues Gebäude im Baumenü (in der passenden Zone).";
+        if (flag.startsWith("tier.")) return "Neuer Zucht-Modus: Becken anklicken -> Inspektor.";
+        return null;
+    }
+
     public void hideOverlay() {
-        mode = Mode.NONE; quest = null; step = null;
+        mode = Mode.NONE; quest = null; step = null; outcome = null;
         removeAll(); buttons.clear();
         setVisible(false); repaint();
     }
@@ -149,6 +194,28 @@ public class OverlayHost extends JComponent {
                 b.setBounds(cx + 20, by, cw - 40, 40);
                 by += 46;
             }
+        } else if (mode == Mode.OUTCOME && outcome != null) {
+            int cw = Math.min(620, W - 120);
+            String res = outcome.choice != null && outcome.choice.resultText != null && !outcome.choice.resultText.isEmpty()
+                ? outcome.choice.resultText : "So sei es.";
+            bodyLines = wrap(res, fm, cw - 48);
+            int headerH = 108, chosenH = 20;
+            int textH = bodyLines.size() * 20 + 8;
+            int fxH = outcome.lines.isEmpty() ? 0 : outcome.lines.size() * 20 + 12;
+            int ch = headerH + chosenH + textH + fxH + 48 + 14;
+            int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
+            card.setBounds(cx, cy, cw, ch);
+            buttons.get(0).setBounds(cx + 20, cy + ch - 52, cw - 40, 40);
+        } else if (mode == Mode.ANNOUNCE) {
+            int cw = Math.min(600, W - 120);
+            bodyLines = wrap(annBody == null ? "" : annBody, fm, cw - 48);
+            annHintLines = annHint == null ? new ArrayList<>() : wrap(annHint, fm, cw - 48);
+            int headerH = 108;
+            int textH = bodyLines.size() * 20 + 8 + annHintLines.size() * 18 + (annHintLines.isEmpty() ? 0 : 8);
+            int ch = headerH + textH + 48 + 14;
+            int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
+            card.setBounds(cx, cy, cw, ch);
+            buttons.get(0).setBounds(cx + 20, cy + ch - 52, cw - 40, 40);
         }
     }
 
@@ -187,13 +254,30 @@ public class OverlayHost extends JComponent {
         }
 
         // Portrait + Sprecher
-        GameCharacter giver = (mode == Mode.POPUP) ? quest.giver : GameCharacter.ADVISOR;
-        String speaker = (mode == Mode.POPUP) ? quest.giverName() : "Dr. Perla Pereira";
-        String role = (mode == Mode.POPUP) ? giver.role : "Garnelen-Biologin";
+        boolean questCard = (mode == Mode.POPUP || mode == Mode.OUTCOME) && quest != null;
+        GameCharacter giver = questCard ? quest.giver : GameCharacter.ADVISOR;
+        String speaker = questCard ? quest.giverName() : "Dr. Perla Pereira";
+        String role = questCard ? giver.role : "Garnelen-Biologin";
         double px = card.x + 54, py = card.y + 54;
-        g.setColor(Palette.PANEL_LIGHT);
-        g.fillOval((int) px - 40, (int) py - 40, 80, 80);
-        Icons.portrait(g, giver.portrait, px, py, 76, giver.color);
+        String avatarKey = questCard ? avatarKeyFor(quest) : GameCharacter.ADVISOR.avatarKey;
+        BufferedImage avatar = SvgAvatar.get(avatarKey, 152);
+        if (avatar != null) {
+            Ellipse2D ring = new Ellipse2D.Double(px - 38, py - 38, 76, 76);
+            g.setColor(Palette.PANEL_LIGHT);
+            g.fill(ring);
+            Shape oldClip = g.getClip();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.clip(ring);
+            g.drawImage(avatar, (int) (px - 38), (int) (py - 38), 76, 76, null);
+            g.setClip(oldClip);
+            g.setColor(giver.color);
+            g.setStroke(new BasicStroke(2f));
+            g.draw(ring);
+        } else {
+            g.setColor(Palette.PANEL_LIGHT);
+            g.fillOval((int) px - 40, (int) py - 40, 80, 80);
+            Icons.portrait(g, giver.portrait, px, py, 76, giver.color);
+        }
 
         int tx = card.x + 104;
         g.setFont(Palette.FONT_H2);
@@ -203,11 +287,16 @@ public class OverlayHost extends JComponent {
         g.setColor(Palette.ACCENT);
         g.drawString(role, tx, card.y + 48);
 
-        // Titel (Popup) bzw. Schrittzahl (Tutorial)
-        if (mode == Mode.POPUP) {
+        // Titel (Popup/Ergebnis/Ansage) bzw. Schrittzahl (Tutorial)
+        if (mode == Mode.POPUP || mode == Mode.OUTCOME) {
             g.setFont(Palette.FONT_H2);
             g.setColor(Palette.ACCENT2);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), quest.title, card.width - 104 - 20), tx, card.y + 74);
+            String title = quest.title + (mode == Mode.OUTCOME ? "  -  ERGEBNIS" : "");
+            g.drawString(TextUtil.clip(g.getFontMetrics(), title, card.width - 104 - 20), tx, card.y + 74);
+        } else if (mode == Mode.ANNOUNCE) {
+            g.setFont(Palette.FONT_H2);
+            g.setColor(Palette.MONEY);
+            g.drawString(annTitle == null ? "" : annTitle, tx, card.y + 74);
         } else {
             g.setFont(Palette.FONT_SMALL);
             g.setColor(Palette.TEXT_DIM);
@@ -215,13 +304,74 @@ public class OverlayHost extends JComponent {
         }
 
         // Fließtext
+        int yy = card.y + (mode == Mode.TUTORIAL ? 86 : 112);
+        int bx = card.x + (mode == Mode.TUTORIAL ? 104 : 24);
+        if (mode == Mode.OUTCOME && outcome != null) {
+            // Echo der gewählten Option
+            g.setFont(Palette.FONT_SMALL);
+            g.setColor(Palette.TEXT_DIM);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), "Deine Wahl: \"" + outcome.choice.text + "\"", card.width - 48), bx, yy);
+            yy += 20;
+        }
         g.setFont(Palette.FONT_BODY);
         g.setColor(Palette.TEXT);
-        int yy = card.y + (mode == Mode.POPUP ? 112 : 86);
-        int bx = card.x + (mode == Mode.POPUP ? 24 : 104);
         for (String line : bodyLines) { g.drawString(line, bx, yy); yy += 20; }
 
+        if (mode == Mode.OUTCOME && outcome != null && !outcome.lines.isEmpty()) {
+            yy += 8;
+            g.setFont(Palette.FONT_BOLD);
+            for (ChoiceOutcome.Line l : outcome.lines) {
+                Color c = switch (l.kind) {
+                    case ChoiceOutcome.GOOD -> Palette.GOOD;
+                    case ChoiceOutcome.BAD -> Palette.BAD;
+                    case ChoiceOutcome.UNLOCK -> Palette.MONEY;
+                    case ChoiceOutcome.TASK -> Palette.ACCENT;
+                    default -> Palette.TEXT_DIM;
+                };
+                g.setColor(c);
+                g.fillRoundRect(bx, yy - 9, 9, 9, 3, 3);
+                g.setColor(l.kind == ChoiceOutcome.INFO ? Palette.TEXT_DIM : Palette.TEXT);
+                g.drawString(TextUtil.clip(g.getFontMetrics(), l.text, card.width - 48 - 18), bx + 16, yy);
+                yy += 20;
+            }
+        }
+        if (mode == Mode.ANNOUNCE && !annHintLines.isEmpty()) {
+            yy += 6;
+            g.setFont(Palette.FONT_SMALL);
+            g.setColor(Palette.ACCENT);
+            for (String line : annHintLines) { g.drawString(line, bx, yy); yy += 18; }
+        }
+
         g.dispose();
+    }
+
+    /**
+     * Ordnet den Sprecher einer Quest einem SVG-Avatar zu: zuerst per Stichwort im
+     * (oft überschriebenen) Sprecher-Namen, sonst über die Hauptfigur (giver.avatarKey).
+     * Figuren ohne eigenen Avatar liefern null -> handgezeichnetes Portrait.
+     */
+    private static String avatarKeyFor(Quest q) {
+        if (q == null) return null;
+        String name = q.giverName();
+        if (name != null) {
+            String n = name.toLowerCase();
+            if (n.contains("quallmann"))   return "quallmann";
+            if (n.contains("schalk"))      return "schalk";
+            if (n.contains("lena"))        return "lena";
+            if (n.contains("mira"))        return "mira";
+            if (n.contains("aquabro"))     return "aquabro";
+            if (n.contains("krabbo") || n.contains("chad")) return "chad";
+            if (n.contains("olaf"))        return "olaf";
+            if (n.contains("pfennig"))     return "pfennig";
+            if (n.contains("goldberg"))    return "goldberg";
+            if (n.contains("schlemmerle")) return "schlemmerle";
+            if (n.contains("akwanov"))     return "ivan";
+            if (n.contains("krillkill"))   return "krillkill";
+            if (n.contains("perla"))       return "perla";
+            if (n.contains("kyle"))        return "kyle";
+            if (n.contains("dmitri"))      return "dmitri";
+        }
+        return q.giver != null ? q.giver.avatarKey : null;
     }
 
     private static List<String> wrap(String text, FontMetrics fm, int maxWidth) {

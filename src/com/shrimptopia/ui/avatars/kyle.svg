@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Kyle avatar">
+  <defs>
+    <clipPath id="k-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="k-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#ff9a66"></stop><stop offset="100%" stop-color="#e0561f"></stop>
+    </radialGradient>
+    <linearGradient id="k-hat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a4f5a"></stop><stop offset="100%" stop-color="#2a2d34"></stop>
+    </linearGradient>
+    <linearGradient id="k-shirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3c4148"></stop><stop offset="100%" stop-color="#26292f"></stop>
+    </linearGradient>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#k-bg)"></circle>
+  <circle cx="300" cy="300" r="286" fill="#0c1519" opacity="0.10" style="mix-blend-mode:multiply"></circle>
+
+  <g clip-path="url(#k-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#c8481a"></ellipse>
+
+    <!-- massiger Körper -->
+    <g stroke="#141821" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 448 C170 448 96 512 76 600 L524 600 C504 512 430 448 300 448 Z" fill="url(#k-shirt)"></path>
+      <!-- Bauch-Rundung -->
+      <path d="M210 522 C246 570 354 570 390 522" fill="none" stroke="#171a20" stroke-width="6" stroke-linecap="round" opacity="0.8"></path>
+    </g>
+    <!-- Downvote-Pfeil auf dem Shirt -->
+    <g stroke="#141821" stroke-width="5" stroke-linejoin="round">
+      <path d="M282 500 L318 500 L318 532 L336 532 L300 572 L264 532 L282 532 Z" fill="#7a9cff"></path>
+    </g>
+
+    <!-- Hals / Doppelkinn-Ansatz -->
+    <path d="M258 396 L258 458 Q300 486 342 458 L342 396 Z" fill="#eac394" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M258 420 Q300 444 342 420 L342 396 L258 396 Z" fill="#d8ac78" stroke="none"></path>
+
+    <!-- Ohren -->
+    <path d="M176 300 q-22 2 -20 26 q3 22 24 22 q10 -2 10 -14 z" fill="#eac394" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M424 300 q22 2 20 26 q-3 22 -24 22 q-10 -2 -10 -14 z" fill="#eac394" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- breites, rundes Gesicht mit Doppelkinn -->
+    <path d="M300 168 C216 168 182 226 182 296 C182 352 200 400 244 420 C270 432 330 432 356 420 C400 400 418 352 418 296 C418 226 384 168 300 168 Z" fill="#eac394" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <!-- Hänge-Wangen & Doppelkinn -->
+    <path d="M226 404 Q300 448 374 404 Q348 436 300 436 Q252 436 226 404 Z" fill="#d8ac78" stroke="#241a16" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M252 424 Q300 448 348 424" fill="none" stroke="#b98d58" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- ölige Glanzstellen -->
+    <g fill="#ffffff">
+      <ellipse cx="266" cy="222" rx="30" ry="14" opacity="0.30" transform="rotate(-14 266 222)"></ellipse>
+      <ellipse cx="352" cy="240" rx="18" ry="9" opacity="0.22" transform="rotate(12 352 240)"></ellipse>
+      <ellipse cx="232" cy="330" rx="16" ry="10" opacity="0.25"></ellipse>
+      <ellipse cx="372" cy="334" rx="16" ry="10" opacity="0.25"></ellipse>
+      <ellipse cx="300" cy="356" rx="10" ry="6" opacity="0.30"></ellipse>
+    </g>
+    <!-- Schweißtropfen -->
+    <path d="M196 268 q6 12 0 18 q-8 6 -12 -4 q-2 -8 12 -14 Z" fill="#bfe6ff" opacity="0.9"></path>
+    <path d="M206 300 q4 9 0 13 q-6 4 -9 -3 q-1 -6 9 -10 Z" fill="#bfe6ff" opacity="0.7"></path>
+
+    <!-- Fedora -->
+    <path d="M170 220 Q300 176 430 220 Q440 236 424 240 Q300 208 176 240 Q160 236 170 220 Z" fill="url(#k-hat)" stroke="#141821" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M216 224 C216 168 254 138 300 138 C346 138 384 168 384 224 Q300 200 216 224 Z" fill="url(#k-hat)" stroke="#141821" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M222 210 Q300 188 378 210 L378 224 Q300 202 222 224 Z" fill="#191c22" stroke="none"></path>
+    <!-- fettige Haarsträhnen unterm Hut -->
+    <path d="M196 244 q-8 22 4 34" fill="none" stroke="#6b4a2a" stroke-width="7" stroke-linecap="round"></path>
+    <path d="M404 244 q8 22 -4 34" fill="none" stroke="#6b4a2a" stroke-width="7" stroke-linecap="round"></path>
+
+    <!-- Brille -->
+    <g stroke="#1a1d24" stroke-width="6" fill="#20242c" opacity="0.96">
+      <circle cx="254" cy="300" r="34"></circle>
+      <circle cx="346" cy="300" r="34"></circle>
+      <path d="M288 296 Q300 290 312 296" fill="none"></path>
+      <path d="M220 296 L186 288" fill="none"></path>
+      <path d="M380 296 L414 288" fill="none"></path>
+    </g>
+    <ellipse cx="244" cy="290" rx="12" ry="7" fill="#5a6170" opacity="0.85"></ellipse>
+    <ellipse cx="336" cy="290" rx="12" ry="7" fill="#5a6170" opacity="0.85"></ellipse>
+    <!-- kleine Augen hinter der Brille -->
+    <circle cx="256" cy="304" r="6" fill="#f5f8f8"></circle>
+    <circle cx="257" cy="305" r="3" fill="#160f08"></circle>
+    <circle cx="344" cy="304" r="6" fill="#f5f8f8"></circle>
+    <circle cx="345" cy="305" r="3" fill="#160f08"></circle>
+    <!-- skeptische Brauen -->
+    <path d="M226 262 Q252 254 280 264" fill="none" stroke="#5a3c20" stroke-width="8" stroke-linecap="round"></path>
+    <path d="M320 264 Q348 254 374 262" fill="none" stroke="#5a3c20" stroke-width="8" stroke-linecap="round"></path>
+
+    <!-- Knubbelnase, glänzend -->
+    <path d="M296 318 C288 336 282 348 292 356 Q300 362 312 354" fill="none" stroke="#c69565" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+    <ellipse cx="303" cy="344" rx="7" ry="4" fill="#ffffff" opacity="0.35"></ellipse>
+
+    <!-- selbstgefälliger Schmoll-Mund -->
+    <path d="M272 382 Q300 372 328 382" fill="none" stroke="#3a2018" stroke-width="6" stroke-linecap="round"></path>
+    <path d="M272 382 q-6 0 -8 6" fill="none" stroke="#3a2018" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- Neckbeard: fleckiger Bartkranz am Kinn/Hals -->
+    <path d="M228 386 Q240 428 300 438 Q360 428 372 386 Q368 442 300 452 Q232 442 228 386 Z" fill="#4a331c" opacity="0.85" stroke="#241a16" stroke-width="5" stroke-linejoin="round"></path>
+    <g fill="#4a331c" opacity="0.7">
+      <circle cx="240" cy="380" r="3"></circle><circle cx="256" cy="396" r="3"></circle>
+      <circle cx="344" cy="396" r="3"></circle><circle cx="360" cy="380" r="3"></circle>
+      <circle cx="278" cy="408" r="3"></circle><circle cx="322" cy="408" r="3"></circle>
+      <circle cx="300" cy="464" r="3"></circle><circle cx="282" cy="470" r="2.5"></circle><circle cx="318" cy="470" r="2.5"></circle>
+    </g>
+  </g>
+</svg>

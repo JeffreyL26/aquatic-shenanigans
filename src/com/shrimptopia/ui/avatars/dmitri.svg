@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Praktikant Dmitri avatar">
+  <defs>
+    <clipPath id="d-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="d-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#8fd0b8"></stop><stop offset="100%" stop-color="#4e9a80"></stop>
+    </radialGradient>
+    <linearGradient id="d-suit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2f4f8a"></stop><stop offset="100%" stop-color="#20355c"></stop>
+    </linearGradient>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#d-bg)"></circle>
+  <circle cx="300" cy="300" r="286" fill="#0c1519" opacity="0.10" style="mix-blend-mode:multiply"></circle>
+
+  <g clip-path="url(#d-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#3f8069"></ellipse>
+
+    <!-- schmaler Trainingsanzug-Körper -->
+    <g stroke="#141821" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 456 C206 456 148 508 128 600 L472 600 C452 508 394 456 300 456 Z" fill="url(#d-suit)"></path>
+      <!-- Reißverschluss + Streifen -->
+      <path d="M300 460 L300 600" fill="none" stroke="#141821" stroke-width="6"></path>
+      <path d="M208 512 C244 486 268 476 292 472" fill="none" stroke="#e8edf2" stroke-width="9" stroke-linecap="round"></path>
+      <path d="M392 512 C356 486 332 476 308 472" fill="none" stroke="#e8edf2" stroke-width="9" stroke-linecap="round"></path>
+    </g>
+
+    <!-- Kamera um den Hals (Standardausrüstung) -->
+    <path d="M258 470 C270 506 330 506 342 470" fill="none" stroke="#141821" stroke-width="8" stroke-linecap="round"></path>
+    <g stroke="#141821" stroke-width="6" stroke-linejoin="round">
+      <rect x="268" y="498" width="64" height="44" rx="8" fill="#3a3f4a"></rect>
+      <circle cx="300" cy="520" r="15" fill="#20242c"></circle>
+      <circle cx="300" cy="520" r="7" fill="#7ab8d8"></circle>
+      <rect x="276" y="490" width="18" height="10" rx="3" fill="#3a3f4a"></rect>
+    </g>
+    <circle cx="294" cy="514" r="3.5" fill="#dff2fc"></circle>
+
+    <!-- Hals -->
+    <path d="M272 402 L272 462 Q300 482 328 462 L328 402 Z" fill="#e8c49c" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M272 426 Q300 444 328 426 L328 402 L272 402 Z" fill="#d4ab7e" stroke="none"></path>
+
+    <!-- abstehende Ohren -->
+    <path d="M204 296 q-26 0 -24 28 q3 24 26 24 q12 -2 12 -16 z" fill="#e8c49c" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M396 296 q26 0 24 28 q-3 24 -26 24 q-12 -2 -12 -16 z" fill="#e8c49c" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- schmales, junges Gesicht -->
+    <path d="M300 190 C240 190 210 234 210 298 C210 344 224 386 256 406 C276 418 324 418 344 406 C376 386 390 344 390 298 C390 234 360 190 300 190 Z" fill="#e8c49c" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Topfschnitt -->
+    <path d="M212 292 C204 216 248 178 300 178 C352 178 396 216 388 292 C384 250 360 238 300 238 C240 238 216 250 212 292 Z" fill="#3a2a18" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M244 216 C276 202 326 202 356 218" fill="none" stroke="#523c24" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- große, EIFRIGE Augen -->
+    <g>
+      <circle cx="262" cy="304" r="21" fill="#fbfdfd" stroke="#241a16" stroke-width="5"></circle>
+      <circle cx="338" cy="304" r="21" fill="#fbfdfd" stroke="#241a16" stroke-width="5"></circle>
+      <circle cx="266" cy="306" r="9" fill="#38536b"></circle>
+      <circle cx="342" cy="306" r="9" fill="#38536b"></circle>
+      <circle cx="266" cy="306" r="4.5" fill="#160f08"></circle>
+      <circle cx="342" cy="306" r="4.5" fill="#160f08"></circle>
+      <circle cx="263" cy="302" r="2.6" fill="#fff"></circle>
+      <circle cx="339" cy="302" r="2.6" fill="#fff"></circle>
+    </g>
+    <!-- hohe, begeisterte Brauen -->
+    <path d="M238 268 Q262 258 286 266" fill="none" stroke="#3a2a18" stroke-width="7" stroke-linecap="round"></path>
+    <path d="M314 266 Q338 258 362 268" fill="none" stroke="#3a2a18" stroke-width="7" stroke-linecap="round"></path>
+
+    <!-- Stupsnase -->
+    <path d="M298 322 C294 334 290 342 296 348 Q301 352 310 347" fill="none" stroke="#c69a6a" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <!-- Sommersprossen -->
+    <g fill="#c08a56" opacity="0.7">
+      <circle cx="244" cy="336" r="2.4"></circle><circle cx="256" cy="342" r="2.4"></circle><circle cx="250" cy="348" r="2.4"></circle>
+      <circle cx="356" cy="336" r="2.4"></circle><circle cx="344" cy="342" r="2.4"></circle><circle cx="350" cy="348" r="2.4"></circle>
+    </g>
+
+    <!-- riesiges, argloses Grinsen -->
+    <path d="M262 372 Q300 396 338 372" fill="none" stroke="#3a2018" stroke-width="6.5" stroke-linecap="round"></path>
+    <path d="M276 381 Q300 392 324 381 L322 386 Q300 396 278 386 Z" fill="#ffffff"></path>
+
+    <!-- Notizblock in der Brusttasche -->
+    <g stroke="#141821" stroke-width="5" stroke-linejoin="round">
+      <rect x="352" y="500" width="40" height="52" rx="4" fill="#f0eee7" transform="rotate(8 372 526)"></rect>
+    </g>
+    <g stroke="#9aa4ad" stroke-width="3">
+      <line x1="362" y1="514" x2="386" y2="517"></line>
+      <line x1="361" y1="524" x2="385" y2="527"></line>
+      <line x1="360" y1="534" x2="378" y2="537"></line>
+    </g>
+  </g>
+</svg>

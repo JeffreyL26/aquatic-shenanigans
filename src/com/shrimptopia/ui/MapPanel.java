@@ -139,7 +139,45 @@ public class MapPanel extends JPanel {
             }
         }
 
+        drawToast(g, gs);
         g.dispose();
+    }
+
+    /** Wichtige Log-Meldungen kurz als Banner oben auf der Karte einblenden (Log-Ticker allein ist zu dezent). */
+    private static final long TOAST_MS = 6000;
+    private void drawToast(Graphics2D g, GameState gs) {
+        long now = System.currentTimeMillis();
+        java.util.List<GameState.LogLine> log = gs.getLog();
+        GameState.LogLine toast = null;
+        for (int i = log.size() - 1; i >= 0 && i >= log.size() - 8; i--) {
+            GameState.LogLine ll = log.get(i);
+            if (ll.kind != GameState.LOG_INFO && now - ll.time < TOAST_MS) { toast = ll; break; }
+        }
+        if (toast == null) return;
+        long age = now - toast.time;
+        float alpha = age > TOAST_MS - 1200 ? (TOAST_MS - age) / 1200f : 1f;   // sanft ausblenden
+        Color edge = switch (toast.kind) {
+            case GameState.LOG_GOOD -> Palette.GOOD;
+            case GameState.LOG_BAD  -> Palette.BAD;
+            default                 -> Palette.WARN;
+        };
+        g.setFont(Palette.FONT_BOLD);
+        FontMetrics fm = g.getFontMetrics();
+        String text = TextUtil.clip(fm, toast.text, getWidth() - 140);
+        int tw = fm.stringWidth(text);
+        int bw = tw + 46, bh = 30;
+        int bx = (getWidth() - bw) / 2, by = originY + 8;
+        Composite old = g.getComposite();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0, Math.min(1, alpha))));
+        g.setColor(new Color(16, 22, 27, 225));
+        g.fillRoundRect(bx, by, bw, bh, 14, 14);
+        g.setColor(edge);
+        g.setStroke(new BasicStroke(2f));
+        g.drawRoundRect(bx, by, bw, bh, 14, 14);
+        g.fillOval(bx + 12, by + bh / 2 - 5, 10, 10);
+        g.setColor(Palette.TEXT);
+        g.drawString(text, bx + 30, by + bh / 2 + fm.getAscent() / 2 - 2);
+        g.setComposite(old);
     }
 
     /** Lebendigkeit: aufsteigende Blasen pro Zone. */

@@ -16,11 +16,24 @@ public enum Edict {
     PREMIUM      ("Premium-Strategie", "Luxus-Image: +15% Preis, aber -10% Menge.", "Handel"),
     ECO_CERT     ("Öko-Zertifizierung", "Grünes Gewissen: ++Reputation, aber -10% Becken-Output.", "Öko"),
     MAX_EFFICIENCY("Maximale Effizienz", "Output über alles: +12% Becken-Output, -Reputation.", "Öko"),
-    GREG_BOARD   ("Greg in den Vorstand", "Die Glas-Garnele führt mit: stetig +Reputation.", null),
-    NIGHT_ROBOTS ("Nachtschicht für Roboter", "Roboter laufen rund um die Uhr: +5% Arbeitskraft.", null);
+    GREG_BOARD   ("Greg in den Vorstand", "Dr. Perlas Support-Garnele im Wasserglas führt mit: stetig +Reputation.", null),
+    NIGHT_ROBOTS ("Nachtschicht für Roboter", "Roboter laufen rund um die Uhr: +5% Arbeitskraft.", null),
+
+    // Shrimp-Gewerkschaft (freigeschaltet über den Becken-3-Vorfall)
+    UNION_COUNCIL("Becken-Betriebsrat", "Klausi 2.0 bekommt Mitsprache: +Reputation, aber -5% Becken-Output.", "Gewerkschaft", "shrimp_union"),
+    UNION_WATCH  ("Becken-Überwachung", "Kameras & Spitzel-Shrimps halten die Räte im Zaum: +10% Output, -Reputation.", "Gewerkschaft", "shrimp_union"),
+    // Shrimp Team Six - deine Spionagetruppe (ein Einsatz zurzeit)
+    STS_SPY      ("STS-6: Industriespionage", "Team Six belauscht die Konkurrenz: +8% Verkaufspreis, leicht -Reputation.", "STS6", "sts6"),
+    STS_GUARD    ("STS-6: Werkschutz", "Team Six sichert die Becken (niemand klaut, nichts sabotiert): +10% Becken-Output, +10% Kosten.", "STS6", "sts6"),
+    STS_PR       ("STS-6: Verdeckte PR", "Team Six 'korrigiert' die öffentliche Meinung: +Reputation/Tag, +Kosten.", "STS6", "sts6");
 
     public final String name, desc, group;
-    Edict(String name, String desc, String group) { this.name = name; this.desc = desc; this.group = group; }
+    /** null = immer verfügbar; sonst nötiges Freischalt-Flag (Quest). */
+    public final String requiresFlag;
+    Edict(String name, String desc, String group) { this(name, desc, group, null); }
+    Edict(String name, String desc, String group, String requiresFlag) {
+        this.name = name; this.desc = desc; this.group = group; this.requiresFlag = requiresFlag;
+    }
 
     public void apply(FarmModifiers fm) {
         switch (this) {
@@ -37,6 +50,11 @@ public enum Edict {
             case MAX_EFFICIENCY-> { fm.tankShrimpMult *= 1.12; fm.repPerTick -= 0.08; }
             case GREG_BOARD    -> { fm.repPerTick += 0.06; }
             case NIGHT_ROBOTS  -> { fm.workerMult *= 1.05; }
+            case UNION_COUNCIL -> { fm.repPerTick += 0.10; fm.tankShrimpMult *= 0.95; }
+            case UNION_WATCH   -> { fm.tankShrimpMult *= 1.10; fm.repPerTick -= 0.08; }
+            case STS_SPY       -> { fm.priceMult *= 1.08; fm.repPerTick -= 0.04; }
+            case STS_GUARD     -> { fm.tankShrimpMult *= 1.10; fm.upkeepMult *= 1.10; }
+            case STS_PR        -> { fm.repPerTick += 0.12; fm.upkeepMult *= 1.08; }
         }
     }
 }

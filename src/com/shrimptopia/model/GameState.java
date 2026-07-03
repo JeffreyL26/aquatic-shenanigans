@@ -29,8 +29,8 @@ public class GameState {
     private final EnumMap<Zone, Building[][]> grids = new EnumMap<>(Zone.class);
     private final List<Building> buildings = new ArrayList<>();
 
-    // --- Ressourcen ---
-    private double money = 12_000;
+    // --- Ressourcen (Garagen-Start: kleines Budget, kleine Träume) ---
+    private double money = 2_500;
     private double water = 80;
     private double feed = 60;
     private double reputation = 60;
@@ -39,6 +39,12 @@ public class GameState {
     // --- Freischaltungen / Politik ---
     private final Set<String> unlocked = new HashSet<>();
     private WorkerPolicy workerPolicy = WorkerPolicy.REGULAR;
+
+    // --- Marketing: aktive Streams erzeugen Nachfrage, kosten Geld pro Tag ---
+    private final java.util.EnumSet<MarketingStream> activeStreams = java.util.EnumSet.noneOf(MarketingStream.class);
+    /** Basis-Nachfrage ohne jedes Marketing: die Nachbarschaft. */
+    public static final double BASE_DEMAND = 6;
+    private double demandLast = 0, demandUsedLast = 0, marketingCostLast = 0;
 
     // --- letzter Tick (HUD/Inspektor) ---
     private double moneyNet, waterNet, feedNet, shrimpNet;
@@ -112,6 +118,31 @@ public class GameState {
     public Building at(Zone zone, int col, int row) { return inBounds(col, row) ? grids.get(zone)[row][col] : null; }
     public Building[][] grid(Zone zone) { return grids.get(zone); }
 
+    /**
+     * Tropico-Stil: baut ein Gebäude am selben Platz zur nächsten Stufe aus.
+     * Kostet den Neupreis abzüglich 50% Restwert der alten Stufe. Liefert die neue
+     * Instanz oder null (keine Stufe / gesperrt / zu teuer).
+     */
+    public Building upgradeBuilding(Building b) {
+        if (b == null) return null;
+        BuildingType next = b.type.upgradesTo();
+        if (next == null) return null;
+        if (!isBuildingUnlocked(next)) {
+            log("Ausbau zu '" + next.displayName + "' ist noch nicht freigeschaltet.", LOG_WARN);
+            return null;
+        }
+        double cost = Math.max(0, next.cost - b.type.cost * 0.5);
+        if (money < cost) { log("Zu wenig Geld für den Ausbau zu '" + next.displayName + "'.", LOG_WARN); return null; }
+        money -= cost;
+        Building nb = new Building(next, b.zone, b.col, b.row);
+        nb.placedOnDay = day;
+        grids.get(b.zone)[b.row][b.col] = nb;
+        buildings.remove(b);
+        buildings.add(nb);
+        log(b.type.displayName + " zu " + next.displayName + " ausgebaut.", LOG_GOOD);
+        return nb;
+    }
+
     // Kompatibilitäts-Shims (Produktionshalle)
     public boolean canPlace(int col, int row) { return canPlace(Zone.PRODUKTION, col, row); }
     public boolean place(BuildingType type, int col, int row, boolean charge) { return place(type, Zone.PRODUKTION, col, row, charge); }
@@ -151,6 +182,10 @@ public class GameState {
     /** Schaltet ein Edikt um; Edikte derselben Gruppe schließen sich aus. */
     public void toggleEdict(Edict e) {
         if (activeEdicts.remove(e)) { log("Edikt aufgehoben: " + e.name, LOG_INFO); return; }
+        if (e.requiresFlag != null && !isUnlocked(e.requiresFlag)) {
+            log("Edikt '" + e.name + "' ist noch nicht freigeschaltet.", LOG_WARN);
+            return;
+        }
         if (e.group != null) {
             java.util.Iterator<Edict> it = activeEdicts.iterator();
             while (it.hasNext()) { Edict o = it.next(); if (e.group.equals(o.group)) { it.remove(); log("Edikt '" + o.name + "' weicht '" + e.name + "'.", LOG_INFO); } }
@@ -158,6 +193,32 @@ public class GameState {
         activeEdicts.add(e);
         log("Edikt erlassen: " + e.name, LOG_GOOD);
     }
+
+    // ===================== Marketing =====================
+
+    public boolean isStreamActive(MarketingStream s) { return activeStreams.contains(s); }
+    public java.util.Set<MarketingStream> getActiveStreams() { return activeStreams; }
+
+    /** Bucht einen Marketing-Stream oder kündigt ihn. */
+    public boolean toggleStream(MarketingStream s) {
+        if (activeStreams.remove(s)) { log("Marketing gekündigt: " + s.displayName, LOG_INFO); return true; }
+        if (s.requiresFlag != null && !isUnlocked(s.requiresFlag)) {
+            log("Marketing '" + s.displayName + "' ist noch nicht freigeschaltet.", LOG_WARN);
+            return false;
+        }
+        activeStreams.add(s);
+        log("Marketing gebucht: " + s.displayName + " (-" + Math.round(s.costPerDay) + "/Tag, +"
+            + Math.round(s.demand) + " Nachfrage)", LOG_GOOD);
+        return true;
+    }
+
+    /** Nachfrage heute (nach Reputations-Faktor). */
+    public double getDemandLast() { return demandLast; }
+    /** Davon durch Verkäufe genutzt. */
+    public double getDemandUsedLast() { return demandUsedLast; }
+    public double getMarketingCostLast() { return marketingCostLast; }
+    /** Reputations-Faktor auf die Nachfrage (0.7 .. 1.3). */
+    public double demandRepFactor() { return 0.7 + (reputation / 100.0) * 0.6; }
 
     public WorkerPolicy getWorkerPolicy() { return workerPolicy; }
     public boolean setWorkerPolicy(WorkerPolicy p) {
@@ -174,30 +235,48 @@ public class GameState {
     public boolean isZoneUnlocked(Zone z) { return z.alwaysUnlocked() || unlocked.contains(z.unlockFlag()); }
     public boolean isBuildingUnlocked(BuildingType t) { return t.unlockFlag() == null || unlocked.contains(t.unlockFlag()); }
 
-    /** Schaltet ein Flag frei (idempotent). msg optional für den Log. */
+    /** Wartende Freischalt-Ankündigungen ({flag, meldung}) für ein Ansage-Popup. */
+    private final List<String[]> announcements = new ArrayList<>();
+
+    /**
+     * Schaltet ein Flag frei (idempotent). msg optional: wird geloggt UND als
+     * Ankündigungs-Dialog vorgemerkt, damit Freischaltungen nicht im Log untergehen.
+     */
     public void unlock(String flag, String msg) {
         if (flag == null || unlocked.contains(flag)) return;
         unlocked.add(flag);
-        if (msg != null) log(msg, LOG_GOOD);
+        if (msg != null) {
+            log(msg, LOG_GOOD);
+            announcements.add(new String[]{flag, msg});
+        }
     }
 
+    /** Nächste wartende Freischalt-Ankündigung oder null. */
+    public String[] pollAnnouncement() { return announcements.isEmpty() ? null : announcements.remove(0); }
+
     private void checkMilestoneUnlocks() {
-        if (isUnlocked("zone.FORSCHUNG") && money >= 12_000)
+        // Sicherheitsnetz: falls die Perla-Quest liegen bleibt, kommt die Halle über Vermögen.
+        if (money >= 6_000)
+            unlock("era.HALLE", "Die Garage hat ausgedient: Hallen-Gebäude freigeschaltet!");
+        boolean halle = isUnlocked("era.HALLE");
+        if (isUnlocked("zone.FORSCHUNG") && money >= 18_000)
             unlock("build.shrimpboost", "Freigeschaltet: SHRIMPBOOST-Fabrik & -Stand! Aus Shrimps + Schalen wird Energydrink.");
-        if (isUnlocked("zone.LOGISTIK") && money >= 28_000)
+        if (isUnlocked("zone.LOGISTIK") && money >= 40_000)
             unlock("build.robotworks", "Freigeschaltet: Garnelen-Roboter-Werk! Roboter zählen als +2 Arbeiter.");
         if (isUnlocked("tier.WARKRILL"))
             unlock("build.barracks", "Freigeschaltet: Krill-Kaserne - jetzt lässt sich eine Armee aufbauen.");
-        if (money >= 5_000)  unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
-        if (buildingCount() >= 5 || day >= 8)
+        if (halle && money >= 9_000)  unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
+        if (halle && (money >= 10_000 || day >= 200))
             unlock("zone.FORSCHUNG", "Neue Zone: Forschungsflügel (Labore). Oben die Reiter wechseln!");
-        if (reputation >= 64 || money >= 9_000)
+        if (halle && (reputation >= 70 || money >= 14_000))
             unlock("zone.EMPFANG", "Neue Zone: Empfang & Garten (Restaurant, Besucherzentrum).");
-        if (money >= 15_000) {
+        if (money >= 30_000) {
             unlock("zone.LOGISTIK", "Neue Zone: Logistik & Export.");
             unlock("build.export", "Freigeschaltet: Export-Hafen (kauft höhere Tiers).");
         }
-        if (money >= 22_000)
+        if (money >= 25_000)
+            unlock("mkt.billboard", "Die Plakatfläche an der A6 ist frei - Marketing 'Autobahn-Plakat' buchbar.");
+        if (money >= 45_000)
             unlock("build.blackmarket", "Ein dubioser Kontakt bietet dir einen Schwarzmarkt an...");
     }
 
@@ -246,23 +325,23 @@ public class GameState {
         waterIn *= opsEff;
         water += waterIn;
 
-        // --- Algen: Wasser -> Futter ---
+        // --- Algen: Wasser -> Futter (Eimer wie Farm) ---
         double algaeWaterDemand = 0;
         for (Building b : buildings)
-            if (b.type == BuildingType.ALGAE_FARM) algaeWaterDemand += b.lastStats.waterUse;
+            if (b.type.isAlgae()) algaeWaterDemand += b.lastStats.waterUse;
         algaeWaterDemand *= opsEff;
         double algaeServe = algaeWaterDemand <= 0 ? 1.0 : clamp01(water / algaeWaterDemand);
         water -= algaeWaterDemand * algaeServe;
         double feedIn = 0;
         for (Building b : buildings)
-            if (b.type == BuildingType.ALGAE_FARM) feedIn += b.lastStats.feedProduce;
+            if (b.type.isAlgae()) feedIn += b.lastStats.feedProduce;
         feedIn *= opsEff * algaeServe;
         feed += feedIn;
 
-        // --- Becken: Wasser+Futter -> Shrimps (je Tier) ---
+        // --- Becken: Wasser+Futter -> Shrimps (je Tier; Aquarium wie Becken) ---
         double tankWaterDemand = 0, tankFeedDemand = 0;
         for (Building b : buildings)
-            if (b.type == BuildingType.SHRIMP_TANK) {
+            if (b.type.isTank()) {
                 tankWaterDemand += b.lastStats.waterUse;
                 tankFeedDemand += b.lastStats.feedUse;
             }
@@ -276,7 +355,7 @@ public class GameState {
 
         double shrimpIn = 0;
         for (Building b : buildings) {
-            if (b.type == BuildingType.SHRIMP_TANK) {
+            if (b.type.isTank()) {
                 double made = b.lastStats.shrimpProduce * opsEff * tankServe;
                 ShrimpTier tier = isTierUnlocked(b.lastStats.tier) ? b.lastStats.tier : ShrimpTier.STANDARD;
                 addStock(tier, made);
@@ -352,25 +431,39 @@ public class GameState {
         double priceGlobal = (1 + labBonus) * repMult * fm.priceMult * tariff;
         double bestPrice = 0;
 
-        // --- Märkte: verkaufen akzeptierte Tiers (wertvollste zuerst) ---
+        // --- Marketing: Streams erzeugen Nachfrage und kosten Geld ---
+        double demandBase = BASE_DEMAND;
+        double mktCost = 0;
+        for (MarketingStream s : activeStreams) { demandBase += s.demand; mktCost += s.costPerDay; }
+        money -= mktCost;
+        marketingCostLast = mktCost;
+        double demandLeft = demandBase * demandRepFactor();
+        demandLast = demandLeft;
+
+        // --- Märkte: verkaufen akzeptierte Tiers (wertvollste zuerst), begrenzt durch Nachfrage.
+        //     Militär-Depot & Schwarzmarkt laufen über Verträge (keine Nachfrage nötig). ---
         double soldTotal = 0;
         for (Building b : buildings) {
             if (!b.type.isMarket()) continue;
+            boolean consumer = b.type != BuildingType.MILITARY_DEPOT && b.type != BuildingType.BLACK_MARKET;
             double cap = b.lastStats.sellCap * opsEff;
             if (cap <= 0) continue;
             ShrimpTier[] accepted = b.type.acceptedTiers().clone();
             Arrays.sort(accepted, (x, y) -> Double.compare(y.baseValue, x.baseValue));
             for (ShrimpTier t : accepted) {
                 if (cap <= 0) break;
+                if (consumer && demandLeft <= 0) break;
                 if (!isTierUnlocked(t)) continue;
                 double avail = shrimpStock.get(t);
                 double take = Math.min(avail, cap);
+                if (consumer) take = Math.min(take, demandLeft);
                 if (take <= 0) continue;
                 double unitPrice = t.baseValue * b.type.priceMult() * priceGlobal;
                 money += take * unitPrice;
                 incomeByType.merge(b.type, take * unitPrice, Double::sum);
                 addStock(t, -take);
                 cap -= take;
+                if (consumer) demandLeft -= take;
                 soldTotal += take;
                 reputation += take * t.repPerUnit;
                 bestPrice = Math.max(bestPrice, unitPrice);
@@ -379,6 +472,7 @@ public class GameState {
         sellPriceEff = bestPrice;
         shrimpSoldLast = soldTotal;
         totalSold += soldTotal;
+        demandUsedLast = demandLast - demandLeft;
 
         // --- Reputation aus Gebäuden (Modi, Restaurant, Besucher, Solar, Kraftwerk ...) ---
         for (Building b : buildings) reputation += b.lastStats.repPerTick;
@@ -396,20 +490,24 @@ public class GameState {
         if (feed < 0) feed = 0;
 
         // --- Status je Gebäude ---
+        boolean demandExhausted = demandLeft <= 0.01;
         for (Building b : buildings) {
             double eff;
             switch (b.type) {
-                case POWER_PLANT, SOLAR_ROOF -> eff = workerRatio;
-                case HOUSING, HEADQUARTERS, ZEN_GARDEN -> eff = powerRatio;
-                case ALGAE_FARM -> eff = opsEff * algaeServe;
-                case SHRIMP_TANK -> eff = opsEff * tankServe;
+                case POWER_PLANT, SOLAR_ROOF, OLD_GENERATOR -> eff = workerRatio;
+                case HOUSING, CAMPER, HEADQUARTERS, ZEN_GARDEN -> eff = powerRatio;
+                case ALGAE_FARM, ALGAE_BUCKET -> eff = opsEff * algaeServe;
+                case SHRIMP_TANK, GARAGE_TANK -> eff = opsEff * tankServe;
                 default -> eff = opsEff;
             }
             String note = "";
+            boolean consumerMarket = b.type.isMarket()
+                && b.type != BuildingType.MILITARY_DEPOT && b.type != BuildingType.BLACK_MARKET;
             if (powerRatio < 0.999 && b.lastStats.powerUse > 0) note = "Strom knapp";
             else if (workerRatio < 0.999 && b.lastStats.workerNeed > 0) note = "Personal fehlt";
-            else if (b.type == BuildingType.SHRIMP_TANK && tankServe < 0.999) note = "Input knapp";
+            else if (b.type.isTank() && tankServe < 0.999) note = "Input knapp";
             else if (b.type.isMarket() && getShrimpTotal() < 1 && b.lastStats.sellCap > 0) note = "Kein Bestand";
+            else if (consumerMarket && demandExhausted && getShrimpTotal() >= 1) note = "Nachfrage gedeckt - Marketing!";
             b.efficiency = clamp01(eff);
             b.statusNote = note;
         }
@@ -455,6 +553,7 @@ public class GameState {
         double rep = t.repProduce;
         if (t == BuildingType.SOLAR_ROOF) rep += 0.03;
         if (t == BuildingType.POWER_PLANT) rep -= 0.05;
+        if (t == BuildingType.OLD_GENERATOR) rep -= 0.02;
 
         List<Mode> ms = BuildingCatalog.modes(t);
         if (b.mode >= 0 && b.mode < ms.size()) {
@@ -475,7 +574,7 @@ public class GameState {
             rep += u.repAdd;
             if (u.tierOverride != null) s.tier = u.tierOverride;
         }
-        if (t == BuildingType.SHRIMP_TANK) s.shrimpProduce *= fm.tankShrimpMult;
+        if (t.isTank()) s.shrimpProduce *= fm.tankShrimpMult;
         s.powerUse *= fm.powerUseMult;
         s.upkeep *= fm.upkeepMult;
         if (s.waterProduce > 0) s.waterProduce *= fm.waterProduceMult;
@@ -504,7 +603,7 @@ public class GameState {
     }
 
     private int countType(BuildingType t) { int n = 0; for (Building b : buildings) if (b.type == t) n++; return n; }
-    private boolean anyTank() { for (Building b : buildings) if (b.type == BuildingType.SHRIMP_TANK) return true; return false; }
+    private boolean anyTank() { for (Building b : buildings) if (b.type.isTank()) return true; return false; }
 
     private void addStock(ShrimpTier t, double d) { shrimpStock.merge(t, d, Double::sum); if (shrimpStock.get(t) < 0) shrimpStock.put(t, 0.0); }
     private void scaleAllStock(double f) { for (ShrimpTier t : ShrimpTier.values()) shrimpStock.put(t, Math.max(0, shrimpStock.get(t) * f)); }
@@ -532,6 +631,8 @@ public class GameState {
 
     public static class LogLine {
         public final int day; public final String text; public final int kind;
+        /** Echtzeit-Stempel: frische Zeilen werden im Log/als Toast hervorgehoben. */
+        public final long time = System.currentTimeMillis();
         public LogLine(int day, String text, int kind) { this.day = day; this.text = text; this.kind = kind; }
     }
 
@@ -601,6 +702,12 @@ public class GameState {
             }
         if (workerPolicy != WorkerPolicy.REGULAR) out.add("Arbeiter-Politik: " + workerPolicy.displayName);
         if (exportTariff > 0) out.add("Akwanov-Embargo: -" + (int) (exportTariff * 100) + "% Verkaufspreis");
+        if (!activeStreams.isEmpty()) {
+            double d = 0, c = 0;
+            for (MarketingStream s : activeStreams) { d += s.demand; c += s.costPerDay; }
+            out.add("Marketing: " + activeStreams.size() + " Stream(s), +" + Math.round(d)
+                + " Nachfrage, -" + Math.round(c) + " Geld/Tag");
+        }
         return out;
     }
     private static String effectDesc(GlobalEffect g) {

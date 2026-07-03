@@ -36,6 +36,13 @@ if errorlevel 1 (
 )
 del sources.txt
 
+echo [ShrimpTopia] Kopiere Ressourcen (Avatare)...
+mkdir out\com\shrimptopia\ui\avatars 2>nul
+xcopy src\com\shrimptopia\ui\avatars\*.svg out\com\shrimptopia\ui\avatars\ /Y /I /Q >nul
+if errorlevel 1 (
+  echo [ShrimpTopia] WARNUNG: Avatar-Ressourcen konnten nicht kopiert werden.
+)
+
 echo [ShrimpTopia] Baue ShrimpTopia.jar...
 REM Alte JAR zuerst entfernen - das Ueberschreiben einer (von OneDrive
 REM synchronisierten) bestehenden Datei kann sonst einen leeren Stub erzeugen.

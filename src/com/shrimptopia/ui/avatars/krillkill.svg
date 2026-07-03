@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="General Krillkill Johnson avatar">
+  <defs>
+    <clipPath id="k-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="k-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#a35c50"></stop>
+      <stop offset="100%" stop-color="#854539"></stop>
+    </radialGradient>
+    <linearGradient id="k-pot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c3ccd1"></stop>
+      <stop offset="45%" stop-color="#9aa3a8"></stop>
+      <stop offset="100%" stop-color="#727b81"></stop>
+    </linearGradient>
+    <linearGradient id="k-rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cfd6da"></stop>
+      <stop offset="100%" stop-color="#8b949a"></stop>
+    </linearGradient>
+    <linearGradient id="k-uni" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#787a55"></stop>
+      <stop offset="100%" stop-color="#5b5d41"></stop>
+    </linearGradient>
+    <radialGradient id="k-ember" cx="70%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#ffe9a8"></stop>
+      <stop offset="45%" stop-color="#ff7a3c"></stop>
+      <stop offset="100%" stop-color="#c2451f"></stop>
+    </radialGradient>
+    <radialGradient id="k-nose" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#e89a78" stop-opacity="0.85"></stop>
+      <stop offset="100%" stop-color="#e89a78" stop-opacity="0"></stop>
+    </radialGradient>
+    <clipPath id="k-eyeL"><circle cx="252" cy="312" r="30"></circle></clipPath>
+    <clipPath id="k-eyeR"><circle cx="350" cy="310" r="23"></circle></clipPath>
+  </defs>
+
+  
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#k-bg)"></circle>
+  <circle cx="300" cy="300" r="286" fill="#0c1519" opacity="0.10" style="mix-blend-mode:multiply"></circle>
+
+  <g clip-path="url(#k-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#76392f"></ellipse>
+
+    
+    <g stroke="#241a16" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 458 C182 458 108 512 86 600 L514 600 C492 512 418 458 300 458 Z" fill="url(#k-uni)"></path>
+      <path d="M300 458 C244 458 206 480 188 518 L202 600 L300 600 Z" fill="#4e5037" stroke="none"></path>
+      <path d="M300 460 L264 540 L300 522 L336 540 Z" fill="#4e5037"></path>
+      <path d="M300 460 L248 562" fill="none" stroke="#d8b24a" stroke-width="9"></path>
+      <path d="M300 460 L352 562" fill="none" stroke="#d8b24a" stroke-width="9"></path>
+    </g>
+    
+    <circle cx="278" cy="520" r="5" fill="#d8b24a" stroke="#241a16" stroke-width="2.5"></circle>
+    <circle cx="322" cy="520" r="5" fill="#d8b24a" stroke="#241a16" stroke-width="2.5"></circle>
+
+    
+    <g stroke="#241a16" stroke-width="6" stroke-linejoin="round">
+      <rect x="116" y="468" width="80" height="30" rx="10" fill="#d8b24a"></rect>
+      <rect x="404" y="468" width="80" height="30" rx="10" fill="#d8b24a"></rect>
+    </g>
+    <path d="M122 472 h68" stroke="#f0d68a" stroke-width="4" stroke-linecap="round"></path>
+    <path d="M410 472 h68" stroke="#f0d68a" stroke-width="4" stroke-linecap="round"></path>
+    <g stroke="#c19a36" stroke-width="6" stroke-linecap="round">
+      <path d="M128 498 L126 524"></path><path d="M144 498 L143 526"></path><path d="M160 498 L160 524"></path><path d="M176 498 L178 526"></path>
+      <path d="M422 498 L420 526"></path><path d="M438 498 L438 524"></path><path d="M454 498 L455 526"></path><path d="M470 498 L472 524"></path>
+    </g>
+
+    
+    <g stroke="#241a16" stroke-width="4">
+      <rect x="204" y="520" width="22" height="14" fill="#c2453f"></rect>
+      <rect x="228" y="520" width="22" height="14" fill="#3f6cc2"></rect>
+      <rect x="252" y="520" width="22" height="14" fill="#4aa86a"></rect>
+      <circle cx="216" cy="552" r="13" fill="#d8b24a"></circle>
+      <circle cx="216" cy="552" r="6" fill="#c2453f" stroke="none"></circle>
+      <path d="M248 546 C260 542 272 548 270 558 C268 566 256 568 250 562 C256 562 260 558 256 554 C252 551 247 552 248 546 Z" fill="#f0875d"></path>
+      <circle cx="264" cy="550" r="1.6" fill="#241a16" stroke="none"></circle>
+    </g>
+
+    
+    <g transform="translate(146 450) rotate(-8)">
+      <path d="M0 0 C16 -8 34 0 30 14 C27 24 12 26 4 18 C12 18 18 12 13 6 C8 1 -2 4 0 0 Z" fill="#f59b74" stroke="#241a16" stroke-width="3.5" stroke-linejoin="round"></path>
+      <path d="M2 2 C12 -3 24 0 24 8" fill="none" stroke="#e07a52" stroke-width="2.5"></path>
+      <circle cx="22" cy="3" r="1.8" fill="#241a16"></circle>
+      <path d="M20 6 L30 -10" stroke="#241a16" stroke-width="3.5" stroke-linecap="round"></path>
+    </g>
+
+    
+    <path d="M264 404 L264 466 Q300 490 336 466 L336 404 Z" fill="#d9ad84" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M264 428 Q300 450 336 428 L336 404 L264 404 Z" fill="#c0916a" stroke="none"></path>
+    <path d="M284 466 Q300 478 316 466" fill="none" stroke="#a87a55" stroke-width="4" stroke-linecap="round"></path>
+
+    
+    <path d="M194 312 q-24 2 -22 28 q3 24 26 24 q12 -2 12 -16 z" fill="#d9ad84" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M406 312 q24 2 22 28 q-3 24 -26 24 q-12 -2 -12 -16 z" fill="#d9ad84" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M186 332 q9 4 9 22 M414 332 q-9 4 -9 22" fill="none" stroke="#a87a55" stroke-width="3.5"></path>
+
+    
+    <path d="M300 198 C228 198 192 244 192 308 C192 352 210 392 248 416 C270 430 330 430 352 416 C390 392 408 352 408 308 C408 244 372 198 300 198 Z" fill="#e8c0a0" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    
+    <path d="M248 416 C214 396 200 358 196 320 C210 358 238 384 268 396 C300 408 332 400 362 388 C390 376 400 354 404 320 C400 358 386 396 352 416 C330 430 270 430 248 416 Z" fill="#d9ab84" stroke="none"></path>
+    
+    <path d="M300 206 C266 206 238 222 224 250 C252 236 348 236 376 250 C362 222 334 206 300 206 Z" fill="#f2cfac" stroke="none" opacity="0.55"></path>
+    
+    <ellipse cx="232" cy="368" rx="26" ry="16" fill="#d98e6e" opacity="0.55"></ellipse>
+    <ellipse cx="368" cy="368" rx="26" ry="16" fill="#d98e6e" opacity="0.55"></ellipse>
+    <path d="M226 360 q6 4 14 4 M360 360 q6 4 14 4" fill="none" stroke="#c97e60" stroke-width="2.5" stroke-linecap="round" opacity="0.6"></path>
+    
+    <path d="M252 414 C272 426 328 426 348 414 C338 424 322 430 300 430 C278 430 262 424 252 414 Z" fill="#b98a64" stroke="none" opacity="0.4"></path>
+
+    
+    <path d="M210 266 Q246 244 288 262 Q252 260 218 280 Z" fill="#46433f" stroke="#241a16" stroke-width="4" stroke-linejoin="round"></path>
+    <path d="M316 276 Q352 260 388 278 Q354 270 322 286 Z" fill="#46433f" stroke="#241a16" stroke-width="4" stroke-linejoin="round"></path>
+    <g stroke="#615d58" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
+      <path d="M222 268 l-6 6"></path><path d="M244 256 l-4 7"></path><path d="M268 256 l-2 8"></path>
+      <path d="M330 270 l-3 8"></path><path d="M354 264 l-1 8"></path><path d="M376 270 l3 7"></path>
+    </g>
+
+    
+    <ellipse cx="252" cy="316" rx="20" ry="13" fill="#d9ab84" opacity="0.5"></ellipse>
+    <ellipse cx="350" cy="314" rx="16" ry="11" fill="#d9ab84" opacity="0.5"></ellipse>
+    <circle cx="252" cy="312" r="29" fill="#fbfdfd" stroke="#241a16" stroke-width="6"></circle>
+    <circle cx="350" cy="310" r="22" fill="#fbfdfd" stroke="#241a16" stroke-width="6"></circle>
+    
+    <path d="M232 304 q8 6 16 4 M236 322 q8 2 14 -2" fill="none" stroke="#e0a0a0" stroke-width="2" stroke-linecap="round" opacity="0.7"></path>
+    
+    <g clip-path="url(#k-eyeL)">
+      <circle cx="272" cy="314" r="13" fill="#5b7a8a"></circle>
+      <circle cx="272" cy="314" r="7.5" fill="#16110a"></circle>
+      <circle cx="268" cy="310" r="3.4" fill="#fff"></circle>
+    </g>
+    <g clip-path="url(#k-eyeR)">
+      <circle cx="334" cy="312" r="11" fill="#5b7a8a"></circle>
+      <circle cx="334" cy="312" r="6.5" fill="#16110a"></circle>
+      <circle cx="330" cy="308" r="2.8" fill="#fff"></circle>
+    </g>
+    
+    <path d="M226 300 Q252 286 278 300" fill="none" stroke="#241a16" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M330 298 Q350 286 370 298" fill="none" stroke="#241a16" stroke-width="5" stroke-linecap="round"></path>
+    
+    <path d="M230 338 Q252 346 276 336" fill="none" stroke="#c0916a" stroke-width="4" stroke-linecap="round"></path>
+    <path d="M332 334 Q350 340 368 332" fill="none" stroke="#c0916a" stroke-width="4" stroke-linecap="round"></path>
+
+    
+    <path d="M300 320 C290 342 282 360 290 372 Q300 382 314 370" fill="none" stroke="#c0916a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+    <ellipse cx="300" cy="364" rx="18" ry="13" fill="url(#k-nose)"></ellipse>
+    <ellipse cx="290" cy="370" rx="5" ry="4" fill="#a87a55" opacity="0.6"></ellipse>
+    <ellipse cx="312" cy="368" rx="5" ry="4" fill="#a87a55" opacity="0.6"></ellipse>
+    <ellipse cx="296" cy="356" rx="6" ry="8" fill="#f2cfac" opacity="0.6"></ellipse>
+
+    
+    <path d="M196 296 C189 307 189 316 196 316 C203 316 203 307 196 296 Z" fill="#cfeeff" stroke="#7fb4cf" stroke-width="2"></path>
+    <circle cx="193" cy="306" r="2" fill="#ffffff" opacity="0.8"></circle>
+    <path d="M210 256 C205 264 205 271 210 271 C215 271 215 264 210 256 Z" fill="#cfeeff" stroke="#7fb4cf" stroke-width="2"></path>
+
+    
+    <path d="M254 386 Q300 424 350 388 Q300 404 254 386 Z" fill="#ffffff" stroke="#241a16" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M276 394 L276 408 M300 398 L300 412 M324 394 L324 408" stroke="#241a16" stroke-width="3"></path>
+    <path d="M268 412 Q300 422 334 412" fill="none" stroke="#b56a58" stroke-width="5" stroke-linecap="round"></path>
+
+    
+    <path d="M300 380 C280 358 250 354 230 366 C216 374 216 388 230 390 C248 392 272 386 300 382 C328 386 352 392 370 390 C384 388 384 374 370 366 C350 354 320 358 300 380 Z" fill="#4a4744" stroke="#241a16" stroke-width="5" stroke-linejoin="round"></path>
+    <g stroke="#6a6660" stroke-width="2.5" stroke-linecap="round" opacity="0.85" fill="none">
+      <path d="M236 370 Q260 366 286 376"></path>
+      <path d="M314 376 Q340 366 364 370"></path>
+      <path d="M244 380 Q268 378 292 384"></path>
+      <path d="M308 384 Q332 378 356 380"></path>
+    </g>
+    <path d="M232 386 q-4 6 -2 10 M368 386 q4 6 2 10" fill="none" stroke="#3a3835" stroke-width="4" stroke-linecap="round"></path>
+
+    
+    <g transform="rotate(-18 348 396)">
+      <rect x="346" y="388" width="122" height="17" rx="7.5" fill="#6b4a2f" stroke="#241a16" stroke-width="5"></rect>
+      <rect x="346" y="388" width="22" height="17" rx="7.5" fill="#4f3621" stroke="#241a16" stroke-width="5"></rect>
+      <path d="M372 392 h86" stroke="#8a6442" stroke-width="3" stroke-linecap="round"></path>
+      <ellipse cx="467" cy="396" rx="11" ry="9" fill="url(#k-ember)" stroke="#241a16" stroke-width="3"></ellipse>
+    </g>
+    <path d="M488 356 C498 344 486 334 496 322 C506 312 494 304 502 294" fill="none" stroke="#cdd6da" stroke-width="5" stroke-linecap="round" opacity="0.5"></path>
+    <path d="M478 366 C486 358 480 350 488 342" fill="none" stroke="#cdd6da" stroke-width="4" stroke-linecap="round" opacity="0.35"></path>
+
+    
+    <path d="M176 214 C146 212 144 248 174 248" fill="none" stroke="#6a737a" stroke-width="14" stroke-linecap="round"></path>
+    <path d="M424 214 C454 212 456 248 426 248" fill="none" stroke="#6a737a" stroke-width="14" stroke-linecap="round"></path>
+    <path d="M176 214 C150 213 148 246 174 246" fill="none" stroke="#9aa3a8" stroke-width="7" stroke-linecap="round"></path>
+    <path d="M424 214 C450 213 452 246 426 246" fill="none" stroke="#9aa3a8" stroke-width="7" stroke-linecap="round"></path>
+    
+    <path d="M180 236 C180 148 240 110 300 110 C360 110 420 148 420 236 Z" fill="url(#k-pot)" stroke="#241a16" stroke-width="7" stroke-linejoin="round"></path>
+    
+    <rect x="170" y="228" width="260" height="26" rx="13" fill="url(#k-rim)" stroke="#241a16" stroke-width="7"></rect>
+    
+    <path d="M228 150 C246 130 278 122 300 122" fill="none" stroke="#dde4e7" stroke-width="9" stroke-linecap="round"></path>
+    <ellipse cx="248" cy="186" rx="11" ry="26" fill="#dde4e7" opacity="0.55"></ellipse>
+    <path d="M360 150 C376 162 386 184 388 210" fill="none" stroke="#6c757b" stroke-width="6" stroke-linecap="round" opacity="0.6"></path>
+    
+    <circle cx="194" cy="241" r="4" fill="#6c757b"></circle>
+    <circle cx="406" cy="241" r="4" fill="#6c757b"></circle>
+    <circle cx="300" cy="241" r="4" fill="#6c757b"></circle>
+
+    
+    <path d="M274 116 C256 90 248 68 260 50" fill="none" stroke="#241a16" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M326 116 C344 90 352 68 340 50" fill="none" stroke="#241a16" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M260 50 C252 42 254 32 264 32 C272 32 274 42 266 48 C271 45 272 39 267 37" fill="none" stroke="#f0875d" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <path d="M340 50 C348 42 346 32 336 32 C328 32 326 42 334 48 C329 45 328 39 333 37" fill="none" stroke="#f0875d" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <circle cx="274" cy="118" r="5" fill="#e8e2cf" stroke="#241a16" stroke-width="2.5"></circle>
+    <circle cx="326" cy="118" r="5" fill="#e8e2cf" stroke="#241a16" stroke-width="2.5"></circle>
+  </g>
+</svg>

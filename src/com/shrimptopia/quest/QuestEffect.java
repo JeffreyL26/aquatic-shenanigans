@@ -37,7 +37,9 @@ public class QuestEffect {
             case SHRIMP -> gs.addShrimp(tier == null ? ShrimpTier.STANDARD : tier, amount);
             case MULT_SHRIMP -> gs.multShrimp(amount);
             case UNLOCK -> gs.unlock(key, null);
-            case GRANT_FLAG -> qs.setFlag(key);
+            // Flag in BEIDEN Welten setzen: Quest-Bedingungen lesen qs, Upgrade-/Modus-Sperren
+            // (z.B. Krillkill-Bootcamp) lesen gs.isUnlocked - sonst bleibt das Upgrade ewig zu.
+            case GRANT_FLAG -> { qs.setFlag(key); gs.unlock(key, null); }
             case START_QUEST -> qs.forceStart(key);
             case TARIFF -> gs.setExportTariff(amount);
             case RIVAL -> qs.addRival(amount);

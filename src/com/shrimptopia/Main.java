@@ -1,7 +1,9 @@
 package com.shrimptopia;
 
+import com.shrimptopia.model.Building;
 import com.shrimptopia.model.BuildingType;
 import com.shrimptopia.model.GameState;
+import com.shrimptopia.model.MarketingStream;
 import com.shrimptopia.model.Zone;
 import com.shrimptopia.ui.GameFrame;
 import javax.imageio.ImageIO;
@@ -31,48 +33,58 @@ public class Main {
         SwingUtilities.invokeLater(() -> new GameFrame().setVisible(true));
     }
 
-    /** Baut eine funktionierende Wirtschaft auf und simuliert sie - rein in der Konsole. */
+    /** Simuliert Garagen-Start, Hallen-Ausbau und Marketing - rein in der Konsole. */
     private static void selfTest() {
-        System.out.println("== ShrimpTopia Selbsttest ==");
+        System.out.println("== ShrimpTopia Selbsttest (Garagen-Start) ==");
         GameState gs = new GameState(new Random(42));
 
-        gs.place(BuildingType.POWER_PLANT,  0, 0, true);
-        gs.place(BuildingType.WATER_PLANT,  1, 0, true);
-        gs.place(BuildingType.ALGAE_FARM,   2, 0, true);
-        gs.place(BuildingType.SHRIMP_TANK,  3, 0, true);
-        gs.place(BuildingType.SHRIMP_TANK,  4, 0, true);
-        gs.place(BuildingType.HOUSING,      0, 1, true);
-        gs.place(BuildingType.SALES_OFFICE, 1, 1, true);
-
-        System.out.printf("Startkapital nach Bau: %.0f Geld, %d Gebäude%n",
-            gs.getMoney(), gs.buildingCount());
-        System.out.println("Tag |    Geld | Wasser | Futter | Shrimp |  Rep | Strom(P/V) | Arb(V/B)");
+        // Phase 1: Garagen-Wirtschaft (Start-Tier)
+        gs.place(BuildingType.OLD_GENERATOR, 0, 0, true);
+        gs.place(BuildingType.RAIN_BARREL,   1, 0, true);
+        gs.place(BuildingType.RAIN_BARREL,   2, 0, true);
+        gs.place(BuildingType.ALGAE_BUCKET,  3, 0, true);
+        gs.place(BuildingType.ALGAE_BUCKET,  4, 0, true);
+        gs.place(BuildingType.GARAGE_TANK,   5, 0, true);
+        gs.place(BuildingType.GARAGE_TANK,   6, 0, true);
+        gs.place(BuildingType.YARD_SALE,     0, 1, true);
+        double start = gs.getMoney();
+        System.out.printf("Startkapital nach Garagen-Bau: %.0f Geld, %d Gebäude%n", start, gs.buildingCount());
+        System.out.println("Tag |   Geld | Wasser | Futter | Shrimp | Nachfrage | verkauft");
 
         boolean ok = true;
-        for (int i = 1; i <= 120; i++) {
+        for (int i = 1; i <= 100 && ok; i++) {
             gs.tick();
-            if (i % 15 == 0 || i == 1) {
-                System.out.printf("%3d | %7.0f | %6.0f | %6.0f | %6.0f | %4.0f | %4d/%-4d | %3d/%-3d%n",
+            if (i % 20 == 0 || i == 1)
+                System.out.printf("%3d | %6.0f | %6.0f | %6.0f | %6.1f | %9.1f | %8.1f%n",
                     gs.getDay(), gs.getMoney(), gs.getWater(), gs.getFeed(), gs.getShrimp(),
-                    gs.getReputation(), gs.getPowerProduced(), gs.getPowerUsed(),
-                    gs.getWorkersAvail(), gs.getWorkersUsed());
-            }
-            if (!Double.isFinite(gs.getMoney()) || !Double.isFinite(gs.getShrimp())
-                || !Double.isFinite(gs.getWater()) || !Double.isFinite(gs.getFeed())) {
-                ok = false;
-                System.out.println("FEHLER: nicht-endlicher Wert in Tick " + i);
-                break;
-            }
+                    gs.getDemandLast(), gs.getShrimpSoldLast());
+            ok = finite(gs);
         }
+        if (gs.getMoney() <= start) { ok = false; System.out.println("WARN: Garagen-Wirtschaft wächst nicht."); }
+
+        // Phase 2: Halle freischalten, Garagen-Technik ausbauen, Marketing buchen
+        gs.unlock("era.HALLE", null);
+        gs.addMoney(4000);
+        gs.toggleStream(MarketingStream.FLYER);
+        int upgraded = 0;
+        for (Building b : new java.util.ArrayList<>(gs.buildings()))
+            if (b.type.upgradesTo() != null && gs.upgradeBuilding(b) != null) upgraded++;
+        double p2 = gs.getMoney();
+        System.out.println("Phase 2: Halle frei, " + upgraded + " Gebäude ausgebaut, Marketing 'Flugblätter' aktiv.");
+        for (int i = 1; i <= 100 && ok; i++) { gs.tick(); ok = finite(gs); }
 
         System.out.println("----");
-        System.out.printf("Ende: %.0f Geld, Reputation %.0f, Ziel erreicht: %s, pleite: %s%n",
-            gs.getMoney(), gs.getReputation(), gs.isGoalReached(), gs.isBankrupt());
-        // Mit dieser Konfiguration sollte die Wirtschaft profitabel wachsen.
-        if (gs.getMoney() <= 12000 - 3450) {
-            System.out.println("WARN: Wirtschaft wächst nicht wie erwartet.");
-        }
+        System.out.printf("Ende: %.0f Geld (Phase-2-Start %.0f), Nachfrage %.1f, verkauft %.1f/Tag, pleite: %s%n",
+            gs.getMoney(), p2, gs.getDemandLast(), gs.getShrimpSoldLast(), gs.isBankrupt());
+        if (gs.getMoney() <= p2) { ok = false; System.out.println("WARN: Hallen-Wirtschaft wächst nicht."); }
         System.out.println(ok ? "SELFTEST OK" : "SELFTEST FAIL");
+    }
+
+    private static boolean finite(GameState gs) {
+        boolean f = Double.isFinite(gs.getMoney()) && Double.isFinite(gs.getShrimp())
+            && Double.isFinite(gs.getWater()) && Double.isFinite(gs.getFeed());
+        if (!f) System.out.println("FEHLER: nicht-endlicher Wert an Tag " + gs.getDay());
+        return f;
     }
 
     /** Rendert die Oberfläche offscreen in mehrere PNGs (Tutorial, Haupt-UI, Quest-Popup). */
@@ -89,11 +101,16 @@ public class Main {
 
                 GameState gs = f.game();
                 // Freischaltungen, damit Zonen/Tiers in der UI sichtbar sind
-                for (String flag : new String[]{"zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
+                for (String flag : new String[]{"era.HALLE", "zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
                         "build.water_hub", "build.export", "build.military", "build.genlab",
                         "build.shrimpboost", "build.robotworks", "build.barracks", "tier.WARKRILL",
-                        "tier.BIO", "tier.GOURMET", "tier.PROTEIN", "krillkill.bootcamp"})
+                        "tier.BIO", "tier.GOURMET", "tier.PROTEIN", "krillkill.bootcamp",
+                        "mkt.radio", "mkt.social", "mkt.tube", "mkt.billboard", "mkt.tv",
+                        "sts6", "shrimp_union"})
                     gs.unlock(flag, null);
+                gs.toggleStream(com.shrimptopia.model.MarketingStream.FLYER);
+                gs.toggleStream(com.shrimptopia.model.MarketingStream.RADIO);
+                gs.toggleStream(com.shrimptopia.model.MarketingStream.SOCIAL);
 
                 // Produktionshalle bestücken
                 BuildingType[] prod = {
@@ -104,10 +121,17 @@ public class Main {
                 int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1},{2,1},{3,1},{4,1} };
                 for (int i = 0; i < prod.length; i++) gs.place(prod[i], Zone.PRODUKTION, pos[i][0], pos[i][1], false);
                 for (int i = 0; i < 30; i++) gs.tick();
+                while (gs.pollAnnouncement() != null) { }   // Meilenstein-Ansagen abräumen (stören die Snaps)
 
                 // 1) Tutorial-Overlay (Schritt 1 ist aktiv)
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_tutorial.png");
+
+                // 1b) Almanach-Schritte des Tutorials: Tier-Menü, dann Marketing-Menü
+                for (int i = 0; i < 11; i++) f.tutorialAdvance();
+                snap(f.getRootPane(), "shrimptopia_v3_tutorial_tiers.png");
+                f.tutorialAdvance();
+                snap(f.getRootPane(), "shrimptopia_v3_tutorial_marketing.png");
 
                 // 2) Haupt-UI mit ausgewähltem Becken (Inspektor)
                 f.tutorialSkip();
@@ -116,27 +140,81 @@ public class Main {
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_main.png");
 
+                // 2b) Inspektor mit Ausbau-Button (Garagen-Aquarium)
+                gs.place(BuildingType.GARAGE_TANK, Zone.PRODUKTION, 5, 1, false);
+                f.selectBuilding(gs.at(Zone.PRODUKTION, 5, 1));
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_ausbau.png");
+
                 // 3) Quest-Popup (General Krillkill)
                 f.debugForceQuest("krillkill_intro");
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_popup.png");
 
-                // 4) Spielende-Popup
+                // 4) Ergebnis-Karte (Konsequenzen der Wahl)
                 f.resolveQuest(0);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_outcome.png");
+                f.dismissOutcome();
+
+                // 4b) Spielende-Popup
                 f.debugForceQuest("end_imperator");
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_ending.png");
 
-                // 5) Almanach (Vermögen-Tab)
-                f.resolveQuest(0);
+                // 5) Quest-Baum: einige Stränge anspielen, damit alle Zustände sichtbar sind
+                f.resolveQuest(0); f.dismissOutcome();
+                f.debugForceQuest("beh_formular");  f.resolveQuest(0); f.dismissOutcome();
+                f.debugForceQuest("tier_wuerde");   f.resolveQuest(0); f.dismissOutcome();
+                f.debugForceQuest("inf_viral");     f.resolveQuest(0); f.dismissOutcome();
+                f.debugForceQuest("akwanov_intro"); f.resolveQuest(1); f.dismissOutcome();   // Rivalität beginnt
+
+                // 5b) Freischalt-Ansage (Meilenstein-Unlock als Dialog statt Logzeile)
+                gs.unlock("build.blackmarket", "Ein dubioser Kontakt bietet dir einen Schwarzmarkt an...");
+                f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_announce.png");
+                f.dismissAnnouncement();
+
+                // 5c) Kyle-Popup (neuer Reddit-Rivale mit eigenem Avatar)
+                f.debugForceQuest("kyle_intro");
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_kyle.png");
+                f.resolveQuest(1); f.dismissOutcome();
+
+                // 5d) Becken-3-Vorfall (versteckte Kette, hier erzwungen)
+                f.debugForceQuest("boost_1");
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_boost.png");
+                f.resolveQuest(0); f.dismissOutcome();
+
+                // 5e) Dmitri-Quest (Praktikant mit eigenem Avatar)
+                f.debugForceQuest("dmitri_zeugnis");
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_dmitri.png");
+                f.resolveQuest(2); f.dismissOutcome();
+
+                f.openQuestTree();
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_questtree.png");
+                f.debugScrollQuestTree(600);
+                snap(f.getRootPane(), "shrimptopia_v3_questtree2.png");
+
+                // 6) Almanach (Vermögen-Tab)
                 f.openAlmanac(0);
                 f.validate();
                 snap(f.getRootPane(), "shrimptopia_v3_almanac.png");
 
-                // 5) HQ-Kommando (Edikte)
+                // 7) Marketing-Tab (Streams & Nachfrage)
+                f.openAlmanac(5);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_marketing.png");
+
+                // 8) HQ-Kommando (Edikte)
                 gs.toggleEdict(com.shrimptopia.model.Edict.OPEN_HOUSE);
                 gs.toggleEdict(com.shrimptopia.model.Edict.FREE_TRADE);
-                f.openAlmanac(5);
+                gs.toggleEdict(com.shrimptopia.model.Edict.STS_GUARD);
+                gs.toggleEdict(com.shrimptopia.model.Edict.UNION_COUNCIL);
+                f.openAlmanac(6);
                 f.validate();
                 snap(f.getRootPane(), "shrimptopia_v3_hq.png");
             });

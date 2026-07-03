@@ -3,9 +3,11 @@ package com.shrimptopia.ui;
 import com.shrimptopia.model.BuildingType;
 import com.shrimptopia.model.Edict;
 import com.shrimptopia.model.GameState;
+import com.shrimptopia.model.MarketingStream;
 import com.shrimptopia.model.ResourceType;
 import com.shrimptopia.model.ShrimpTier;
 import com.shrimptopia.quest.Quest;
+import com.shrimptopia.quest.QuestTree;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -17,12 +19,16 @@ import java.util.Map;
 /** Tropico-artiger Almanach: tiefe Kennzahlen in Tabs (Vermögen, Ressourcen, Tiers, Effekte, Statistik). */
 public class AlmanacPanel extends JComponent {
 
-    private static final String[] TABS = { "Vermögen", "Ressourcen", "Shrimp-Tiers", "Effekte", "Statistik", "HQ-Kommando" };
+    private static final String[] TABS = { "Vermögen", "Ressourcen", "Shrimp-Tiers", "Effekte", "Statistik", "Marketing", "HQ-Kommando" };
+    /** Tab-Indizes für Aufrufer (GameFrame, Tutorial). */
+    public static final int TAB_TIERS = 2, TAB_MARKETING = 5, TAB_HQ = 6;
     private final GameFrame frame;
     private int tab = 0;
     private final Rectangle card = new Rectangle();
     private final java.util.List<Rectangle> edictRects = new java.util.ArrayList<>();
     private final java.util.List<Edict> edictAt = new java.util.ArrayList<>();
+    private final java.util.List<Rectangle> mktRects = new java.util.ArrayList<>();
+    private final java.util.List<MarketingStream> mktAt = new java.util.ArrayList<>();
     private final ThemeButton.FlatToggle[] tabBtn = new ThemeButton.FlatToggle[TABS.length];
     private final ThemeButton.FlatButton closeBtn;
 
@@ -45,10 +51,16 @@ public class AlmanacPanel extends JComponent {
         addMouseListener(new MouseAdapter() {
             @Override public void mousePressed(MouseEvent e) {
                 if (!card.contains(e.getPoint())) { close(); return; }
-                if (tab == TABS.length - 1) {   // HQ-Kommando: Edikte umschalten
+                if (tab == TAB_HQ) {   // HQ-Kommando: Edikte umschalten
                     for (int i = 0; i < edictRects.size(); i++)
                         if (edictRects.get(i).contains(e.getPoint())) {
                             frame.game().toggleEdict(edictAt.get(i)); frame.refreshAll(); repaint(); return;
+                        }
+                }
+                if (tab == TAB_MARKETING) {   // Marketing: Streams buchen/kündigen
+                    for (int i = 0; i < mktRects.size(); i++)
+                        if (mktRects.get(i).contains(e.getPoint())) {
+                            frame.game().toggleStream(mktAt.get(i)); frame.refreshAll(); repaint(); return;
                         }
                 }
             }
@@ -57,6 +69,8 @@ public class AlmanacPanel extends JComponent {
 
     public void open(int t) { tab = Math.max(0, Math.min(t, TABS.length - 1)); refreshTabs(); setVisible(true); revalidate(); doLayout(); repaint(); }
     public void close() { setVisible(false); frame.afterAlmanacClosed(); }
+    /** Karten-Rechteck (für das Tutorial-Spotlight aufs Tier-Menü). */
+    public Rectangle cardBounds() { return new Rectangle(card); }
     private void refreshTabs() { for (int i = 0; i < tabBtn.length; i++) tabBtn[i].setSelected(i == tab); }
     @Override public boolean contains(int x, int y) { return isVisible(); }   // modal: faengt alle Klicks
 
@@ -99,6 +113,7 @@ public class AlmanacPanel extends JComponent {
             case 2 -> drawTiers(g, gs, cx, cy, cw, bottom);
             case 3 -> drawEffects(g, gs, cx, cy, cw, bottom);
             case 4 -> drawStats(g, gs, cx, cy, cw);
+            case TAB_MARKETING -> drawMarketing(g, gs, cx, cy, cw, bottom);
             default -> drawKommando(g, gs, cx, cy, cw, bottom);
         }
         g.dispose();
@@ -139,6 +154,8 @@ public class AlmanacPanel extends JComponent {
         yy += 12;
         head(g, x, yy, "Ausgaben pro Tag"); yy += 22;
         yy = row(g, x, yy, w, "Betriebskosten (Upkeep)", "-" + n(gs.getUpkeepLast()), Palette.BAD);
+        if (gs.getMarketingCostLast() > 0)
+            yy = row(g, x, yy, w, "Marketing-Streams", "-" + n(gs.getMarketingCostLast()), Palette.BAD);
         yy += 12;
         g.setColor(Palette.BG_DARK); g.fillRect(x, yy - 8, w, 1);
         yy = row(g, x, yy + 8, w, "Netto pro Tag", signed(gs.getMoneyNet()), gs.getMoneyNet() >= 0 ? Palette.GOOD : Palette.BAD);
@@ -240,6 +257,52 @@ public class AlmanacPanel extends JComponent {
         }
     }
 
+    // ---------------- Marketing (Nachfrage & Streams) ----------------
+    private void drawMarketing(Graphics2D g, GameState gs, int x, int y, int w, int bottom) {
+        mktRects.clear(); mktAt.clear();
+        double used = gs.getDemandUsedLast(), dem = gs.getDemandLast();
+        g.setFont(Palette.FONT_H1); g.setColor(Palette.ACCENT2);
+        g.drawString(Math.round(dem) + " Nachfrage / Tag", x, y);
+        g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
+        g.drawString("Basis " + Math.round(GameState.BASE_DEMAND) + " (Nachbarschaft) + Streams, x"
+            + String.format("%.2f", gs.demandRepFactor()) + " Reputations-Faktor   -   gestern verkauft: "
+            + Math.round(used) + "   -   Marketing-Kosten: " + Math.round(gs.getMarketingCostLast()) + "/Tag", x, y + 18);
+        g.drawString("Verbraucher-Märkte (Klapptisch, Börse, Restaurant, Export) verkaufen nur, was nachgefragt wird."
+            + " Militär & Schwarzmarkt laufen über Verträge.", x, y + 34);
+
+        int yy = y + 54;
+        head(g, x, yy, "Streams - Klick bucht oder kündigt (Kosten laufen pro Tag)"); yy += 18;
+        int rowH = 44;
+        for (MarketingStream s : MarketingStream.values()) {
+            boolean on = gs.isStreamActive(s);
+            boolean locked = s.requiresFlag != null && !gs.isUnlocked(s.requiresFlag);
+            Rectangle rr = new Rectangle(x, yy, w, rowH - 4);
+            mktRects.add(rr); mktAt.add(s);
+            g.setColor(on ? new Color(0, 90, 84) : Palette.PANEL_LIGHT);
+            g.fillRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8);
+            if (on) { g.setColor(Palette.ACCENT); g.setStroke(new BasicStroke(1.5f)); g.drawRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8); }
+            g.setFont(Palette.FONT_BOLD); g.setColor(locked ? Palette.TEXT_DIM : Palette.TEXT);
+            g.drawString(s.displayName + (locked ? "  (gesperrt)" : ""), rr.x + 12, rr.y + 16);
+            g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
+            String sub = s.desc;
+            if (locked) {
+                String hint = QuestTree.unlockHintFor(s.requiresFlag, frame.questSystem());
+                if (hint != null) sub = "Freischaltung: " + hint;
+            }
+            g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 250), rr.x + 12, rr.y + 32);
+            g.setFont(Palette.FONT_BOLD);
+            String eco = "+" + Math.round(s.demand) + " Nachfrage   -" + Math.round(s.costPerDay) + "/Tag";
+            g.setColor(locked ? Palette.TEXT_DIM : Palette.MONEY);
+            g.drawString(eco, rr.x + w - g.getFontMetrics().stringWidth(eco) - 60, rr.y + 16);
+            g.setColor(on ? Palette.GOOD : Palette.TEXT_DIM);
+            String tag = on ? "AN" : "AUS";
+            g.drawString(tag, rr.x + w - g.getFontMetrics().stringWidth(tag) - 14, rr.y + 25);
+            yy += rowH;
+        }
+        g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
+        g.drawString("Tipp: Neue Streams schaltest du über Quests frei (Mira, Krusten & Krusten, ShrimpTube).", x, Math.min(yy + 18, bottom));
+    }
+
     // ---------------- HQ-Kommando & Edikte ----------------
     private void drawKommando(Graphics2D g, GameState gs, int x, int y, int w, int bottom) {
         edictRects.clear(); edictAt.clear();
@@ -248,21 +311,28 @@ public class AlmanacPanel extends JComponent {
             + "   -   Gebäude " + n(gs.buildingCount()) + "   -   Armee-Stärke " + n(gs.getArmy()), x, y);
         int yy = y + 26;
         head(g, x, yy, "Edikte - Klick erlässt/hebt auf; Edikte derselben Gruppe schließen sich aus"); yy += 18;
-        int rowH = 38;
+        int rowH = Math.max(28, Math.min(38, (bottom - yy) / Edict.values().length));
         for (Edict e : Edict.values()) {
             boolean on = gs.isEdictActive(e);
-            Rectangle rr = new Rectangle(x, yy, w, rowH - 4);
+            boolean locked = e.requiresFlag != null && !gs.isUnlocked(e.requiresFlag);
+            Rectangle rr = new Rectangle(x, yy, w, rowH - 3);
             edictRects.add(rr); edictAt.add(e);
             g.setColor(on ? new Color(0, 90, 84) : Palette.PANEL_LIGHT);
             g.fillRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8);
             if (on) { g.setColor(Palette.ACCENT); g.setStroke(new BasicStroke(1.5f)); g.drawRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8); }
-            g.setFont(Palette.FONT_BOLD); g.setColor(Palette.TEXT);
-            g.drawString(e.name + (e.group != null ? "   [" + e.group + "]" : "   [frei]"), rr.x + 12, rr.y + 15);
-            g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), e.desc, w - 90), rr.x + 12, rr.y + 30);
-            g.setFont(Palette.FONT_BOLD); g.setColor(on ? Palette.GOOD : Palette.TEXT_DIM);
-            String tag = on ? "AN" : "AUS";
-            g.drawString(tag, rr.x + w - g.getFontMetrics().stringWidth(tag) - 14, rr.y + 22);
+            g.setFont(Palette.FONT_BOLD); g.setColor(locked ? Palette.TEXT_DIM : Palette.TEXT);
+            g.drawString(e.name + (e.group != null ? "   [" + e.group + "]" : "   [frei]"), rr.x + 12, rr.y + 13);
+            g.setFont(Palette.FONT_TINY); g.setColor(Palette.TEXT_DIM);
+            String sub = e.desc;
+            if (locked) {
+                String hint = QuestTree.unlockHintFor(e.requiresFlag, frame.questSystem());
+                sub = hint != null ? "Freischaltung: " + hint : "noch gesperrt";
+            }
+            g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 90), rr.x + 12, rr.y + rowH - 9);
+            g.setFont(Palette.FONT_BOLD);
+            g.setColor(on ? Palette.GOOD : Palette.TEXT_DIM);
+            String tag = on ? "AN" : locked ? "GESPERRT" : "AUS";
+            g.drawString(tag, rr.x + w - g.getFontMetrics().stringWidth(tag) - 14, rr.y + rowH / 2 + 4);
             yy += rowH;
         }
     }

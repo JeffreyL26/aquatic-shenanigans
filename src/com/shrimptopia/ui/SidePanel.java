@@ -131,7 +131,9 @@ public class SidePanel extends JPanel {
             this.policy = p;
             setPreferredSize(new Dimension(100, 30));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setToolTipText("<html><body style='width:220px'><b>" + p.displayName + "</b><br>" + p.desc + "</body></html>");
+            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(p.requiresFlag, frame.questSystem());
+            setToolTipText("<html><body style='width:220px'><b>" + p.displayName + "</b><br>" + p.desc
+                + (hint != null ? "<br><br><b>Freischaltung:</b> " + hint : "") + "</body></html>");
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e) { hover = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { hover = false; repaint(); }
@@ -175,7 +177,9 @@ public class SidePanel extends JPanel {
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 58));
             setAlignmentX(LEFT_ALIGNMENT);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setToolTipText("<html><body style='width:220px'>" + type.description + "</body></html>");
+            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(type.unlockFlag(), frame.questSystem());
+            setToolTipText("<html><body style='width:220px'>" + type.description
+                + (hint != null ? "<br><br><b>Freischaltung:</b> " + hint : "") + "</body></html>");
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e) { hover = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { hover = false; repaint(); }
@@ -199,7 +203,12 @@ public class SidePanel extends JPanel {
             g.setColor(unlocked ? (affordable ? Palette.TEXT : Palette.TEXT_DIM) : Palette.TEXT_DIM);
             g.drawString(TextUtil.clip(g.getFontMetrics(), type.displayName, w - 58 - 10), 58, 24);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-            g.drawString(unlocked ? tagline(type) : "noch gesperrt", 58, 43);
+            String sub = tagline(type);
+            if (!unlocked) {
+                String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(type.unlockFlag(), frame.questSystem());
+                sub = hint != null ? hint : "noch gesperrt";
+            }
+            g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 58 - 52), 58, 43);
             g.setFont(Palette.FONT_BOLD);
             String cost = unlocked ? String.format("%,d", type.cost) : "Schloss";
             int cw = g.getFontMetrics().stringWidth(cost);
@@ -211,6 +220,12 @@ public class SidePanel extends JPanel {
 
     private static String tagline(BuildingType t) {
         return switch (t) {
+            case OLD_GENERATOR -> "+12 Strom, laut";
+            case RAIN_BARREL   -> "+4 Wasser";
+            case ALGAE_BUCKET  -> "+2,5 Futter";
+            case GARAGE_TANK   -> "+1,2 Shrimp/Tag";
+            case CAMPER        -> "+3 Arbeiter";
+            case YARD_SALE     -> "verkauft 3 Standard/Tag";
             case POWER_PLANT  -> "+45 Strom";
             case SOLAR_ROOF   -> "+28 Strom, sauber";
             case WATER_PLANT  -> "+14 Wasser, -8 Strom";
