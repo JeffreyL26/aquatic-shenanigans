@@ -27,7 +27,9 @@ for /f "usebackq delims=" %%F in ("sources.tmp") do (
   echo "!p:\=/!">>sources.txt
 )
 del sources.tmp
-javac -encoding UTF-8 -d out @sources.txt
+REM --release 17: erzeugt Java-17-Bytecode auch unter neueren JDKs, damit die
+REM JAR (wie im README versprochen) auf jeder Java-17+-Laufzeit startet.
+javac --release 17 -encoding UTF-8 -d out @sources.txt
 if errorlevel 1 (
   echo [ShrimpTopia] BUILD FEHLGESCHLAGEN.
   del sources.txt
