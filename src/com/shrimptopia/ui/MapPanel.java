@@ -14,9 +14,10 @@ import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 
 /** Die Spielkarte der aktuellen Zone: Gitter, Gebäude, Animation und Maus-Interaktion. */
-public class MapPanel extends JPanel {
+public class MapPanel extends JPanel implements Scrollable {
 
     private static final int TILE = 64;
+    private static final int MARGIN = 20;
     private final GameFrame frame;
     private int originX, originY;
     private int hoverCol = -1, hoverRow = -1;
@@ -41,8 +42,10 @@ public class MapPanel extends JPanel {
     public void advanceAnim() { anim += 0.06; repaint(); }
 
     private void computeOrigin() {
-        originX = (getWidth() - GameState.COLS * TILE) / 2;
-        originY = (getHeight() - GameState.ROWS * TILE) / 2;
+        // Mittig, aber nie über den linken/oberen Rand hinaus (sonst wird das Gitter abgeschnitten,
+        // ohne dass man an die verdeckten Kacheln herankommt). Der Rest ist per Scrollpane erreichbar.
+        originX = Math.max(MARGIN, (getWidth() - GameState.COLS * TILE) / 2);
+        originY = Math.max(MARGIN, (getHeight() - GameState.ROWS * TILE) / 2);
     }
     private int colAt(int mx) { return (mx - originX) / TILE; }
     private int rowAt(int my) { return (my - originY) / TILE; }
@@ -56,7 +59,12 @@ public class MapPanel extends JPanel {
 
     private void handleClick(MouseEvent e) {
         computeOrigin();
-        if (SwingUtilities.isRightMouseButton(e)) { frame.clearTool(); return; }
+        if (SwingUtilities.isRightMouseButton(e)) {
+            // Mit aktiver Auswahl/Abriss: abwählen. Ohne Auswahl: Baumenü an der Maus öffnen.
+            if (frame.tool() != GameFrame.Tool.NONE) { frame.clearTool(); return; }
+            frame.openBuildMenu(this, e.getPoint());
+            return;
+        }
         int c = colAt(e.getX()), r = rowAt(e.getY());
         if (e.getX() < originX || e.getY() < originY || !frame.game().inBounds(c, r)) return;
         Zone zone = frame.currentZone();
@@ -258,5 +266,17 @@ public class MapPanel extends JPanel {
                 + t.cost + " Geld</font><br><span style='color:#aab'>" + t.description + "</span></body></html>";
         }
         return null;
+    }
+
+    // --- Scrollable: füllt den Viewport, wenn Platz ist (dann zentriertes Gitter), sonst
+    //     behält das Gitter seine volle Größe und wird per Scrollbalken erreichbar. ---
+    @Override public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+    @Override public int getScrollableUnitIncrement(Rectangle vis, int orientation, int direction) { return TILE; }
+    @Override public int getScrollableBlockIncrement(Rectangle vis, int orientation, int direction) { return TILE * 3; }
+    @Override public boolean getScrollableTracksViewportWidth() {
+        return getParent() instanceof JViewport vp && vp.getWidth() >= getPreferredSize().width;
+    }
+    @Override public boolean getScrollableTracksViewportHeight() {
+        return getParent() instanceof JViewport vp && vp.getHeight() >= getPreferredSize().height;
     }
 }

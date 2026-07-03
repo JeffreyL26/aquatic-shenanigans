@@ -26,7 +26,7 @@ public class InspectorPanel extends JPanel {
             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         sc.setBorder(null);
         sc.getViewport().setBackground(Palette.PANEL);
-        sc.getVerticalScrollBar().setUnitIncrement(16);
+        ThemeScrollBar.apply(sc);
         add(sc, BorderLayout.CENTER);
         rebuild();
     }
@@ -48,11 +48,11 @@ public class InspectorPanel extends JPanel {
             content.add(new Header());
             BuildingType next = building.type.upgradesTo();
             if (next != null) {
-                content.add(section("AUSBAU (GLEICHE STELLE)"));
+                content.add(section("UPGRADE (GLEICHE STELLE)"));
                 boolean nextUnlocked = frame.game().isBuildingUnlocked(next);
                 double upCost = Math.max(0, next.cost - building.type.cost * 0.5);
                 ThemeButton.FlatButton up = new ThemeButton.FlatButton(
-                    nextUnlocked ? "Ausbauen: " + next.displayName + " (-" + Math.round(upCost) + ")"
+                    nextUnlocked ? "Upgrade: " + next.displayName + " (-" + Math.round(upCost) + ")"
                                  : next.displayName + " (gesperrt)");
                 if (nextUnlocked) up.base = new Color(0, 90, 84);
                 up.addActionListener(e -> {
@@ -122,7 +122,7 @@ public class InspectorPanel extends JPanel {
 
     // ---------------- Header mit Live-Werten ----------------
     private class Header extends JComponent {
-        Header() { setAlignmentX(LEFT_ALIGNMENT); setMaximumSize(new Dimension(Integer.MAX_VALUE, 218)); setPreferredSize(new Dimension(290, 218)); }
+        Header() { setAlignmentX(LEFT_ALIGNMENT); setMaximumSize(new Dimension(Integer.MAX_VALUE, 236)); setPreferredSize(new Dimension(290, 236)); }
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -156,6 +156,9 @@ public class InspectorPanel extends JPanel {
             if (s.workerProvide > 0 || s.workerNeed > 0)
                 y = row(g, y, Palette.WORKERS, "Arbeiter", flow(s.workerProvide, s.workerNeed));
             y = row(g, y, Palette.TEXT_DIM, "Kosten", String.format("-%.1f/Tag", s.upkeep));
+            double hq = frame.game().hqProximityBoost(b);
+            if (hq > 0)
+                y = row(g, y, Palette.ACCENT, "HQ-Bonus", "+" + Math.round(hq * 100) + "% Output (Nähe)");
             g.dispose();
         }
         private int row(Graphics2D g, int y, Color c, String label, String val) {

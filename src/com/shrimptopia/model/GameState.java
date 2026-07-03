@@ -128,11 +128,11 @@ public class GameState {
         BuildingType next = b.type.upgradesTo();
         if (next == null) return null;
         if (!isBuildingUnlocked(next)) {
-            log("Ausbau zu '" + next.displayName + "' ist noch nicht freigeschaltet.", LOG_WARN);
+            log("Upgrade zu '" + next.displayName + "' ist noch nicht freigeschaltet.", LOG_WARN);
             return null;
         }
         double cost = Math.max(0, next.cost - b.type.cost * 0.5);
-        if (money < cost) { log("Zu wenig Geld für den Ausbau zu '" + next.displayName + "'.", LOG_WARN); return null; }
+        if (money < cost) { log("Zu wenig Geld für das Upgrade zu '" + next.displayName + "'.", LOG_WARN); return null; }
         money -= cost;
         Building nb = new Building(next, b.zone, b.col, b.row);
         nb.placedOnDay = day;
@@ -260,12 +260,15 @@ public class GameState {
             unlock("era.HALLE", "Die Garage hat ausgedient: Hallen-Gebäude freigeschaltet!");
         boolean halle = isUnlocked("era.HALLE");
         if (isUnlocked("zone.FORSCHUNG") && money >= 18_000)
-            unlock("build.shrimpboost", "Freigeschaltet: SHRIMPBOOST-Fabrik & -Stand! Aus Shrimps + Schalen wird Energydrink.");
+            unlock("build.shrimpboost", "Freigeschaltet: SHRIMPBOOST-Fabrik & -Stand! Aus Shrimps + Schalen presst du deinen EIGENEN Energydrink.");
         if (isUnlocked("zone.LOGISTIK") && money >= 40_000)
             unlock("build.robotworks", "Freigeschaltet: Garnelen-Roboter-Werk! Roboter zählen als +2 Arbeiter.");
         if (isUnlocked("tier.WARKRILL"))
             unlock("build.barracks", "Freigeschaltet: Krill-Kaserne - jetzt lässt sich eine Armee aufbauen.");
         if (halle && money >= 9_000)  unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
+        // Wohnheim erst, wenn der Betrieb spürbar Personal braucht (nicht direkt mit der Halle).
+        if (halle && (workersUsed >= 10 || money >= 12_000))
+            unlock("build.housing", "Der Betrieb wächst: Arbeiterwohnheim freigeschaltet - Schluss mit dem Wohnwagen-Slum.");
         if (halle && (money >= 10_000 || day >= 200))
             unlock("zone.FORSCHUNG", "Neue Zone: Forschungsflügel (Labore). Oben die Reiter wechseln!");
         if (halle && (reputation >= 70 || money >= 14_000))
@@ -366,12 +369,26 @@ public class GameState {
         }
         totalShrimpProduced += shrimpIn;
 
-        // Engpass: Shrimps sterben (alle Tiers anteilig)
+        // Engpass: Shrimps sterben (alle Tiers anteilig). Je länger ein Mangel anhält,
+        // desto härter die Konsequenzen (mehr Sterben, ab ~1 Woche zusätzlich Ruf-Verlust).
         boolean tanks = anyTank();
+        boolean feedShortNow  = tanks && tankFeedServe  < 0.999;
+        boolean waterShortNow = tanks && tankWaterServe < 0.999;
+        boolean powerShortNow = powerRatio < 0.999 && pUse > 0;
+        daysShortFeed  = feedShortNow  ? daysShortFeed  + 1 : 0;
+        daysShortWater = waterShortNow ? daysShortWater + 1 : 0;
+        daysShortPower = powerShortNow ? daysShortPower + 1 : 0;
         if (tanks) {
-            if (tankFeedServe < 1.0)  { scaleAllStock(0.96 + 0.04 * tankFeedServe);  warnOnce("Futter knapp - Shrimps hungern!"); }
-            if (tankWaterServe < 1.0) { scaleAllStock(0.94 + 0.06 * tankWaterServe); warnOnce("Wasser knapp - Shrimps leiden!"); }
-            if (powerRatio < 1.0)     { warnOnce("Stromausfall - Becken laufen nur teilweise!"); }
+            if (feedShortNow)  { scaleAllStock(starve(0.96, tankFeedServe,  daysShortFeed));  shortageWarn("Futter", daysShortFeed); }
+            if (waterShortNow) { scaleAllStock(starve(0.94, tankWaterServe, daysShortWater)); shortageWarn("Wasser", daysShortWater); }
+            // Dauerhafter Stromausfall killt Pumpen/Filter -> ab dem 4. Tag sterben auch hier Shrimps.
+            if (powerShortNow) {
+                if (daysShortPower > 3) scaleAllStock(Math.max(0.9, 1.0 - 0.02 * (daysShortPower - 3)));
+                shortageWarn("Strom", daysShortPower);
+            }
+            // Lange Nichtbeachtung ruiniert den Ruf (Kundschaft & Presse bekommen es mit).
+            int worst = Math.max(daysShortFeed, Math.max(daysShortWater, daysShortPower));
+            if (worst >= 8 && day % 2 == 0) addReputation(-1);
         }
 
         // --- Preisfaktoren ---
@@ -522,6 +539,19 @@ public class GameState {
         feedNet = feedIn - tankFeedDemand * tankServe;
         shrimpNet = shrimpIn - soldTotal;
 
+        // --- Lagergrenzen: was nicht ins Lager passt, verfällt (bremst Horten & Tempo) ---
+        boolean overflow = false;
+        if (water > getCapWater())   { water = getCapWater(); overflow = true; }
+        if (feed > getCapFeed())     { feed = getCapFeed(); overflow = true; }
+        if (shells > getCapShells()) { shells = getCapShells(); overflow = true; }
+        if (energy > getCapBoost())  { energy = getCapBoost(); overflow = true; }
+        double totalShr = getShrimpTotal();
+        if (totalShr > getCapShrimp()) { scaleAllStock(getCapShrimp() / totalShr); overflow = true; }
+        if (overflow && day - lastStorageWarnDay >= 4) {
+            lastStorageWarnDay = day;
+            log("Lager voll - Überschuss verfällt! Bau oder upgrade ein Lager.", LOG_WARN);
+        }
+
         checkMilestoneUnlocks();
 
         // --- Sieg / Pleite ---
@@ -574,6 +604,14 @@ public class GameState {
             rep += u.repAdd;
             if (u.tierOverride != null) s.tier = u.tierOverride;
         }
+        // HQ-Nähe-Bonus: kurze Wege zur Verwaltung. Bis zu +10% Output nahe am HQ,
+        // linear abfallend mit der Distanz - Abstand ist nie ein Malus.
+        double hq = hqProximityBoost(b);
+        if (hq > 0) {
+            s.shrimpProduce *= 1 + hq;
+            s.powerProduce *= 1 + hq; s.waterProduce *= 1 + hq; s.feedProduce *= 1 + hq;
+            s.sellCap *= 1 + hq;
+        }
         if (t.isTank()) s.shrimpProduce *= fm.tankShrimpMult;
         s.powerUse *= fm.powerUseMult;
         s.upkeep *= fm.upkeepMult;
@@ -592,14 +630,68 @@ public class GameState {
         return s;
     }
 
+    // ===================== Lagerkapazität =====================
+
+    private int lastStorageWarnDay = -100;
+
+    /** Gesamtkapazität für Index 0=Wasser, 1=Futter, 2=Shrimps, 3=Schalen, 4=Boost. */
+    private double storageCap(int idx) {
+        double c = 0;
+        for (Building b : buildings) {
+            double[] s = b.type.storage();
+            if (s != null) c += s[idx];
+        }
+        return c;
+    }
+    public double getCapWater()  { return storageCap(0); }
+    public double getCapFeed()   { return storageCap(1); }
+    public double getCapShrimp() { return storageCap(2); }
+    public double getCapShells() { return storageCap(3); }
+    public double getCapBoost()  { return storageCap(4); }
+
+    /** Maximaler HQ-Nähe-Bonus und Reichweite (Chebyshev-Distanz in Kacheln). */
+    public static final double HQ_BOOST_MAX = 0.10;
+    public static final int HQ_BOOST_RANGE = 4;
+
+    /** Output-Bonus durch Nähe zum HQ: Distanz 1 → +10%, fällt linear bis Distanz 4, danach 0. */
+    public double hqProximityBoost(Building b) {
+        if (b == null || b.type == BuildingType.HEADQUARTERS) return 0;
+        for (Building x : buildings) {
+            if (x.type != BuildingType.HEADQUARTERS || x.zone != b.zone) continue;
+            int dist = Math.max(Math.abs(x.col - b.col), Math.abs(x.row - b.row));
+            if (dist < 1 || dist > HQ_BOOST_RANGE) return 0;
+            return HQ_BOOST_MAX * (HQ_BOOST_RANGE + 1 - dist) / (double) HQ_BOOST_RANGE;
+        }
+        return 0;
+    }
+
     private Upgrade findUpgrade(BuildingType t, String id) {
         for (Upgrade u : BuildingCatalog.upgrades(t)) if (u.id.equals(id)) return u;
         return null;
     }
 
+    /** Aufeinanderfolgende Tage mit Futter-/Wasser-/Strommangel (0 = versorgt) - für HUD & Eskalation. */
+    private int daysShortFeed = 0, daysShortWater = 0, daysShortPower = 0;
+    public int feedShortDays()  { return daysShortFeed; }
+    public int waterShortDays() { return daysShortWater; }
+    public int powerShortDays() { return daysShortPower; }
+
+    /** Verlustfaktor pro Tick: Grundverlust wächst mit der Dauer des Mangels (bis zu ~+18%). */
+    private static double starve(double baseKeep, double serve, int days) {
+        double extra = Math.min(0.18, 0.018 * Math.max(0, days - 1));
+        return Math.max(0.55, (baseKeep - extra) + (1 - baseKeep) * serve);
+    }
+
     private int lastWarnDay = -100;
-    private void warnOnce(String msg) {
-        if (day - lastWarnDay >= 4) { log(msg, LOG_WARN); lastWarnDay = day; }
+    /** Eskalierende Mangel-Warnung: Ton verschärft sich mit der Dauer der Nichtbeachtung. */
+    private void shortageWarn(String what, int days) {
+        if (day - lastWarnDay < 3) return;
+        lastWarnDay = day;
+        String msg;
+        if (days >= 12)     msg = what + "-KRISE (Tag " + days + "): Die Becken kippen - Massensterben und Ruf-Verlust!";
+        else if (days >= 6) msg = what + " seit " + days + " Tagen knapp - die Shrimps STERBEN!";
+        else                msg = what + " knapp - die Shrimps leiden!";
+        log(msg, LOG_WARN);
     }
 
     private int countType(BuildingType t) { int n = 0; for (Building b : buildings) if (b.type == t) n++; return n; }

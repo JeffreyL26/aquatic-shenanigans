@@ -73,7 +73,7 @@ public final class QuestTree {
     /** Anzeigename für Unlock-Keys, die per Quest freigeschaltet werden. */
     private static final Map<String, String> UNLOCK_LABEL = new LinkedHashMap<>();
     static {
-        UNLOCK_LABEL.put("era.HALLE",          "Hallen-Ausbau: große Gebäude (Kraftwerk, Becken, Börse ...)");
+        UNLOCK_LABEL.put("era.HALLE",          "Hallen-Upgrade: große Gebäude (Kraftwerk, Becken, Börse ...)");
         UNLOCK_LABEL.put("mkt.radio",          "Marketing: Lokalradio-Spot");
         UNLOCK_LABEL.put("mkt.social",         "Marketing: Social-Media-Kanal");
         UNLOCK_LABEL.put("mkt.tube",           "Marketing: ShrimpTube-Kanal");

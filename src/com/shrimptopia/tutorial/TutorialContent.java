@@ -32,53 +32,60 @@ public final class TutorialContent {
             + "humorlos.",
             Advance.ACK).res(ResourceType.MONEY));
 
-        s.add(new TutorialStep(Region.BUILD_MENU,
-            "Links ist dein Baumenü. Wir starten mit Flohmarkt-Technik - die großen Hallen-Gebäude sind "
-            + "noch gesperrt, bis wir aus der Garage rauswachsen. Jede Garagen-Anlage lässt sich später "
-            + "an gleicher Stelle AUSBAUEN.",
+        s.add(new TutorialStep(Region.MAP,
+            "Gebaut wird direkt auf der Karte: RECHTSKLICK auf ein freies Feld öffnet das Baumenü an "
+            + "der Maus - sortiert nach Gebäudetyp (Strom, Versorgung, Zucht ...). Wir starten mit "
+            + "Flohmarkt-Technik; die großen Hallen-Gebäude sind noch gesperrt, bis wir aus der Garage "
+            + "rauswachsen. Jede Garagen-Anlage lässt sich später an gleicher Stelle UPGRADEN.",
             Advance.ACK));
 
-        s.add(new TutorialStep(Region.BUILD_MENU,
-            "Erste Regel: Ohne Strom keine Pumpen, ohne Pumpen keine Party. Bau den ROSTIGEN "
-            + "DIESEL-GENERATOR auf ein freies Feld. Er stinkt, er dröhnt, er funktioniert. Meistens.",
+        s.add(new TutorialStep(Region.MAP,
+            "Erste Regel: Ohne Strom keine Pumpen, ohne Pumpen keine Party. RECHTSKLICK auf ein freies "
+            + "Feld, öffne die Kategorie STROM und setz den ROSTIGEN DIESEL-GENERATOR ab - der passende "
+            + "Eintrag leuchtet bereits. Er stinkt, er dröhnt, er funktioniert. Meistens. (Tipp: "
+            + "Rechtsklick mit gewähltem Gebäude hebt die Auswahl wieder auf.)",
             Advance.BUILD).build(BuildingType.OLD_GENERATOR));
 
-        s.add(new TutorialStep(Region.BUILD_MENU,
-            "Garnelen sind, Überraschung, auf Wasser angewiesen. Bau die REGENTONNE mit Gartenschlauch. "
-            + "Ich nenne es 'improvisierte Aquakultur-Infrastruktur' und weine dabei nur ein bisschen.",
+        s.add(new TutorialStep(Region.MAP,
+            "Garnelen sind, Überraschung, auf Wasser angewiesen. Rechtsklick → Kategorie VERSORGUNG → "
+            + "REGENTONNE mit Gartenschlauch. Ich nenne es 'improvisierte Aquakultur-Infrastruktur' und "
+            + "weine dabei nur ein bisschen.",
             Advance.BUILD).build(BuildingType.RAIN_BARREL));
 
-        s.add(new TutorialStep(Region.BUILD_MENU,
-            "Hungrige Shrimps sind unzufriedene Shrimps. Der ALGEN-EIMER macht aus Wasser und "
-            + "Fensterbank-Sonne leckeres Grünzeug. Greg besteht auf Bio.",
+        s.add(new TutorialStep(Region.MAP,
+            "Hungrige Shrimps sind unzufriedene Shrimps. Der ALGEN-EIMER (ebenfalls unter VERSORGUNG) "
+            + "macht aus Wasser und Fensterbank-Sonne leckeres Grünzeug. Greg besteht auf Bio.",
             Advance.BUILD).build(BuildingType.ALGAE_BUCKET));
 
-        s.add(new TutorialStep(Region.BUILD_MENU,
-            "Trommelwirbel: das GARAGEN-AQUARIUM vom Flohmarkt. Es frisst Strom, Wasser und Futter - "
-            + "und spuckt echte, lebende Garnelen aus. Genau dafür sind wir hier, Boss. Bau eins!",
+        s.add(new TutorialStep(Region.MAP,
+            "Trommelwirbel: das GARAGEN-AQUARIUM (Kategorie ZUCHT) vom Flohmarkt. Es frisst Strom, "
+            + "Wasser und Futter - und spuckt echte, lebende Garnelen aus. Genau dafür sind wir hier, "
+            + "Boss. Bau eins!",
             Advance.BUILD).build(BuildingType.GARAGE_TANK));
 
-        s.add(new TutorialStep(Region.BUILD_MENU,
-            "Garnelen zahlen keine Miete. Der KLAPPTISCH-VERKAUF macht aus ihnen Geld: Kühlbox, "
-            + "Schild, Kleingeld-Dose. Damit schließt sich die Kette: Strom -> Wasser & Futter -> "
-            + "Aquarium -> Klapptisch -> Reichtum (Fernziel).",
+        s.add(new TutorialStep(Region.MAP,
+            "Garnelen zahlen keine Miete. Der KLAPPTISCH-VERKAUF (Kategorie VERKAUF) macht aus ihnen "
+            + "Geld: Kühlbox, Schild, Kleingeld-Dose. Damit schließt sich die Kette: Strom → Wasser & "
+            + "Futter → Aquarium → Klapptisch → Reichtum (Fernziel).",
             Advance.BUILD).build(BuildingType.YARD_SALE));
 
         s.add(new TutorialStep(Region.MAP,
             "Klick mal eines deiner Gebäude an. Der INSPEKTOR (rechts) zeigt genau, was rein- und "
-            + "rausgeht - und ob es voll läuft oder im Brownout nuckelt. Deine Lupe für alles.",
+            + "rausgeht - und ob es voll läuft oder im Blackout nuckelt. Deine Lupe für alles.",
             Advance.OPEN_INSPECTOR));
 
         s.add(new TutorialStep(Region.INSPECTOR,
-            "Im Inspektor gibst du Gebäuden MODI, kaufst UPGRADES - und baust Garagen-Technik zur "
-            + "Hallen-Stufe AUS, sobald sie freigeschaltet ist: gleiche Stelle, größeres Gebäude. "
-            + "Tropico wäre stolz.",
+            "Im Inspektor gibst du Gebäuden MODI, kaufst UPGRADES - und wertest Garagen-Technik zur "
+            + "Hallen-Stufe auf, sobald sie freigeschaltet ist: gleiche Stelle, größeres Gebäude. "
+            + "Übrigens: Gebäude nahe am HQ arbeiten einen Tick fleißiger - der Bonus schwindet mit "
+            + "der Entfernung, schaden tut Abstand aber nie.",
             Advance.ACK));
 
         s.add(new TutorialStep(Region.ALMANAC,
-            "Nicht jede Garnele ist gleich edel. Ich habe dir den Almanach aufgeschlagen: Es gibt "
-            + "TIERS - von Standardware bis 'mit BWL-Abschluss'. Manche Märkte kaufen nur bestimmte "
-            + "Tiers; feinere schaltest du per Quest & Upgrade frei.",
+            "Das hier ist der Almanach - dein Nachschlagewerk für alles: Vermögen, Ressourcen, "
+            + "Tiers, Märkte und Statistiken. Ich habe ihn dir aufgeschlagen: Nicht jede Garnele ist "
+            + "gleich edel - es gibt TIERS, von Standardware bis 'mit BWL-Abschluss'. Manche Märkte "
+            + "kaufen nur bestimmte Tiers; feinere schaltest du per Quest & Upgrade frei.",
             Advance.ACK).tab(2));
 
         s.add(new TutorialStep(Region.ALMANAC,

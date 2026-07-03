@@ -32,7 +32,7 @@ public class OverlayHost extends JComponent {
     private Quest quest;
     private ChoiceOutcome outcome;
     // Freischalt-Ankündigung
-    private String annTitle, annBody, annHint;
+    private String annTitle, annBody, annHint, annFlag;
     private List<String> annHintLines = new ArrayList<>();
 
     private Rectangle card = new Rectangle();
@@ -93,8 +93,15 @@ public class OverlayHost extends JComponent {
         this.step = null; this.spotlight = null;
         this.annTitle = "FREIGESCHALTET!";
         this.annBody = msg;
+        this.annFlag = flag;
         this.annHint = hintFor(flag);
         clearButtons();
+        // "Zeig mir!" führt direkt zur Neuerung (Zone/Almanach) und lässt sie aufleuchten.
+        if (hintFor(flag) != null) {
+            ThemeButton.FlatButton go = new ThemeButton.FlatButton("→ Zeig mir!");
+            go.addActionListener(e -> frame.navigateFromAnnouncement());
+            add(go); buttons.add(go);
+        }
         ThemeButton.FlatButton ok = new ThemeButton.FlatButton("Verstanden!");
         ok.addActionListener(e -> frame.dismissAnnouncement());
         add(ok); buttons.add(ok);
@@ -106,10 +113,10 @@ public class OverlayHost extends JComponent {
     private static String hintFor(String flag) {
         if (flag == null) return null;
         if (flag.startsWith("zone.")) return "Neue Karte! Oben über die ZONEN-REITER wechseln.";
-        if (flag.equals("era.HALLE")) return "Neue Gebäude im Baumenü links - Garagen-Technik lässt sich im Inspektor AUSBAUEN.";
+        if (flag.equals("era.HALLE")) return "Neue Gebäude im Baumenü links - Garagen-Technik lässt sich im Inspektor UPGRADEN.";
         if (flag.startsWith("mkt."))  return "Buchbar im Almanach unter MARKETING.";
         if (flag.startsWith("build.")) return "Neues Gebäude im Baumenü (in der passenden Zone).";
-        if (flag.startsWith("tier.")) return "Neuer Zucht-Modus: Becken anklicken -> Inspektor.";
+        if (flag.startsWith("tier.")) return "Neuer Zucht-Modus: Becken anklicken → Inspektor.";
         return null;
     }
 
@@ -217,7 +224,14 @@ public class OverlayHost extends JComponent {
             int ch = headerH + textH + 48 + 14;
             int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
             card.setBounds(cx, cy, cw, ch);
-            buttons.get(0).setBounds(cx + 20, cy + ch - 52, cw - 40, 40);
+            int by = cy + ch - 52;
+            if (buttons.size() <= 1) {
+                buttons.get(0).setBounds(cx + 20, by, cw - 40, 40);
+            } else {
+                int gap = 10, total = cw - 40 - gap, half = total / 2;
+                buttons.get(0).setBounds(cx + 20, by, half, 40);
+                buttons.get(1).setBounds(cx + 20 + half + gap, by, total - half, 40);
+            }
         }
     }
 

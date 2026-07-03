@@ -6,7 +6,7 @@ public enum IconKind {
     // v2-Gebäude
     WATERHUB, GENLAB, DOCK, MILITARY, BLACKMARKET, VISITOR, GARDEN,
     // v3-Gebaeude/Ressourcen
-    SHELL, CAN, ROBOT, SHIELD,
+    SHELL, CAN, ROBOT, SHIELD, CRATE,
     // reine Ressourcen-/UI-Symbole
     COIN, BOLT, DROP, LEAF, SHRIMP, PERSON, STAR,
     // Charakter-Portraits

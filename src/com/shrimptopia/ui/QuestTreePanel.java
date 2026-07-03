@@ -386,7 +386,7 @@ public class QuestTreePanel extends JComponent {
             Quest q = qs.get(s.questId);
             QuestTree.Line l = QuestTree.lineOf(s.questId);
             if (sb.length() > 0) sb.append("  ODER  ");
-            sb.append(l != null ? l.name : "?").append(" -> Mission \"").append(q != null ? q.title : s.questId).append("\"");
+            sb.append(l != null ? l.name : "?").append(" → Mission \"").append(q != null ? q.title : s.questId).append("\"");
         }
         return sb.toString();
     }
@@ -497,12 +497,15 @@ public class QuestTreePanel extends JComponent {
             Choice c = q.choices.get(i);
             boolean isChosen = doneQ && i == chosen;
             boolean grayed = !isChosen;                         // nicht gewählt ODER noch nicht freigeschaltet
-            List<String> tl = wrap(c.text, getFontMetrics(Palette.FONT_SMALL), w - 60);
+            // Optionen noch nicht erreichter Missionen bleiben verborgen (kein Spoiler/Vorab-Planen)
+            List<String> tl = wrap(reached ? c.text : "???", getFontMetrics(Palette.FONT_SMALL), w - 60);
             List<String> extra = new ArrayList<>();
-            for (String u : QuestTree.unlocksOfChoice(c)) extra.add("Schaltet frei: " + u);
-            if (c.nextQuestId != null) {
-                Quest nx = qs.get(c.nextQuestId);
-                extra.add("-> Folge-Mission: " + (nx != null && (qs.isTriggered(nx.id) || qs.isArmed(nx.id) || discovered) ? nx.title : "???"));
+            if (reached) {
+                for (String u : QuestTree.unlocksOfChoice(c)) extra.add("Schaltet frei: " + u);
+                if (c.nextQuestId != null) {
+                    Quest nx = qs.get(c.nextQuestId);
+                    extra.add("→ Folge-Mission: " + (nx != null && (qs.isTriggered(nx.id) || qs.isArmed(nx.id) || discovered) ? nx.title : "???"));
+                }
             }
             int bh = 10 + tl.size() * 15 + extra.size() * 14;
             gd.setColor(isChosen ? withAlpha(lc, 34) : Palette.PANEL);

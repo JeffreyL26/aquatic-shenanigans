@@ -45,9 +45,9 @@ public final class QuestContent {
             + "Garage. Nebenan steht eine Industriehalle leer - der Vermieter stellt keine Fragen, "
             + "solange wir keine stellen.",
             c("Die Halle mieten! (-1500)", "Hallen-Gebäude freigeschaltet! Garagen-Technik lässt sich "
-                + "jetzt im Inspektor an Ort und Stelle AUSBAUEN.", money(-1500), unlock("era.HALLE"), rep(4)),
+                + "jetzt im Inspektor an Ort und Stelle UPGRADEN.", money(-1500), unlock("era.HALLE"), rep(4)),
             c("Erstmal nur den Hof dazu pachten. (-600)", "Etwas beengt, aber es läuft: Hallen-Gebäude "
-                + "freigeschaltet - Ausbau im Inspektor.", money(-600), unlock("era.HALLE")));
+                + "freigeschaltet - Upgrade im Inspektor.", money(-600), unlock("era.HALLE")));
     }
 
     // ===================== MARKETING-OFFENSIVE (Mira) =====================
@@ -62,15 +62,15 @@ public final class QuestContent {
                 + "Marketing-Stream 'Lokalradio' buchbar!", money(-300), unlock("mkt.radio")).then("mark_social"),
             c("Flugblätter reichen erstmal.", "Greta verteilt fleißig weiter. Mehr Reichweite gibt's "
                 + "später.", rep(2)).then("mark_social"),
-            c("Radio UND Flyer-Offensive! (-500)", "Klotzen statt kleckern: 'Lokalradio' buchbar, die "
+            c("Radio UND Flyer-Offensive! (-500)", "Volle Breitseite: 'Lokalradio' buchbar, die "
                 + "Zettel hängen überall.", money(-500), unlock("mkt.radio"), rep(3)).then("mark_social"));
 
         chain("mark_social", GameCharacter.MAYOR, "Assistentin Mira (Handy gezückt)", 0,
             "Die Leute FOTOGRAFIEREN unseren Stand",
-            "Chef, wir sind lokal berühmt. Lass mich einen offiziellen Kanal aufmachen: Becken-Content, "
-            + "Garnelen-Fakten, Behind-the-Scenes mit Greg. Ich brauche nur ein kleines Budget und dein "
-            + "Gesicht. Zur Not nur das Budget.",
-            c("Mach den Kanal! (-400)", "Der Kanal wächst. 90% der Kommentare fragen 'warum?'. Egal: "
+            "Chef, wir sind lokal berühmt. Lass mich einen offiziellen Social-Media-Auftritt starten: "
+            + "Becken-Fotos, Garnelen-Fakten, Behind-the-Scenes mit Greg. Ich brauche nur ein kleines "
+            + "Budget und dein Gesicht. Zur Not nur das Budget. (Den echten Video-Kanal heben wir uns auf.)",
+            c("Auftritt starten! (-400)", "Die Seite wächst. 90% der Kommentare fragen 'warum?'. Egal: "
                 + "Stream 'Social Media' buchbar!", money(-400), unlock("mkt.social")).then("mark_agency"),
             c("Ohne mein Gesicht.", "Greg ist jetzt das Gesicht. Funktioniert besser als deins. Stream "
                 + "'Social Media' buchbar.", unlock("mkt.social"), rep(1)).then("mark_agency"),
@@ -639,7 +639,7 @@ public final class QuestContent {
     private static void einzelquests() {
         auto("kat_blackout", GameCharacter.MAYOR, "Technischer Leiter Olaf", Condition.day(90), 2,
             "Es wird dunkel im Becken",
-            "Brownout, Chef. Die Shrimps schwimmen im Dunkeln und werden nervös. Eine hat gerade eine "
+            "Blackout, Chef. Die Shrimps schwimmen im Dunkeln und werden nervös. Eine hat gerade eine "
             + "andere angeschaut. So fangen Massenpaniken an.",
             c("Notaggregat anwerfen. (-600)", "Laut, stinkt, aber Strom ist da.", money(-600), rep(-3)),
             c("Shrimps mit Kerzen beruhigen. (-100)", "Romantisch und leicht brandgefährlich.", money(-100), multShrimp(0.97)),

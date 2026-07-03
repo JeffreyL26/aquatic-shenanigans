@@ -34,7 +34,7 @@ public enum BuildingType {
         0, 0.8,
         IconKind.TANK, new Color(60, 130, 138),
         "Ein 200-Liter-Aquarium vom Flohmarkt, geflickt mit Aquarien-Silikon. +1,2 Shrimps/Tag. "
-        + "Später an gleicher Stelle zum großen Shrimp-Becken ausbaubar."),
+        + "Später an gleicher Stelle zum großen Shrimp-Becken upgradebar."),
 
     OLD_GENERATOR(
         "Rostiger Diesel-Generator", 150,
@@ -315,7 +315,27 @@ public enum BuildingType {
         0, 0, 0, -0.02, 12,
         IconKind.SHIELD, new Color(120, 130, 80),
         "Drillt Kampf-Krill zu einer stehenden Armee. 'WER BRAUCHT EINE MARINE, WENN MAN "
-        + "EINE HALLE HAT?' Verbraucht Kampf-Krill + SHRIMPBOOST, erzeugt Armee-Stärke.");
+        + "EINE HALLE HAT?' Verbraucht Kampf-Krill + SHRIMPBOOST, erzeugt Armee-Stärke."),
+
+    // ===================== Lager (Ressourcen-Kapazität) =====================
+
+    STORAGE_SHED(
+        "Lager-Schuppen", 140,
+        0, 0, 0, 1,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 0.5,
+        IconKind.CRATE, new Color(140, 118, 86),
+        "Regale, Fässer, ein Vorhängeschloss. Erhöht die Lagerkapazität für Wasser, Futter, "
+        + "Shrimps & Co. - was nicht ins Lager passt, verfällt. Upgradebar zum Hochregal-Lager."),
+
+    WAREHOUSE(
+        "Hochregal-Lager", 800,
+        0, 2, 0, 4,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 2.5,
+        IconKind.CRATE, new Color(158, 132, 94),
+        "Palettenweise Platz: großzügige Lagerkapazität für alle Ressourcen. Ein Gabelstapler "
+        + "namens Günther inklusive. Günther hat einen eigenen Parkplatz.");
 
     public final String displayName;
     public final int    cost;
@@ -392,15 +412,17 @@ public enum BuildingType {
             case BOOST_STAND         -> "Boost-Stand";
             case ROBOT_WORKS         -> "Roboter-Werk";
             case KRILL_BARRACKS      -> "Kaserne";
+            case STORAGE_SHED        -> "Lager";
+            case WAREHOUSE           -> "Hochregal";
         };
     }
 
     /** Alle baubaren Gebäude (HQ ist vorplatziert). Das Menü filtert nach Zone & Freischaltung. */
     public static BuildingType[] buildable() {
         return new BuildingType[] {
-            OLD_GENERATOR, RAIN_BARREL, ALGAE_BUCKET, GARAGE_TANK, CAMPER, YARD_SALE,
+            OLD_GENERATOR, RAIN_BARREL, ALGAE_BUCKET, GARAGE_TANK, CAMPER, YARD_SALE, STORAGE_SHED,
             POWER_PLANT, SOLAR_ROOF, WATER_PLANT, WATER_HUB, ALGAE_FARM, SHRIMP_TANK,
-            HOUSING, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
+            HOUSING, WAREHOUSE, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
             EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET, VISITOR_CENTER, ZEN_GARDEN,
             SHELL_PRESS, SHRIMPBOOST_FACTORY, BOOST_STAND, ROBOT_WORKS, KRILL_BARRACKS
         };
@@ -447,7 +469,9 @@ public enum BuildingType {
         META.put(SOLAR_ROOF,    m(Zone.PRODUKTION, "era.HALLE"));
         META.put(WATER_PLANT,   m(Zone.PRODUKTION, "era.HALLE"));
         META.put(ALGAE_FARM,    m(Zone.PRODUKTION, "era.HALLE"));
-        META.put(HOUSING,       m(Zone.PRODUKTION, "era.HALLE"));
+        // Wohnheim erst, wenn der Betrieb wirklich Personal braucht (Meilenstein-Flag) -
+        // direkt zur Hallen-Miete ein ganzes Wohnheim wäre unlogisch schnell skaliert.
+        META.put(HOUSING,       m(Zone.PRODUKTION, "build.housing"));
         META.put(LAB,           m(Zone.FORSCHUNG,  "zone.FORSCHUNG"));
 
         Meta tank = m(Zone.PRODUKTION, "era.HALLE"); tank.producesTier = ShrimpTier.STANDARD;
@@ -469,7 +493,22 @@ public enum BuildingType {
         META.put(BOOST_STAND,         m(Zone.EMPFANG,    "build.shrimpboost"));
         META.put(ROBOT_WORKS,         m(Zone.LOGISTIK,   "build.robotworks"));
         META.put(KRILL_BARRACKS,      m(Zone.LOGISTIK,   "build.barracks"));
+
+        // Lager: Schuppen ab Start, upgradebar zum Hochregal-Lager (Hallen-Stufe)
+        META.put(STORAGE_SHED, up(m(Zone.PRODUKTION, null), WAREHOUSE));
+        META.put(WAREHOUSE,    m(Zone.PRODUKTION, "era.HALLE"));
     }
+
+    // ===================== Lagerkapazität =====================
+
+    /** Kapazität je Gebäude: {Wasser, Futter, Shrimps, Schalen, Boost}. null = kein Lager. */
+    private static final java.util.EnumMap<BuildingType, double[]> STORAGE = new java.util.EnumMap<>(BuildingType.class);
+    static {
+        STORAGE.put(HEADQUARTERS, new double[]{ 350, 250, 120, 150,  80 });
+        STORAGE.put(STORAGE_SHED, new double[]{ 250, 180,  60, 120,  50 });
+        STORAGE.put(WAREHOUSE,    new double[]{ 900, 650, 250, 450, 250 });
+    }
+    public double[] storage() { return STORAGE.get(this); }
 
     public Meta meta() { return META.getOrDefault(this, DEFAULT_META); }
     private static final Meta DEFAULT_META = new Meta();

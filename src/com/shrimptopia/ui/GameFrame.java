@@ -35,7 +35,6 @@ public class GameFrame extends JFrame {
     private int speed = 1;
 
     private TopBar topBar;
-    private SidePanel sidePanel;
     private MapPanel mapPanel;
     private LogPanel logPanel;
     private InspectorPanel inspector;
@@ -44,6 +43,7 @@ public class GameFrame extends JFrame {
     private OverlayHost overlay;
     private AlmanacPanel almanac;
     private QuestTreePanel questTree;
+    private BuildMenuPanel buildMenu;
 
     public GameFrame() {
         super("ShrimpTopia v2 - Indoor Shrimp Farming Tycoon");
@@ -57,7 +57,6 @@ public class GameFrame extends JFrame {
         setLayout(new BorderLayout());
 
         topBar = new TopBar(this);
-        sidePanel = new SidePanel(this);
         mapPanel = new MapPanel(this);
         logPanel = new LogPanel(this);
         inspector = new InspectorPanel(this);
@@ -67,7 +66,16 @@ public class GameFrame extends JFrame {
         JPanel center = new JPanel(new BorderLayout());
         center.setBackground(Palette.BG_DARK);
         center.add(zoneTabs, BorderLayout.NORTH);
-        center.add(mapPanel, BorderLayout.CENTER);
+        // Karte in einer Scrollpane: passt der Bereich (kleiner/skalierter Bildschirm) nicht,
+        // wird das Gitter gescrollt statt abgeschnitten.
+        JScrollPane mapScroll = new JScrollPane(mapPanel);
+        mapScroll.setBorder(BorderFactory.createEmptyBorder());
+        mapScroll.getViewport().setBackground(Palette.BG_DARK);
+        mapScroll.setBackground(Palette.BG_DARK);
+        ThemeScrollBar.apply(mapScroll);
+        mapScroll.getVerticalScrollBar().setUnitIncrement(32);
+        mapScroll.getHorizontalScrollBar().setUnitIncrement(32);
+        center.add(mapScroll, BorderLayout.CENTER);
 
         JPanel east = new JPanel(new BorderLayout());
         east.setBackground(Palette.PANEL);
@@ -75,7 +83,6 @@ public class GameFrame extends JFrame {
         east.add(inspector, BorderLayout.CENTER);
 
         add(topBar, BorderLayout.NORTH);
-        add(sidePanel, BorderLayout.WEST);
         add(center, BorderLayout.CENTER);
         add(east, BorderLayout.EAST);
         add(logPanel, BorderLayout.SOUTH);
@@ -89,15 +96,21 @@ public class GameFrame extends JFrame {
         questTree = new QuestTreePanel(this);
         getLayeredPane().add(questTree, JLayeredPane.MODAL_LAYER);
 
+        buildMenu = new BuildMenuPanel(this);
+        getLayeredPane().add(buildMenu, JLayeredPane.POPUP_LAYER);
+
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
-        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); });
+        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); buildMenu.tickGlow(); topBar.tickCritical(); });
 
         refreshAll();
         pack();
-        setMinimumSize(new Dimension(1360, 820));
-        setSize(1440, 900);
+        setMinimumSize(new Dimension(1040, 640));
+        // Wunschgröße 1440x900, aber nie größer als der nutzbare Bildschirm (abzüglich Taskleiste),
+        // damit das Fenster - und damit die Karte - nicht unten/rechts abgeschnitten wird.
+        Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        setSize(Math.min(1440, screen.width), Math.min(900, screen.height));
         setLocationRelativeTo(null);
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -123,7 +136,6 @@ public class GameFrame extends JFrame {
 
     public void refreshAll() {
         topBar.refresh();
-        sidePanel.refresh();
         zoneTabs.refresh();
         mapPanel.repaint();
         logPanel.refresh();
@@ -192,8 +204,13 @@ public class GameFrame extends JFrame {
             return almanac.isVisible()
                 ? SwingUtilities.convertRectangle(almanac, almanac.cardBounds(), overlay)
                 : null;
+        // Bau-Schritte: die Karte freistellen - gebaut wird per Rechtsklick direkt auf der Karte.
+        if (s.advance == TutorialStep.Advance.BUILD) {
+            return SwingUtilities.convertRectangle(mapPanel,
+                new Rectangle(0, 0, mapPanel.getWidth(), mapPanel.getHeight()), overlay);
+        }
         JComponent c = switch (s.region) {
-            case BUILD_MENU -> sidePanel;
+            case BUILD_MENU -> mapPanel;
             case MAP -> mapPanel;
             case ZONE_TABS -> zoneTabs;
             case INSPECTOR -> inspector;
@@ -227,22 +244,89 @@ public class GameFrame extends JFrame {
         tool = Tool.NONE; selectedType = null;
         pendingOutcome = null;
         pendingAnnouncement = null;
+        highlightBuild = null;
         userPaused = false;
         speed = 1;
         topBar.selectSpeed(1);
         inspector.setBuilding(null);
-        sidePanel.rebuildList();
         timer.setDelay(delayForSpeed(speed));
         refreshAll();
         updateOverlays();
     }
 
-    public void selectBuildType(BuildingType t) { tool = Tool.PLACE; selectedType = t; selectedBuilding = null; inspector.setBuilding(null); refreshAll(); }
+    /** Während eines BUILD-Tutorialschritts: das geforderte Gebäude, sonst null. */
+    public BuildingType tutorialBuildTarget() {
+        TutorialStep s = tutorial.isActive() ? tutorial.current() : null;
+        return (s != null && s.advance == TutorialStep.Advance.BUILD) ? s.buildTarget : null;
+    }
+
+    // --- Freischalt-Wegweiser ("Zeig mir!"): kurzzeitig aufleuchtender Bau-Button ---
+    private BuildingType highlightBuild;
+    private long highlightExpireMs;
+
+    /** Das gerade per Freischaltung hervorgehobene Gebäude (leuchtet ein paar Sekunden), sonst null. */
+    public BuildingType highlightBuild() {
+        if (highlightBuild != null && System.currentTimeMillis() > highlightExpireMs) highlightBuild = null;
+        return highlightBuild;
+    }
+
+    /**
+     * Springt eine Freischaltung an: passende Zone/Almanach öffnen und - bei Gebäuden -
+     * den zugehörigen Button im Baumenü aufleuchten lassen ("wie per Link zum Objekt").
+     */
+    public void navigateToUnlock(String flag) {
+        if (flag == null) return;
+        if (flag.startsWith("mkt.")) { openAlmanac(AlmanacPanel.TAB_MARKETING); return; }
+        if (flag.startsWith("tier.")) { setZone(Zone.PRODUKTION); return; }
+        if (flag.startsWith("zone.")) {
+            try { setZone(Zone.valueOf(flag.substring(5))); } catch (IllegalArgumentException ignored) {}
+            return;
+        }
+        // build.* und era.HALLE: erstes baubares Gebäude mit diesem Flag suchen, in die passende
+        // Zone wechseln und das Rechtsklick-Baumenü mit aufleuchtendem Eintrag öffnen.
+        BuildingType t = null;
+        for (BuildingType bt : BuildingType.buildable())
+            if (flag.equals(bt.unlockFlag())) { t = bt; break; }
+        if (t != null) {
+            setZone(t.zone());
+            highlightBuild = t;
+            highlightExpireMs = System.currentTimeMillis() + 8000;
+            buildMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+            getLayeredPane().moveToFront(buildMenu);
+            buildMenu.openForBuilding(t);
+            refreshAll();
+        }
+    }
+
+    /** Vom "Zeig mir!"-Knopf der Freischalt-Ansage: hinspringen und die Ansage schließen. */
+    public void navigateFromAnnouncement() {
+        if (pendingAnnouncement != null) navigateToUnlock(pendingAnnouncement[0]);
+        dismissAnnouncement();
+    }
+
+    public void selectBuildType(BuildingType t) {
+        BuildingType forced = tutorialBuildTarget();
+        if (forced != null && t != forced) {
+            game.log("Tutorial: Bau zuerst " + forced.displayName + " - der leuchtende Button im Baumenü.", GameState.LOG_WARN);
+            refreshAll(); return;
+        }
+        tool = Tool.PLACE; selectedType = t; selectedBuilding = null; inspector.setBuilding(null); refreshAll();
+    }
     public void toggleDemolish() { if (tool == Tool.DEMOLISH) clearTool(); else { tool = Tool.DEMOLISH; selectedType = null; refreshAll(); } }
     public void clearTool() { tool = Tool.NONE; selectedType = null; refreshAll(); }
 
+    /** Tropico-Stil: Rechtsklick auf ein freies Kartenfeld öffnet das Baumenü an der Maus. */
+    public void openBuildMenu(java.awt.Component src, Point p) {
+        Point lp = SwingUtilities.convertPoint(src, p, getLayeredPane());
+        buildMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        getLayeredPane().moveToFront(buildMenu);
+        buildMenu.openAt(lp, currentZone);
+    }
+    public void afterBuildMenuClosed() { refreshAll(); }
+
     public void openAlmanac(int tab) {
         if (questTree.isVisible()) questTree.setVisible(false);
+        if (buildMenu.isVisible()) buildMenu.setVisible(false);
         almanac.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
         almanac.open(tab);
         applyTimerState();
@@ -270,6 +354,8 @@ public class GameFrame extends JFrame {
 
     public void tryPlace(int col, int row) {
         if (selectedType == null) return;
+        BuildingType forced = tutorialBuildTarget();
+        if (forced != null && selectedType != forced) { clearTool(); return; }
         if (!game.isBuildingUnlocked(selectedType)) return;
         if (selectedType.zone() != currentZone) {
             game.log(selectedType.displayName + " gehört in eine andere Zone (" + selectedType.zone().displayName + ").", GameState.LOG_WARN);
@@ -307,7 +393,6 @@ public class GameFrame extends JFrame {
         currentZone = z;
         selectedBuilding = null;
         inspector.setBuilding(null);
-        sidePanel.rebuildList();
         refreshAll();
     }
 
@@ -315,7 +400,10 @@ public class GameFrame extends JFrame {
 
     private void installKeyBindings() {
         JComponent root = getRootPane();
-        bind(root, KeyEvent.VK_ESCAPE, "cancel", this::clearTool);
+        bind(root, KeyEvent.VK_ESCAPE, "cancel", () -> {
+            if (buildMenu.isVisible()) { buildMenu.close(); return; }
+            clearTool();
+        });
         bind(root, KeyEvent.VK_SPACE, "pause", () -> setPaused(!userPaused));
         bind(root, KeyEvent.VK_1, "s1", () -> setSpeed(1));
         bind(root, KeyEvent.VK_2, "s2", () -> setSpeed(2));

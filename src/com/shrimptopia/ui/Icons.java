@@ -59,8 +59,39 @@ public final class Icons {
             case CAN         -> can(g, cx, cy, size, new Color(40, 200, 200));
             case ROBOT       -> robot(g, cx, cy, size, new Color(150, 168, 196));
             case SHIELD      -> shield(g, cx, cy, size, new Color(140, 152, 92));
+            case CRATE       -> crate(g, cx, cy, size);
             default    -> { }
         }
+    }
+
+    /** Lager: gestapelte Kisten mit Deckelbrettern. */
+    private static void crate(Graphics2D g, double cx, double cy, double s) {
+        double bw = s * 0.42, bh = s * 0.34;
+        g.setColor(new Color(222, 196, 150));
+        g.fill(new RoundRectangle2D.Double(cx - bw - 1, cy, bw, bh, 3, 3));                 // unten links
+        g.fill(new RoundRectangle2D.Double(cx + 1, cy, bw, bh, 3, 3));                      // unten rechts
+        g.fill(new RoundRectangle2D.Double(cx - bw / 2, cy - bh - 2, bw, bh, 3, 3));        // oben mittig
+        g.setColor(new Color(120, 92, 58));
+        g.setStroke(new BasicStroke((float) (s * 0.045)));
+        g.draw(new RoundRectangle2D.Double(cx - bw - 1, cy, bw, bh, 3, 3));
+        g.draw(new RoundRectangle2D.Double(cx + 1, cy, bw, bh, 3, 3));
+        g.draw(new RoundRectangle2D.Double(cx - bw / 2, cy - bh - 2, bw, bh, 3, 3));
+        g.draw(new Line2D.Double(cx - bw - 1, cy + bh / 2, cx - 1, cy + bh / 2));           // Bretter
+        g.draw(new Line2D.Double(cx + 1, cy + bh / 2, cx + bw + 1, cy + bh / 2));
+        g.draw(new Line2D.Double(cx - bw / 2, cy - bh / 2 - 2, cx + bw / 2, cy - bh / 2 - 2));
+    }
+
+    /** Vorhängeschloss (für gesperrte Gebäude/Einträge). */
+    public static void padlock(Graphics2D g, double cx, double cy, double size, Color color) {
+        double w = size * 0.62, h = size * 0.46;         // Körper
+        double bw = size * 0.42, bh = size * 0.40;       // Bügel
+        g.setColor(color);
+        g.setStroke(new BasicStroke((float) (size * 0.11), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Arc2D.Double(cx - bw / 2, cy - h / 2 - bh, bw, bh * 1.6, 0, 180, Arc2D.OPEN));
+        g.fill(new RoundRectangle2D.Double(cx - w / 2, cy - h / 2, w, h, size * 0.16, size * 0.16));
+        g.setColor(INK);
+        g.fill(new Ellipse2D.Double(cx - size * 0.06, cy - size * 0.08, size * 0.12, size * 0.12));
+        g.fill(new Rectangle2D.Double(cx - size * 0.035, cy - size * 0.02, size * 0.07, size * 0.14));
     }
 
     /** Charakter-Portrait für Popups/Inspektor. */

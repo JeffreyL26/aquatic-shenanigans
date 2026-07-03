@@ -92,6 +92,12 @@ public class TopBar extends JPanel {
         strip.repaint();
     }
 
+    /** Vom Anim-Timer getickt: lässt kritische Ressourcen-Slots weiterblinken (auch bei Pause). */
+    public void tickCritical() {
+        GameState gs = frame.game();
+        if (gs.powerShortDays() > 0 || gs.waterShortDays() > 0 || gs.feedShortDays() > 0) strip.repaint();
+    }
+
     /** Zeichnet die Ressourcen-Anzeige. */
     private class ResourceStrip extends JComponent {
         private java.util.List<ResourceType> lastOrder = new java.util.ArrayList<>();
@@ -150,6 +156,25 @@ public class TopBar extends JPanel {
         }
 
         private void drawSlot(Graphics2D g, GameState gs, ResourceType r, double x, double w) {
+            // Kritische Versorgung (Strom/Wasser/Futter): rot hinterlegen und hektisch blinken.
+            // Je länger der Mangel ignoriert wird, desto schneller/greller das Blinken (Konsequenzen
+            // eskalieren im Modell zusätzlich: mehr Sterben, ab ~1 Woche Ruf-Verlust).
+            int critDays = switch (r) {
+                case POWER -> gs.powerShortDays();
+                case WATER -> gs.waterShortDays();
+                case FEED  -> gs.feedShortDays();
+                default -> 0;
+            };
+            if (critDays > 0) {
+                double speed = critDays >= 6 ? 90.0 : 150.0;
+                double ph = 0.5 + 0.5 * Math.sin(System.currentTimeMillis() / speed);
+                int boost = Math.min(70, critDays * 7);
+                g.setColor(new Color(255, 60, 60, (int) (30 + 70 * ph + boost)));
+                g.fillRoundRect((int) x + 3, 8, (int) w - 6, getHeight() - 16, 10, 10);
+                g.setColor(new Color(255, 90, 90, (int) (120 + 135 * ph)));
+                g.setStroke(new BasicStroke(critDays >= 6 ? 2.5f : 1.8f));
+                g.drawRoundRect((int) x + 3, 8, (int) w - 6, getHeight() - 16, 10, 10);
+            }
             // Bei vielen gleichzeitig freigeschalteten Ressourcen (Spätspiel) wird jeder Slot schmal -
             // Icon verkleinern und näher an den Text rücken, statt Text unlesbar kurz zu clippen.
             boolean tight = w < 100;
@@ -173,19 +198,22 @@ public class TopBar extends JPanel {
                     subColor = ok ? Palette.TEXT_DIM : Palette.BAD;
                 }
                 case WATER -> {
-                    value = fmtInt(gs.getWater());
-                    sub = signed(gs.getWaterNet()) + "/Tag";
-                    subColor = gs.getWaterNet() >= 0 ? Palette.GOOD : Palette.BAD;
+                    value = fmtInt(gs.getWater()) + "/" + fmtInt(gs.getCapWater());
+                    boolean full = gs.getWater() >= gs.getCapWater() - 0.5;
+                    sub = full ? "Lager voll!" : signed(gs.getWaterNet()) + "/Tag";
+                    subColor = full ? Palette.WARN : gs.getWaterNet() >= 0 ? Palette.GOOD : Palette.BAD;
                 }
                 case FEED -> {
-                    value = fmtInt(gs.getFeed());
-                    sub = signed(gs.getFeedNet()) + "/Tag";
-                    subColor = gs.getFeedNet() >= 0 ? Palette.GOOD : Palette.BAD;
+                    value = fmtInt(gs.getFeed()) + "/" + fmtInt(gs.getCapFeed());
+                    boolean full = gs.getFeed() >= gs.getCapFeed() - 0.5;
+                    sub = full ? "Lager voll!" : signed(gs.getFeedNet()) + "/Tag";
+                    subColor = full ? Palette.WARN : gs.getFeedNet() >= 0 ? Palette.GOOD : Palette.BAD;
                 }
                 case SHRIMP -> {
-                    value = fmtInt(gs.getShrimp());
-                    sub = signed(gs.getShrimpNet()) + "/Tag";
-                    subColor = gs.getShrimpNet() >= 0 ? Palette.GOOD : Palette.BAD;
+                    value = fmtInt(gs.getShrimp()) + "/" + fmtInt(gs.getCapShrimp());
+                    boolean full = gs.getShrimp() >= gs.getCapShrimp() - 0.5;
+                    sub = full ? "Lager voll!" : signed(gs.getShrimpNet()) + "/Tag";
+                    subColor = full ? Palette.WARN : gs.getShrimpNet() >= 0 ? Palette.GOOD : Palette.BAD;
                 }
                 case WORKERS -> {
                     value = gs.getWorkersAvail() + " frei";
@@ -198,8 +226,8 @@ public class TopBar extends JPanel {
                     double repMult = 0.6 + gs.getReputation() / 100.0 * 0.8;
                     sub = String.format("Preis x%.2f", repMult);
                 }
-                case SHELLS      -> { value = fmtInt(gs.getShells()); sub = "Lager"; }
-                case SHRIMPBOOST -> { value = fmtInt(gs.getEnergy()); sub = "Dosen"; }
+                case SHELLS      -> { value = fmtInt(gs.getShells()) + "/" + fmtInt(gs.getCapShells()); sub = "Lager"; }
+                case SHRIMPBOOST -> { value = fmtInt(gs.getEnergy()) + "/" + fmtInt(gs.getCapBoost()); sub = "Dosen"; }
                 case ROBOTS      -> { value = fmtInt(gs.getRobots()); sub = "je +2 Arbeiter"; }
                 case ARMY        -> { value = fmtInt(gs.getArmy()); sub = "Stärke"; }
                 default -> { value = ""; sub = ""; }

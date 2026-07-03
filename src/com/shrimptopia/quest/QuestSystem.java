@@ -34,6 +34,8 @@ public class QuestSystem {
     private final int minGapArmed = 24;   // Mindestabstand, bevor ein erarbeitetes Ketten-Ziel als Popup erscheint
     private int rival = 0;
     private String lastEnding = null;
+    /** Wurde der Hinweis "im Quest-Log oben rechts" schon einmal gezeigt? */
+    private boolean hintedQuestLog = false;
 
     public QuestSystem() { QuestContent.populate(this); }
 
@@ -157,8 +159,12 @@ public class QuestSystem {
         if (c.nextQuestId != null) {
             forceStart(c.nextQuestId);
             Quest nx = byId.get(c.nextQuestId);
-            if (nx != null && armed.containsKey(nx.id) && nx.objectiveText != null)
-                out.add("Neue Aufgabe: " + nx.objectiveText + "  (Quest-Log oben rechts)", ChoiceOutcome.TASK);
+            if (nx != null && armed.containsKey(nx.id) && nx.objectiveText != null) {
+                // Den Hinweis aufs Quest-Log nur beim ersten Mal mitschreiben, sonst nervt er.
+                String hint = hintedQuestLog ? "" : "  (im Quest-Log oben rechts)";
+                hintedQuestLog = true;
+                out.add("Neue Aufgabe: " + nx.objectiveText + hint, ChoiceOutcome.TASK);
+            }
             else if (nx != null && triggered.contains(nx.id) && !done.contains(nx.id))
                 out.add("Es geht sofort weiter ...", ChoiceOutcome.TASK);
         }
