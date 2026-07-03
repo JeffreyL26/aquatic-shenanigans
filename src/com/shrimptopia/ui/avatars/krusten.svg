@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Werbeagentur Krusten und Krusten avatar">
+  <defs>
+    <clipPath id="kr-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="kr-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#b58ad6"></stop><stop offset="100%" stop-color="#8a5cb0"></stop>
+    </radialGradient>
+    <linearGradient id="kr-suit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2e3440"></stop><stop offset="100%" stop-color="#1f242e"></stop>
+    </linearGradient>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#kr-bg)"></circle>
+
+  <g clip-path="url(#kr-frame)">
+    <ellipse cx="300" cy="576" rx="330" ry="120" fill="#7448a0"></ellipse>
+
+    <!-- Zwilling LINKS -->
+    <g>
+      <path d="M182 448 C110 448 66 496 52 600 L312 600 C298 496 254 448 182 448 Z" fill="url(#kr-suit)" stroke="#12151c" stroke-width="7" stroke-linejoin="round"></path>
+      <path d="M158 456 L182 500 L206 456 L196 450 L182 476 L168 450 Z" fill="#ece9e2" stroke="#12151c" stroke-width="5" stroke-linejoin="round"></path>
+      <path d="M176 460 L182 502 L188 460 L182 454 Z" fill="#c9313d" stroke="#12151c" stroke-width="4"></path>
+      <path d="M154 414 L154 458 Q182 478 210 458 L210 414 Z" fill="#d9ad84" stroke="#12151c" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M182 232 C130 232 104 272 104 322 C104 364 120 396 150 412 C168 422 196 422 214 412 C244 396 260 364 260 322 C260 272 234 232 182 232 Z"
+            fill="#e8c0a0" stroke="#12151c" stroke-width="6" stroke-linejoin="round"></path>
+      <!-- identisches, glaenzendes Haar -->
+      <path d="M108 306 C104 250 140 216 182 216 C224 216 260 250 256 306 C246 274 226 254 200 250 C160 244 124 264 112 290 Z"
+            fill="#23272e" stroke="#12151c" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M126 262 C144 244 168 238 188 240" fill="none" stroke="#4a5260" stroke-width="4" stroke-linecap="round"></path>
+      <!-- identische Augen -->
+      <ellipse cx="152" cy="320" rx="14" ry="10" fill="#f4f3ee"></ellipse>
+      <ellipse cx="212" cy="320" rx="14" ry="10" fill="#f4f3ee"></ellipse>
+      <circle cx="152" cy="320" r="5" fill="#14100c"></circle>
+      <circle cx="212" cy="320" r="5" fill="#14100c"></circle>
+      <path d="M136 302 L168 302 M196 302 L228 302" stroke="#12151c" stroke-width="5" stroke-linecap="round"></path>
+      <!-- identisches Verkaufslaecheln -->
+      <path d="M150 374 Q182 398 214 374 Q182 386 150 374 Z" fill="#f4f3ee" stroke="#12151c" stroke-width="4" stroke-linejoin="round"></path>
+      <path d="M172 344 Q182 352 192 344" fill="none" stroke="#b98f6d" stroke-width="4" stroke-linecap="round"></path>
+    </g>
+
+    <!-- Zwilling RECHTS (spiegelgleich) -->
+    <g>
+      <path d="M418 448 C346 448 302 496 288 600 L548 600 C534 496 490 448 418 448 Z" fill="url(#kr-suit)" stroke="#12151c" stroke-width="7" stroke-linejoin="round"></path>
+      <path d="M394 456 L418 500 L442 456 L432 450 L418 476 L404 450 Z" fill="#ece9e2" stroke="#12151c" stroke-width="5" stroke-linejoin="round"></path>
+      <path d="M412 460 L418 502 L424 460 L418 454 Z" fill="#c9313d" stroke="#12151c" stroke-width="4"></path>
+      <path d="M390 414 L390 458 Q418 478 446 458 L446 414 Z" fill="#d9ad84" stroke="#12151c" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M418 232 C366 232 340 272 340 322 C340 364 356 396 386 412 C404 422 432 422 450 412 C480 396 496 364 496 322 C496 272 470 232 418 232 Z"
+            fill="#e8c0a0" stroke="#12151c" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M344 306 C340 250 376 216 418 216 C460 216 496 250 492 306 C482 274 462 254 436 250 C396 244 360 264 348 290 Z"
+            fill="#23272e" stroke="#12151c" stroke-width="6" stroke-linejoin="round"></path>
+      <path d="M362 262 C380 244 404 238 424 240" fill="none" stroke="#4a5260" stroke-width="4" stroke-linecap="round"></path>
+      <ellipse cx="388" cy="320" rx="14" ry="10" fill="#f4f3ee"></ellipse>
+      <ellipse cx="448" cy="320" rx="14" ry="10" fill="#f4f3ee"></ellipse>
+      <circle cx="388" cy="320" r="5" fill="#14100c"></circle>
+      <circle cx="448" cy="320" r="5" fill="#14100c"></circle>
+      <path d="M372 302 L404 302 M432 302 L464 302" stroke="#12151c" stroke-width="5" stroke-linecap="round"></path>
+      <path d="M386 374 Q418 398 450 374 Q418 386 386 374 Z" fill="#f4f3ee" stroke="#12151c" stroke-width="4" stroke-linejoin="round"></path>
+      <path d="M408 344 Q418 352 428 344" fill="none" stroke="#b98f6d" stroke-width="4" stroke-linecap="round"></path>
+    </g>
+
+    <!-- gemeinsames Agentur-Schild -->
+    <g stroke="#12151c" stroke-width="5" stroke-linejoin="round">
+      <rect x="216" y="96" width="168" height="70" rx="10" fill="#ffd24a"></rect>
+      <path d="M240 96 L240 78 M360 96 L360 78" stroke-width="6"></path>
+    </g>
+    <text x="300" y="126" font-family="SansSerif" font-size="26" font-weight="bold" text-anchor="middle" fill="#2a2016">KRUSTEN</text>
+    <text x="300" y="152" font-family="SansSerif" font-size="19" font-weight="bold" text-anchor="middle" fill="#2a2016">&amp; KRUSTEN</text>
+  </g>
+</svg>

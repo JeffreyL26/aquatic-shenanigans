@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Stadtverwaltung avatar">
+  <defs>
+    <clipPath id="rh-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="rh-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#8fabd9"></stop><stop offset="100%" stop-color="#5f7fb8"></stop>
+    </radialGradient>
+    <linearGradient id="rh-blazer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#41598c"></stop><stop offset="100%" stop-color="#31436b"></stop>
+    </linearGradient>
+    <clipPath id="rh-eyeL"><path d="M234 314 Q250 304 264 305 Q278 306 288 315 Q276 322 261 322 Q247 322 234 314 Z"></path></clipPath>
+    <clipPath id="rh-eyeR"><path d="M312 315 Q322 306 336 305 Q350 304 366 314 Q354 322 339 322 Q324 322 312 315 Z"></path></clipPath>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#rh-bg)"></circle>
+
+  <g clip-path="url(#rh-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#4e6ba0"></ellipse>
+    <!-- Rathaus-Silhouette im Hintergrund -->
+    <g fill="#43598c" opacity="0.55">
+      <rect x="70" y="150" width="180" height="130"></rect>
+      <path d="M60 150 L160 92 L260 150 Z"></path>
+      <rect x="146" y="60" width="28" height="60"></rect>
+      <path d="M138 60 L160 36 L182 60 Z"></path>
+      <rect x="92" y="180" width="24" height="36"></rect><rect x="148" y="180" width="24" height="36"></rect><rect x="204" y="180" width="24" height="36"></rect>
+    </g>
+
+    <!-- Blazer -->
+    <g stroke="#1c2433" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 452 C176 452 104 510 84 600 L516 600 C496 510 424 452 300 452 Z" fill="url(#rh-blazer)"></path>
+      <path d="M264 460 L300 516 L336 460 L320 452 L300 486 L280 452 Z" fill="#e8e6e0"></path>
+    </g>
+    <!-- Amtskette -->
+    <g fill="#ffd24a" stroke="#1c2433" stroke-width="4">
+      <circle cx="266" cy="486" r="7"></circle><circle cx="282" cy="500" r="7"></circle><circle cx="300" cy="508" r="7"></circle>
+      <circle cx="318" cy="500" r="7"></circle><circle cx="334" cy="486" r="7"></circle>
+      <circle cx="300" cy="532" r="15"></circle>
+    </g>
+    <path d="M294 526 L306 526 M300 520 L300 538" stroke="#1c2433" stroke-width="3.5"></path>
+
+    <!-- Hals -->
+    <path d="M262 402 L262 462 Q300 488 338 462 L338 402 Z" fill="#dfb28a" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M262 426 Q300 448 338 426 L338 402 L262 402 Z" fill="#c69670" stroke="none"></path>
+
+    <!-- Ohren + Ohrringe -->
+    <path d="M192 314 q-24 2 -22 28 q3 24 26 24 q12 -2 12 -16 z" fill="#dfb28a" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M408 314 q24 2 22 28 q-3 24 -26 24 q-12 -2 -12 -16 z" fill="#dfb28a" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <circle cx="196" cy="368" r="6" fill="#ffd24a" stroke="#1c2433" stroke-width="3"></circle>
+    <circle cx="404" cy="368" r="6" fill="#ffd24a" stroke="#1c2433" stroke-width="3"></circle>
+
+    <!-- Kopf -->
+    <path d="M300 196 C226 196 190 244 190 312 C190 356 208 396 248 420 C272 434 328 434 352 420 C392 396 410 356 410 312 C410 244 374 196 300 196 Z"
+          fill="#eec6a4" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Ordentliche Hochsteckfrisur -->
+    <path d="M194 302 C186 226 238 172 300 172 C362 172 414 226 406 302 C396 262 372 238 336 230 C288 220 232 236 208 270 C200 282 196 292 194 302 Z"
+          fill="#6b4a2e" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <ellipse cx="300" cy="160" rx="46" ry="30" fill="#6b4a2e" stroke="#1c2433" stroke-width="7"></ellipse>
+    <path d="M268 152 Q300 136 332 152" fill="none" stroke="#8a6a48" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M214 262 C240 240 280 232 316 238" fill="none" stroke="#8a6a48" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- Augen -->
+    <path d="M234 314 Q250 304 264 305 Q278 306 288 315 Q276 322 261 322 Q247 322 234 314 Z" fill="#f4f3ee"></path>
+    <path d="M312 315 Q322 306 336 305 Q350 304 366 314 Q354 322 339 322 Q324 322 312 315 Z" fill="#f4f3ee"></path>
+    <g clip-path="url(#rh-eyeL)"><circle cx="262" cy="314" r="10" fill="#6b533f"></circle><circle cx="262" cy="314" r="5" fill="#160f08"></circle><circle cx="259" cy="311" r="2.6" fill="#fff"></circle></g>
+    <g clip-path="url(#rh-eyeR)"><circle cx="338" cy="314" r="10" fill="#6b533f"></circle><circle cx="338" cy="314" r="5" fill="#160f08"></circle><circle cx="335" cy="311" r="2.6" fill="#fff"></circle></g>
+    <path d="M232 313 Q250 304 264 305 Q280 306 290 314" fill="none" stroke="#1c2433" stroke-width="5.5" stroke-linecap="round"></path>
+    <path d="M310 314 Q320 306 336 305 Q352 304 368 313" fill="none" stroke="#1c2433" stroke-width="5.5" stroke-linecap="round"></path>
+    <!-- Wimpern -->
+    <path d="M238 306 L232 298 M288 306 L294 298 M314 306 L308 298 M362 306 L368 298" stroke="#1c2433" stroke-width="3.5" stroke-linecap="round"></path>
+    <!-- freundlich-verbindliche Brauen -->
+    <path d="M230 290 Q254 280 286 288" fill="none" stroke="#4e3620" stroke-width="6" stroke-linecap="round"></path>
+    <path d="M314 288 Q346 280 370 290" fill="none" stroke="#4e3620" stroke-width="6" stroke-linecap="round"></path>
+
+    <!-- Nase -->
+    <path d="M300 322 C293 344 287 358 294 368 Q300 376 311 368" fill="none" stroke="#c69670" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+    <!-- Diplomatisches Laecheln + Lippenstift -->
+    <path d="M266 392 Q300 410 334 392 Q300 402 266 392 Z" fill="#b34a5a" stroke="#1c2433" stroke-width="4" stroke-linejoin="round"></path>
+
+    <!-- Formular-Stapel -->
+    <g stroke="#1c2433" stroke-width="5" stroke-linejoin="round">
+      <rect x="402" y="486" width="110" height="14" fill="#e8e2cc" transform="rotate(-4 457 493)"></rect>
+      <rect x="400" y="500" width="114" height="14" fill="#d8d2ba" transform="rotate(2 457 507)"></rect>
+      <rect x="398" y="514" width="118" height="52" rx="4" fill="#f2ead2"></rect>
+      <path d="M410 530 L500 530 M410 542 L484 542 M410 554 L496 554" stroke="#a99b78" stroke-width="4"></path>
+      <circle cx="492" cy="546" r="14" fill="#c9313d" opacity="0.85" stroke-width="4"></circle>
+    </g>
+  </g>
+</svg>

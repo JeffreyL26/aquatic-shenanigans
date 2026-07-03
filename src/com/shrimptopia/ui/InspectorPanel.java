@@ -136,12 +136,13 @@ public class InspectorPanel extends JPanel {
             g.fillRoundRect(12, 12, 50, 50, 10, 10);
             Icons.building(g, t.icon, 37, 36, 38);
             // Name + Status
+            int headW = getWidth() - 72 - 12;
             g.setFont(Palette.FONT_H2); g.setColor(Palette.TEXT);
-            g.drawString(t.displayName, 72, 30);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), t.displayName, headW), 72, 30);
             Color dot = b.efficiency > 0.85 ? Palette.GOOD : b.efficiency > 0.35 ? Palette.WARN : Palette.BAD;
             g.setColor(dot);
-            g.drawString((int) Math.round(b.efficiency * 100) + "% "
-                + (b.statusNote.isEmpty() ? "läuft" : b.statusNote), 72, 50);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), (int) Math.round(b.efficiency * 100) + "% "
+                + (b.statusNote.isEmpty() ? "läuft" : b.statusNote), headW), 72, 50);
 
             int y = 84;
             g.setFont(Palette.FONT_SMALL);
@@ -205,7 +206,7 @@ public class InspectorPanel extends JPanel {
             g.fillRoundRect(12, 4, w - 24, 42, 9, 9);
             if (sel) { g.setColor(Palette.ACCENT); g.setStroke(new BasicStroke(2f)); g.drawRoundRect(13, 5, w - 26, 40, 9, 9); }
             g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
-            g.drawString(m.name + (lock ? "  (gesperrt)" : ""), 24, 22);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), m.name + (lock ? "  (gesperrt)" : ""), w - 48), 24, 22);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
             String sub = m.desc;
             if (lock) {
@@ -250,7 +251,7 @@ public class InspectorPanel extends JPanel {
             g.setColor(own ? new Color(30, 70, 50) : hover && !lock ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
             g.fillRoundRect(12, 4, w - 24, 42, 9, 9);
             g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
-            g.drawString(u.name, 24, 22);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), u.name, w - 100), 24, 22);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
             String sub = u.desc;
             if (lock) {
@@ -286,11 +287,15 @@ public class InspectorPanel extends JPanel {
             g.fillRoundRect(74, 40, (int) ((w - 100) * rv / 100.0), 12, 6, 6);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
             String phase = rv > 65 ? "Kalter Krill-Krieg" : rv > 30 ? "Handelskrieg" : "Höflich";
-            g.drawString(phase + "  (" + rv + "/100)", 74, 68);
+            int embW = 0;
             if (frame.game().getExportTariff() > 0) {
+                String emb = "Embargo -" + (int) (frame.game().getExportTariff() * 100) + "%";
+                embW = g.getFontMetrics().stringWidth(emb) + 8;
                 g.setColor(Palette.BAD);
-                g.drawString("Embargo: -" + (int) (frame.game().getExportTariff() * 100) + "% Export", 74 + 130, 30);
+                g.drawString(emb, w - 22 - g.getFontMetrics().stringWidth(emb), 68);
+                g.setColor(Palette.TEXT_DIM);
             }
+            g.drawString(TextUtil.clip(g.getFontMetrics(), phase + "  (" + rv + "/100)", w - 22 - 74 - embW), 74, 68);
             g.dispose();
         }
     }

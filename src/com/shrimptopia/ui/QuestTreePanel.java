@@ -156,9 +156,11 @@ public class QuestTreePanel extends JComponent {
         g.setFont(Palette.FONT_H1);
         g.setColor(Palette.TEXT);
         g.drawString("Quest-Baum", card.x + 20, card.y + 34);
+        int titleEnd = card.x + 20 + g.getFontMetrics().stringWidth("Quest-Baum") + 16;
         g.setFont(Palette.FONT_SMALL);
         g.setColor(Palette.TEXT_DIM);
-        g.drawString("Klick auf ein Hexagon für Details - Mausrad zum Scrollen", card.x + 150, card.y + 34);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), "Klick auf ein Hexagon für Details - Mausrad zum Scrollen",
+            card.x + card.width - closeBtn.getWidth() - 32 - titleEnd), titleEnd, card.y + 34);
         g.setColor(Palette.BG_DARK);
         g.fillRect(card.x + 12, card.y + 46, card.width - 24, 1);
 
@@ -433,7 +435,7 @@ public class QuestTreePanel extends JComponent {
         if (discovered) {
             gd.setFont(Palette.FONT_SMALL);
             gd.setColor(Palette.ACCENT);
-            gd.drawString(q.giverName(), x + 16, yy); yy += 16;
+            gd.drawString(TextUtil.clip(gd.getFontMetrics(), q.giverName(), w - 32), x + 16, yy); yy += 16;
         }
 
         // Status
@@ -447,7 +449,8 @@ public class QuestTreePanel extends JComponent {
         if (armed && q.objective != null) {
             double p = q.objective.progress(gs, qs);
             gd.setFont(Palette.FONT_SMALL); gd.setColor(Palette.TEXT);
-            gd.drawString((q.objectiveText != null ? q.objectiveText : "Ziel") + "  (" + q.objective.describe(gs, qs) + ")", x + 16, yy + 12);
+            gd.drawString(TextUtil.clip(gd.getFontMetrics(), (q.objectiveText != null ? q.objectiveText : "Ziel")
+                + "  (" + q.objective.describe(gs, qs) + ")", w - 32), x + 16, yy + 12);
             gd.setColor(Palette.PANEL_LIGHT);
             gd.fillRoundRect(x + 16, yy + 18, w - 32, 8, 4, 4);
             gd.setColor(p >= 1 ? Palette.GOOD : lc);
@@ -455,7 +458,7 @@ public class QuestTreePanel extends JComponent {
             yy += 34;
         } else if (doneQ && q.objectiveText != null) {
             gd.setFont(Palette.FONT_SMALL); gd.setColor(Palette.TEXT_DIM);
-            gd.drawString("Ziel war: " + q.objectiveText, x + 16, yy + 12); yy += 20;
+            gd.drawString(TextUtil.clip(gd.getFontMetrics(), "Ziel war: " + q.objectiveText, w - 32), x + 16, yy + 12); yy += 20;
         }
 
         // Beschreibung (nur wenn erreicht - sonst Spoiler)

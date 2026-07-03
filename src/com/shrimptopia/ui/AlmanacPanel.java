@@ -80,8 +80,13 @@ public class AlmanacPanel extends JComponent {
         int cw = Math.min(1000, W - 80), ch = Math.min(720, H - 60);
         card.setBounds((W - cw) / 2, (H - ch) / 2, cw, ch);
         int bx = card.x + 20, by = card.y + 50;
+        // Reiter dürfen die Karte nicht überragen: bei Platzmangel gleichmäßig stauchen
+        int avail = cw - 40 - (tabBtn.length - 1) * 6;
+        int natural = 0;
+        for (ThemeButton.FlatToggle b : tabBtn) natural += Math.max(120, b.getPreferredSize().width);
+        double scale = natural > avail ? (double) avail / natural : 1.0;
         for (ThemeButton.FlatToggle b : tabBtn) {
-            int w = Math.max(120, b.getPreferredSize().width);
+            int w = (int) (Math.max(120, b.getPreferredSize().width) * scale);
             b.setBounds(bx, by, w, 32);
             bx += w + 6;
         }
@@ -210,7 +215,7 @@ public class AlmanacPanel extends JComponent {
                 if (bt.isMarket()) for (ShrimpTier at : bt.acceptedTiers())
                     if (at == t) { if (mk.length() > 0) mk.append(", "); mk.append(bt.shortName()); }
             g.setColor(Palette.TEXT_DIM);
-            g.drawString("Verkauf bei: " + (mk.length() > 0 ? mk : "-"), x + 26, y + 16);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), "Verkauf bei: " + (mk.length() > 0 ? mk : "-"), w - 26), x + 26, y + 16);
             y += 42;
         }
     }
@@ -227,8 +232,9 @@ public class AlmanacPanel extends JComponent {
         g.setFont(Palette.FONT_BODY);
         for (String s : fx) {
             g.setColor(Palette.ACCENT); g.fillOval(x, y - 9, 8, 8);
-            g.setColor(Palette.TEXT); g.drawString(s, x + 16, y);
+            g.setColor(Palette.TEXT); g.drawString(TextUtil.clip(g.getFontMetrics(), s, w - 16), x + 16, y);
             y += 24;
+            if (y > bottom) break;
         }
     }
 
@@ -264,11 +270,11 @@ public class AlmanacPanel extends JComponent {
         g.setFont(Palette.FONT_H1); g.setColor(Palette.ACCENT2);
         g.drawString(Math.round(dem) + " Nachfrage / Tag", x, y);
         g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-        g.drawString("Basis " + Math.round(GameState.BASE_DEMAND) + " (Nachbarschaft) + Streams, x"
+        g.drawString(TextUtil.clip(g.getFontMetrics(), "Basis " + Math.round(GameState.BASE_DEMAND) + " (Nachbarschaft) + Streams, x"
             + String.format("%.2f", gs.demandRepFactor()) + " Reputations-Faktor   -   gestern verkauft: "
-            + Math.round(used) + "   -   Marketing-Kosten: " + Math.round(gs.getMarketingCostLast()) + "/Tag", x, y + 18);
-        g.drawString("Verbraucher-Märkte (Klapptisch, Börse, Restaurant, Export) verkaufen nur, was nachgefragt wird."
-            + " Militär & Schwarzmarkt laufen über Verträge.", x, y + 34);
+            + Math.round(used) + "   -   Marketing-Kosten: " + Math.round(gs.getMarketingCostLast()) + "/Tag", w), x, y + 18);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), "Verbraucher-Märkte (Klapptisch, Börse, Restaurant, Export) verkaufen nur, was nachgefragt wird."
+            + " Militär & Schwarzmarkt laufen über Verträge.", w), x, y + 34);
 
         int yy = y + 54;
         head(g, x, yy, "Streams - Klick bucht oder kündigt (Kosten laufen pro Tag)"); yy += 18;
@@ -307,8 +313,8 @@ public class AlmanacPanel extends JComponent {
     private void drawKommando(Graphics2D g, GameState gs, int x, int y, int w, int bottom) {
         edictRects.clear(); edictAt.clear();
         g.setFont(Palette.FONT_BODY); g.setColor(Palette.TEXT);
-        g.drawString("Imperium: " + rank(gs.getMoney()) + "   -   Tag " + n(gs.getDay())
-            + "   -   Gebäude " + n(gs.buildingCount()) + "   -   Armee-Stärke " + n(gs.getArmy()), x, y);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), "Imperium: " + rank(gs.getMoney()) + "   -   Tag " + n(gs.getDay())
+            + "   -   Gebäude " + n(gs.buildingCount()) + "   -   Armee-Stärke " + n(gs.getArmy()), w), x, y);
         int yy = y + 26;
         head(g, x, yy, "Edikte - Klick erlässt/hebt auf; Edikte derselben Gruppe schließen sich aus"); yy += 18;
         int rowH = Math.max(28, Math.min(38, (bottom - yy) / Edict.values().length));
@@ -337,11 +343,11 @@ public class AlmanacPanel extends JComponent {
         }
     }
     private static String rank(double money) {
-        if (money >= 200000) return "Shrimp-Imperator";
-        if (money >= 100000) return "Garnelen-Magnat";
-        if (money >= 50000) return "Shrimp-Tycoon";
-        if (money >= 20000) return "Etablierter Züchter";
-        if (money >= 5000) return "Aufsteiger";
+        if (money >= 1_500_000) return "Shrimp-Imperator";
+        if (money >= 500_000) return "Garnelen-Magnat";
+        if (money >= 150_000) return "Shrimp-Tycoon";
+        if (money >= 50_000) return "Etablierter Züchter";
+        if (money >= 10_000) return "Aufsteiger";
         return "Hinterhof-Start-up";
     }
 }

@@ -21,7 +21,7 @@ import java.util.Set;
 public class GameState {
 
     public static final int LOG_INFO = 0, LOG_GOOD = 1, LOG_BAD = 2, LOG_WARN = 3;
-    public static final double GOAL_MONEY = 500_000;
+    public static final double GOAL_MONEY = 1_500_000;
     public static final int COLS = 12;
     public static final int ROWS = 8;
 

@@ -160,10 +160,12 @@ public class OverlayHost extends JComponent {
         FontMetrics fm = getFontMetrics(bodyFont);
 
         if (mode == Mode.TUTORIAL && step != null) {
-            int cw = Math.min(640, W - 80), ch = 168;
+            int cw = Math.min(640, W - 80);
+            bodyLines = wrap(step.text, fm, cw - 130);
+            // Kartenhöhe an den Text anpassen, sonst läuft er in die Buttons
+            int ch = Math.max(168, 86 + bodyLines.size() * 20 + 52);
             int cx = (W - cw) / 2, cy = H - ch - 36;
             card.setBounds(cx, cy, cw, ch);
-            bodyLines = wrap(step.text, fm, cw - 130);
             // Buttons unten rechts / links
             int by = cy + ch - 44;
             int x = cx + cw - 12;
@@ -280,12 +282,13 @@ public class OverlayHost extends JComponent {
         }
 
         int tx = card.x + 104;
+        int headW = card.x + card.width - tx - 20;
         g.setFont(Palette.FONT_H2);
         g.setColor(Palette.TEXT);
-        g.drawString(speaker, tx, card.y + 30);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), speaker, headW), tx, card.y + 30);
         g.setFont(Palette.FONT_SMALL);
         g.setColor(Palette.ACCENT);
-        g.drawString(role, tx, card.y + 48);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), role, headW), tx, card.y + 48);
 
         // Titel (Popup/Ergebnis/Ansage) bzw. Schrittzahl (Tutorial)
         if (mode == Mode.POPUP || mode == Mode.OUTCOME) {
@@ -355,6 +358,10 @@ public class OverlayHost extends JComponent {
         String name = q.giverName();
         if (name != null) {
             String n = name.toLowerCase();
+            if (n.contains("klausi"))      return "klausi";
+            if (n.contains("feuchtwanger")) return "feuchtwanger";
+            if (n.contains("krusten & krusten") || n.contains("werbeagentur")) return "krusten";
+            if (n.contains("algen"))       return "praktikant";
             if (n.contains("quallmann"))   return "quallmann";
             if (n.contains("schalk"))      return "schalk";
             if (n.contains("lena"))        return "lena";

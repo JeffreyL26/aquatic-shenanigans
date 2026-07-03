@@ -98,6 +98,7 @@ public class TopBar extends JPanel {
         ResourceStrip() {
             setOpaque(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setToolTipText("");   // aktiviert das Tooltip-System für getToolTipText(MouseEvent)
             addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override public void mousePressed(java.awt.event.MouseEvent e) {
                     if (lastOrder.isEmpty()) return;
@@ -108,6 +109,16 @@ public class TopBar extends JPanel {
                     frame.openAlmanac(r == ResourceType.MONEY ? 0 : r == ResourceType.SHRIMP ? 2 : 1);
                 }
             });
+        }
+
+        /** Bei schmalen Slots (Spätspiel, viele Ressourcen) fehlt der Platz für Label/Sub-Zeile - als Tooltip nachreichen. */
+        @Override public String getToolTipText(java.awt.event.MouseEvent e) {
+            if (lastOrder.isEmpty()) return null;
+            int pad = 12; double slotW = (getWidth() - pad * 2.0) / lastOrder.size();
+            if (slotW >= 100) return null;
+            int idx = (int) ((e.getX() - pad) / slotW);
+            if (idx < 0 || idx >= lastOrder.size()) return null;
+            return lastOrder.get(idx).displayName;
         }
 
         @Override protected void paintComponent(Graphics g0) {
@@ -139,8 +150,12 @@ public class TopBar extends JPanel {
         }
 
         private void drawSlot(Graphics2D g, GameState gs, ResourceType r, double x, double w) {
-            double iconCx = x + 24, iconCy = getHeight() / 2.0;
-            Icons.resource(g, r.icon, iconCx, iconCy, 30, r.color);
+            // Bei vielen gleichzeitig freigeschalteten Ressourcen (Spätspiel) wird jeder Slot schmal -
+            // Icon verkleinern und näher an den Text rücken, statt Text unlesbar kurz zu clippen.
+            boolean tight = w < 100;
+            double iconSize = tight ? 20 : 30;
+            double iconCx = x + (tight ? 16 : 24), iconCy = getHeight() / 2.0;
+            Icons.resource(g, r.icon, iconCx, iconCy, iconSize, r.color);
 
             String value, sub;
             Color subColor = Palette.TEXT_DIM;
@@ -190,16 +205,20 @@ public class TopBar extends JPanel {
                 default -> { value = ""; sub = ""; }
             }
 
-            double tx = x + 44;
+            double tx = x + (tight ? 30 : 44);
+            // Texte auf die Slot-Breite begrenzen, sonst laufen sie in den Nachbar-Slot
+            int maxW = Math.max(10, (int) (x + w - tx - 4));
             g.setFont(Palette.FONT_TINY);
             g.setColor(Palette.TEXT_DIM);
-            g.drawString(r.displayName.toUpperCase(), (float) tx, (float) (iconCy - 14));
+            if (!tight) g.drawString(TextUtil.clip(g.getFontMetrics(), r.hudLabel, maxW), (float) tx, (float) (iconCy - 14));
             g.setFont(Palette.FONT_H2);
             g.setColor(Palette.TEXT);
-            g.drawString(value, (float) tx, (float) (iconCy + 3));
-            g.setFont(Palette.FONT_SMALL);
-            g.setColor(subColor);
-            g.drawString(sub, (float) tx, (float) (iconCy + 18));
+            g.drawString(TextUtil.clip(g.getFontMetrics(), value, maxW), (float) tx, (float) (iconCy + 3));
+            if (!tight) {
+                g.setFont(Palette.FONT_SMALL);
+                g.setColor(subColor);
+                g.drawString(TextUtil.clip(g.getFontMetrics(), sub, maxW), (float) tx, (float) (iconCy + 18));
+            }
         }
     }
 

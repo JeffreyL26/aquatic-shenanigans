@@ -59,10 +59,11 @@ public class QuestLogPanel extends JPanel {
 
             g.setColor(Palette.PANEL_LIGHT);
             g.fillRoundRect(8, y, w - 16, blockH - 6, 8, 8);
-            // Geber + Aufgabe
+            // Geber + Aufgabe (Geber links, Fortschrittstext rechts - nicht überlappen lassen)
             g.setFont(Palette.FONT_TINY);
+            int dw0 = g.getFontMetrics().stringWidth(desc);
             g.setColor(Palette.ACCENT2);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), q.giverName(), w - 24), 16, y + 14);
+            g.drawString(TextUtil.clip(g.getFontMetrics(), q.giverName(), w - 32 - dw0 - 8), 16, y + 14);
             g.setFont(Palette.FONT_SMALL);
             g.setColor(Palette.TEXT);
             g.drawString(TextUtil.clip(g.getFontMetrics(), label, w - 24), 16, y + 28);

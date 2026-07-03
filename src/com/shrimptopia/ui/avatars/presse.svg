@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Die Presse avatar">
+  <defs>
+    <clipPath id="pr-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="pr-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#e6c078"></stop><stop offset="100%" stop-color="#c29a4e"></stop>
+    </radialGradient>
+    <linearGradient id="pr-coat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9a7f56"></stop><stop offset="100%" stop-color="#7c6440"></stop>
+    </linearGradient>
+    <linearGradient id="pr-hat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b5638"></stop><stop offset="100%" stop-color="#54432a"></stop>
+    </linearGradient>
+    <clipPath id="pr-eyeL"><path d="M234 314 Q250 304 264 305 Q278 306 288 315 Q276 322 261 322 Q247 322 234 314 Z"></path></clipPath>
+    <clipPath id="pr-eyeR"><path d="M312 315 Q322 306 336 305 Q350 304 366 314 Q354 322 339 322 Q324 322 312 315 Z"></path></clipPath>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#pr-bg)"></circle>
+
+  <g clip-path="url(#pr-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#a8854a"></ellipse>
+    <!-- fliegende Zeitungen -->
+    <g stroke="#5a4a30" stroke-width="4" stroke-linejoin="round" fill="#f0e8d2">
+      <path d="M76 160 L140 148 L146 190 L82 202 Z" transform="rotate(-12 111 175)"></path>
+      <path d="M452 130 L516 118 L522 160 L458 172 Z" transform="rotate(9 487 145)"></path>
+    </g>
+    <g stroke="#8a7a5a" stroke-width="3">
+      <path d="M88 168 L130 160 M90 180 L132 172" transform="rotate(-12 111 175)"></path>
+      <path d="M464 140 L506 132 M466 152 L508 144" transform="rotate(9 487 145)"></path>
+    </g>
+
+    <!-- Trenchcoat -->
+    <g stroke="#1c2433" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 452 C176 452 104 510 84 600 L516 600 C496 510 424 452 300 452 Z" fill="url(#pr-coat)"></path>
+      <path d="M258 462 L300 520 L342 462 L322 454 L300 490 L278 454 Z" fill="#c8b088"></path>
+      <path d="M226 480 L374 480" stroke-width="5" opacity="0.5"></path>
+    </g>
+    <!-- Mikrofon -->
+    <g stroke="#1c2433" stroke-width="6" stroke-linejoin="round">
+      <rect x="120" y="470" width="34" height="96" rx="12" fill="#3a3f47"></rect>
+      <ellipse cx="137" cy="452" rx="34" ry="30" fill="#585f6a"></ellipse>
+      <path d="M112 442 L162 442 M108 456 L166 456" stroke-width="3.5" stroke="#20242b"></path>
+    </g>
+
+    <!-- Hals -->
+    <path d="M262 402 L262 462 Q300 488 338 462 L338 402 Z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M262 426 Q300 448 338 426 L338 402 L262 402 Z" fill="#c0916a" stroke="none"></path>
+
+    <!-- Ohren -->
+    <path d="M192 314 q-24 2 -22 28 q3 24 26 24 q12 -2 12 -16 z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M408 314 q24 2 22 28 q-3 24 -26 24 q-12 -2 -12 -16 z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Kopf -->
+    <path d="M300 196 C226 196 190 244 190 312 C190 356 208 396 248 420 C272 434 328 434 352 420 C392 396 410 356 410 312 C410 244 374 196 300 196 Z"
+          fill="#e8c0a0" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Reporter-Hut mit PRESSE-Karte -->
+    <g stroke="#1c2433" stroke-width="7" stroke-linejoin="round">
+      <path d="M156 246 C200 226 400 226 444 246 C420 262 180 262 156 246 Z" fill="#54432a"></path>
+      <path d="M196 240 C196 168 244 130 300 130 C356 130 404 168 404 240 Z" fill="url(#pr-hat)"></path>
+      <path d="M196 226 L404 226 L404 246 L196 246 Z" fill="#3f3220" stroke-width="5"></path>
+    </g>
+    <g stroke="#1c2433" stroke-width="4" stroke-linejoin="round">
+      <rect x="322" y="164" width="64" height="44" rx="4" fill="#f0e8d2" transform="rotate(6 354 186)"></rect>
+    </g>
+    <text x="352" y="194" font-family="SansSerif" font-size="17" font-weight="bold" text-anchor="middle" fill="#2a2016" transform="rotate(6 354 186)">PRESSE</text>
+
+    <!-- Augen: neugierig, eins zusammengekniffen -->
+    <path d="M234 314 Q250 304 264 305 Q278 306 288 315 Q276 322 261 322 Q247 322 234 314 Z" fill="#f4f3ee"></path>
+    <path d="M312 315 Q322 306 336 305 Q350 304 366 314 Q354 322 339 322 Q324 322 312 315 Z" fill="#f4f3ee"></path>
+    <g clip-path="url(#pr-eyeL)"><circle cx="264" cy="313" r="10" fill="#54617a"></circle><circle cx="264" cy="313" r="5" fill="#160f08"></circle><circle cx="261" cy="310" r="2.6" fill="#fff"></circle></g>
+    <g clip-path="url(#pr-eyeR)"><circle cx="336" cy="314" r="9" fill="#54617a"></circle><circle cx="336" cy="314" r="4.6" fill="#160f08"></circle><circle cx="333" cy="311" r="2.2" fill="#fff"></circle></g>
+    <path d="M232 313 Q250 304 264 305 Q280 306 290 314" fill="none" stroke="#1c2433" stroke-width="5.5" stroke-linecap="round"></path>
+    <path d="M310 314 Q320 307 336 306 Q352 305 368 313" fill="none" stroke="#1c2433" stroke-width="5.5" stroke-linecap="round"></path>
+    <path d="M312 322 Q336 328 366 320" fill="none" stroke="#1c2433" stroke-width="4" stroke-linecap="round"></path>
+    <!-- eine Braue skeptisch hoch -->
+    <path d="M228 290 Q254 282 286 290" fill="none" stroke="#4e3c28" stroke-width="6" stroke-linecap="round"></path>
+    <path d="M314 282 Q346 272 372 284" fill="none" stroke="#4e3c28" stroke-width="6" stroke-linecap="round"></path>
+
+    <!-- Nase -->
+    <path d="M300 322 C292 344 284 360 292 370 Q300 378 312 368" fill="none" stroke="#c0916a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+    <!-- verschmitztes Grinsen mit Bleistift im Mundwinkel -->
+    <path d="M264 392 Q296 408 334 390" fill="none" stroke="#3a2f2a" stroke-width="5.5" stroke-linecap="round"></path>
+    <g stroke="#1c2433" stroke-width="4" stroke-linejoin="round">
+      <path d="M330 392 L398 372 L404 384 L336 404 Z" fill="#e6a33c"></path>
+      <path d="M398 372 L416 370 L404 384 Z" fill="#e8c0a0"></path>
+    </g>
+  </g>
+</svg>

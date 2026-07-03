@@ -229,8 +229,8 @@ public class MapPanel extends JPanel {
         double cx = x + TILE / 2.0, cy = y + TILE / 2.0 - 4;
         Icons.building(g, t.icon, cx, cy, TILE * 0.52);
         g.setFont(Palette.FONT_TINY);
-        String name = t.shortName();
         FontMetrics fm = g.getFontMetrics();
+        String name = TextUtil.clip(fm, t.shortName(), TILE - 4);
         g.setColor(new Color(255, 255, 255, 220));
         g.drawString(name, (int) (cx - fm.stringWidth(name) / 2.0), y + TILE - 9);
     }

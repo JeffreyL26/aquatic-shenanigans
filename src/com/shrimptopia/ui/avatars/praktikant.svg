@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Der Algen-Praktikant avatar">
+  <defs>
+    <clipPath id="pk-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="pk-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#8fca7e"></stop><stop offset="100%" stop-color="#5d9c52"></stop>
+    </radialGradient>
+    <linearGradient id="pk-shirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e0dcc8"></stop><stop offset="100%" stop-color="#c2bda4"></stop>
+    </linearGradient>
+    <linearGradient id="pk-algae" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5fae3f"></stop><stop offset="100%" stop-color="#33702a"></stop>
+    </linearGradient>
+    <clipPath id="pk-eyeL"><path d="M234 314 Q250 304 264 305 Q278 306 288 315 Q276 322 261 322 Q247 322 234 314 Z"></path></clipPath>
+    <clipPath id="pk-eyeR"><path d="M312 315 Q322 306 336 305 Q350 304 366 314 Q354 322 339 322 Q324 322 312 315 Z"></path></clipPath>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#pk-bg)"></circle>
+
+  <g clip-path="url(#pk-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#4c8446"></ellipse>
+
+    <!-- T-Shirt mit Algen-Spritzern -->
+    <g stroke="#1c2433" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 452 C176 452 104 510 84 600 L516 600 C496 510 424 452 300 452 Z" fill="url(#pk-shirt)"></path>
+    </g>
+    <g fill="#4d8f37" opacity="0.85">
+      <ellipse cx="220" cy="520" rx="20" ry="12"></ellipse>
+      <ellipse cx="352" cy="548" rx="26" ry="14"></ellipse>
+      <ellipse cx="286" cy="586" rx="16" ry="10"></ellipse>
+      <circle cx="256" cy="556" r="7"></circle><circle cx="392" cy="512" r="8"></circle>
+    </g>
+    <!-- Praktikanten-Ausweis -->
+    <g stroke="#1c2433" stroke-width="4" stroke-linejoin="round">
+      <path d="M300 460 L306 520" fill="none" stroke-width="3"></path>
+      <rect x="282" y="518" width="52" height="34" rx="4" fill="#fff"></rect>
+      <rect x="282" y="518" width="52" height="10" fill="#3f6cc2"></rect>
+      <path d="M288 536 L328 536 M288 544 L316 544" stroke="#9aa0a8" stroke-width="3"></path>
+    </g>
+
+    <!-- Hals -->
+    <path d="M262 402 L262 462 Q300 488 338 462 L338 402 Z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M262 426 Q300 448 338 426 L338 402 L262 402 Z" fill="#c0916a" stroke="none"></path>
+
+    <!-- Ohren -->
+    <path d="M192 314 q-24 2 -22 28 q3 24 26 24 q12 -2 12 -16 z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M408 314 q24 2 22 28 q-3 24 -26 24 q-12 -2 -12 -16 z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Kopf: jung, sommersprossig -->
+    <path d="M300 196 C226 196 190 244 190 312 C190 356 208 396 248 420 C272 434 328 434 352 420 C392 396 410 356 410 312 C410 244 374 196 300 196 Z"
+          fill="#e8c0a0" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Wuscheliges Haar mit Alge drin -->
+    <path d="M194 300 C182 226 232 168 300 170 C368 172 420 228 406 300 C398 268 384 250 362 240 C368 256 366 268 358 276 C348 258 332 246 312 244 C318 258 314 270 304 276 C292 258 272 250 252 254 C256 266 252 276 242 282 C226 276 210 284 202 300 Z"
+          fill="#8a5c34" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M330 186 Q352 160 386 166 Q372 186 356 190 Q368 198 372 212 Q348 210 338 196 Z"
+          fill="url(#pk-algae)" stroke="#1c2433" stroke-width="5" stroke-linejoin="round"></path>
+
+    <!-- Augen: gross, leicht ueberfordert -->
+    <path d="M234 314 Q250 304 264 305 Q278 306 288 315 Q276 322 261 322 Q247 322 234 314 Z" fill="#f4f3ee"></path>
+    <path d="M312 315 Q322 306 336 305 Q350 304 366 314 Q354 322 339 322 Q324 322 312 315 Z" fill="#f4f3ee"></path>
+    <g clip-path="url(#pk-eyeL)"><circle cx="264" cy="313" r="11" fill="#5a7a4a"></circle><circle cx="264" cy="313" r="5.5" fill="#160f08"></circle><circle cx="261" cy="310" r="2.6" fill="#fff"></circle></g>
+    <g clip-path="url(#pk-eyeR)"><circle cx="336" cy="313" r="11" fill="#5a7a4a"></circle><circle cx="336" cy="313" r="5.5" fill="#160f08"></circle><circle cx="333" cy="310" r="2.6" fill="#fff"></circle></g>
+    <path d="M232 313 Q250 304 264 305 Q280 306 290 314" fill="none" stroke="#1c2433" stroke-width="5.5" stroke-linecap="round"></path>
+    <path d="M310 314 Q320 306 336 305 Q352 304 368 313" fill="none" stroke="#1c2433" stroke-width="5.5" stroke-linecap="round"></path>
+    <!-- hochgezogene Brauen -->
+    <path d="M228 292 Q252 278 284 288" fill="none" stroke="#6b4426" stroke-width="6" stroke-linecap="round"></path>
+    <path d="M316 288 Q348 278 372 292" fill="none" stroke="#6b4426" stroke-width="6" stroke-linecap="round"></path>
+
+    <!-- Sommersprossen -->
+    <g fill="#c08f6a">
+      <circle cx="238" cy="342" r="2.4"></circle><circle cx="252" cy="348" r="2.2"></circle><circle cx="244" cy="354" r="2"></circle>
+      <circle cx="362" cy="342" r="2.4"></circle><circle cx="348" cy="348" r="2.2"></circle><circle cx="356" cy="354" r="2"></circle>
+    </g>
+
+    <!-- Nase -->
+    <path d="M300 322 C292 344 284 360 292 370 Q300 378 312 368" fill="none" stroke="#c0916a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+    <!-- Nervoeses Laecheln -->
+    <path d="M266 394 Q286 404 306 400 Q322 396 334 386" fill="none" stroke="#3a2f2a" stroke-width="5.5" stroke-linecap="round"></path>
+
+    <!-- Einmachglas voller Algen -->
+    <g stroke="#1c2433" stroke-width="6" stroke-linejoin="round">
+      <rect x="88" y="440" width="110" height="130" rx="14" fill="#bcd8dd" opacity="0.92"></rect>
+      <rect x="82" y="424" width="122" height="24" rx="8" fill="#8f9aa4"></rect>
+      <path d="M100 470 Q116 450 128 476 Q142 448 154 478 Q168 452 184 474 L184 556 L100 556 Z" fill="url(#pk-algae)" stroke-width="5"></path>
+      <circle cx="118" cy="502" r="5" fill="#a5d68a" stroke="none"></circle>
+      <circle cx="152" cy="522" r="4" fill="#a5d68a" stroke="none"></circle>
+    </g>
+  </g>
+</svg>

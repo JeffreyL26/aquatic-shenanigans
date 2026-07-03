@@ -65,8 +65,9 @@ public final class ThemeButton {
         g.setColor(selected ? Palette.BG_DARK : Palette.TEXT);
         FontMetrics fm = g.getFontMetrics(b.getFont());
         g.setFont(b.getFont());
-        int tw = fm.stringWidth(b.getText());
-        g.drawString(b.getText(), (w - tw) / 2, (h + fm.getAscent() - fm.getDescent()) / 2);
+        String text = TextUtil.clip(fm, b.getText(), w - 12);
+        int tw = fm.stringWidth(text);
+        g.drawString(text, Math.max(6, (w - tw) / 2), (h + fm.getAscent() - fm.getDescent()) / 2);
         g.dispose();
     }
 }

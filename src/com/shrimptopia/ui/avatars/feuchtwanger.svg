@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Ministerialrat Dr. Feuchtwanger avatar">
+  <defs>
+    <clipPath id="fw-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="fw-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#9aa3ad"></stop><stop offset="100%" stop-color="#6d7681"></stop>
+    </radialGradient>
+    <linearGradient id="fw-suit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a616b"></stop><stop offset="100%" stop-color="#41474f"></stop>
+    </linearGradient>
+    <clipPath id="fw-eyeL"><path d="M232 312 Q248 302 262 303 Q276 304 286 313 Q274 320 259 320 Q245 320 232 312 Z"></path></clipPath>
+    <clipPath id="fw-eyeR"><path d="M314 313 Q324 304 338 303 Q352 302 368 312 Q356 320 341 320 Q326 320 314 313 Z"></path></clipPath>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#fw-bg)"></circle>
+
+  <g clip-path="url(#fw-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#59626d"></ellipse>
+
+    <!-- Anzug -->
+    <g stroke="#1c2433" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 452 C176 452 104 510 84 600 L516 600 C496 510 424 452 300 452 Z" fill="url(#fw-suit)"></path>
+      <path d="M262 462 L300 520 L338 462 L322 456 L300 492 L278 456 Z" fill="#e8e6e0"></path>
+      <path d="M292 470 L300 520 L308 470 L300 462 Z" fill="#7a8894" stroke-width="5"></path>
+    </g>
+    <!-- Aktenkoffer -->
+    <g stroke="#1c2433" stroke-width="6" stroke-linejoin="round">
+      <rect x="96" y="470" width="128" height="96" rx="10" fill="#4a3c30"></rect>
+      <rect x="140" y="452" width="40" height="20" rx="8" fill="none"></rect>
+      <rect x="96" y="504" width="128" height="12" fill="#3a2e24" stroke="none"></rect>
+      <rect x="146" y="498" width="28" height="22" rx="4" fill="#c9b98a"></rect>
+    </g>
+
+    <!-- Hals -->
+    <path d="M262 402 L262 462 Q300 488 338 462 L338 402 Z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M262 426 Q300 448 338 426 L338 402 L262 402 Z" fill="#c0916a" stroke="none"></path>
+
+    <!-- Ohren -->
+    <path d="M192 314 q-24 2 -22 28 q3 24 26 24 q12 -2 12 -16 z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M408 314 q24 2 22 28 q-3 24 -26 24 q-12 -2 -12 -16 z" fill="#d9ad84" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Kopf: schmal, blass, unbeeindruckt -->
+    <path d="M300 190 C226 190 190 244 190 312 C190 360 210 400 250 422 C274 436 326 436 350 422 C390 400 410 360 410 312 C410 244 374 190 300 190 Z"
+          fill="#e3bd9d" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Akkurater grauer Seitenscheitel -->
+    <path d="M196 292 C192 218 244 172 300 172 C356 172 408 218 404 292 C398 262 380 236 348 226 C300 210 236 224 212 258 C202 272 198 282 196 292 Z"
+          fill="#8d9096" stroke="#1c2433" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M228 246 C258 226 310 220 352 232" fill="none" stroke="#b9bcc2" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- Randlose Brille + muede Augen -->
+    <path d="M232 312 Q248 302 262 303 Q276 304 286 313 Q274 320 259 320 Q245 320 232 312 Z" fill="#f4f3ee"></path>
+    <path d="M314 313 Q324 304 338 303 Q352 302 368 312 Q356 320 341 320 Q326 320 314 313 Z" fill="#f4f3ee"></path>
+    <g clip-path="url(#fw-eyeL)"><circle cx="260" cy="313" r="9" fill="#4d5560"></circle><circle cx="260" cy="313" r="4.6" fill="#14100c"></circle><circle cx="257" cy="310" r="2.2" fill="#fff"></circle></g>
+    <g clip-path="url(#fw-eyeR)"><circle cx="340" cy="313" r="9" fill="#4d5560"></circle><circle cx="340" cy="313" r="4.6" fill="#14100c"></circle><circle cx="337" cy="310" r="2.2" fill="#fff"></circle></g>
+    <g fill="none" stroke="#39404a" stroke-width="3.5">
+      <ellipse cx="259" cy="312" rx="30" ry="20"></ellipse>
+      <ellipse cx="341" cy="312" rx="30" ry="20"></ellipse>
+      <path d="M289 310 Q300 306 311 310"></path>
+      <path d="M229 308 L206 300 M371 308 L394 300"></path>
+    </g>
+    <!-- flache Brauen: Beamten-Skepsis -->
+    <path d="M228 288 L288 288" stroke="#5a5147" stroke-width="6" stroke-linecap="round"></path>
+    <path d="M312 288 L372 288" stroke="#5a5147" stroke-width="6" stroke-linecap="round"></path>
+    <!-- Augenringe -->
+    <path d="M236 330 Q258 338 284 330 M316 330 Q342 338 364 330" fill="none" stroke="#b98f6d" stroke-width="4" stroke-linecap="round"></path>
+
+    <!-- Nase -->
+    <path d="M300 316 C294 340 288 356 294 366 Q300 374 312 366" fill="none" stroke="#b98f6d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+
+    <!-- Mund: absolut gerade Linie -->
+    <path d="M268 396 L332 396" stroke="#3a2f2a" stroke-width="5.5" stroke-linecap="round"></path>
+
+    <!-- Formular X-0/Shrimp in der Brusttasche -->
+    <g stroke="#1c2433" stroke-width="5" stroke-linejoin="round">
+      <rect x="360" y="486" width="70" height="90" rx="4" fill="#f2ead2" transform="rotate(8 395 531)"></rect>
+      <path d="M372 506 L426 514 M370 522 L424 530 M368 538 L410 544" stroke="#a99b78" stroke-width="4"></path>
+      <path d="M368 494 L400 470 L410 484 L380 506 Z" fill="#d8302f" stroke-width="4"></path>
+    </g>
+  </g>
+</svg>

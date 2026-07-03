@@ -82,7 +82,7 @@ Kraftwerk/Solar ─► STROM ─► Wasserwerk/Hub ─► WASSER ┐
 - **Wasser & Futter** sind Lager — laufen sie leer, sterben Shrimps.
 - **Reputation** (0–100) skaliert den Verkaufspreis (0,6×–1,4×). Restaurants, Labore, Solar & Besucherzentrum heben sie; Kraftwerke, Schwarzmarkt & kontroverse Tiers senken sie.
 - **Becken-Modus** legt das produzierte **Tier** fest (höhere Tiers brauchen Freischaltung via Forschung/Quests). Verkaufe jedes Tier am passenden Markt.
-- **Ziel:** 50.000 Geld = Shrimp-Tycoon (danach Sandbox). **Pleite:** zu lange im Minus → Bank pfändet.
+- **Ziel:** 1.500.000 Geld = Shrimp-Imperator (eines von 6 Spielenden, danach Sandbox). **Pleite:** zu lange im Minus → Bank pfändet.
 
 ---
 

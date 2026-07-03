@@ -141,9 +141,9 @@ public final class QuestContent {
         return q;
     }
     private static void endings() {
-        endingQ("end_imperator", GameCharacter.MAYOR, Condition.money(500000),
+        endingQ("end_imperator", GameCharacter.MAYOR, Condition.money(1_500_000),
             "ENDE: Shrimp-Imperator",
-            "500.000 auf dem Konto. Du sitzt auf einem Thron aus Garnelen-Schalen, die halbe Stadt arbeitet "
+            "1.500.000 auf dem Konto. Du sitzt auf einem Thron aus Garnelen-Schalen, die halbe Stadt arbeitet "
             + "für dich, und irgendwo weint ein Buchhalter vor Glück. Der reichste Krustentier-Magnat der Geschichte.",
             c("Lang lebe der Imperator!", "REICHTUMS-ENDE erreicht!"));
 

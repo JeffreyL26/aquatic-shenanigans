@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Shrimp-Betriebsrat Klausi avatar">
+  <defs>
+    <clipPath id="kl-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="kl-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#5fb3c9"></stop><stop offset="100%" stop-color="#39829b"></stop>
+    </radialGradient>
+    <linearGradient id="kl-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff8f77"></stop><stop offset="100%" stop-color="#e05f4b"></stop>
+    </linearGradient>
+    <linearGradient id="kl-band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d8302f"></stop><stop offset="100%" stop-color="#a81f22"></stop>
+    </linearGradient>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#kl-bg)"></circle>
+
+  <g clip-path="url(#kl-frame)">
+    <ellipse cx="300" cy="576" rx="330" ry="120" fill="#2f6f86"></ellipse>
+    <!-- Wasser-Blasen -->
+    <g fill="#ffffff" opacity="0.25">
+      <circle cx="120" cy="180" r="10"></circle><circle cx="146" cy="130" r="6"></circle>
+      <circle cx="480" cy="210" r="12"></circle><circle cx="500" cy="150" r="7"></circle>
+      <circle cx="452" cy="110" r="5"></circle>
+    </g>
+
+    <!-- Schwanzfaecher hinten -->
+    <g stroke="#7c2a1e" stroke-width="7" stroke-linejoin="round" fill="#ff9f85">
+      <path d="M170 420 Q120 430 96 470 Q140 476 176 458 Z"></path>
+      <path d="M176 452 Q130 480 122 522 Q170 516 196 486 Z"></path>
+    </g>
+
+    <!-- Gekruemmter Shrimp-Koerper mit Segmenten -->
+    <path d="M188 442 C160 380 190 300 262 268 C336 236 420 260 448 330 C470 388 442 452 376 478 C312 502 220 500 188 442 Z"
+          fill="url(#kl-body)" stroke="#7c2a1e" stroke-width="8" stroke-linejoin="round"></path>
+    <g stroke="#c14733" stroke-width="6" fill="none" opacity="0.85">
+      <path d="M232 290 Q212 350 232 428"></path>
+      <path d="M286 268 Q262 350 292 470"></path>
+      <path d="M344 262 Q326 360 356 486"></path>
+      <path d="M404 282 Q392 370 408 462"></path>
+    </g>
+
+    <!-- Beinchen -->
+    <g stroke="#7c2a1e" stroke-width="7" stroke-linecap="round" fill="none">
+      <path d="M258 486 Q252 516 234 530"></path>
+      <path d="M304 496 Q302 526 288 544"></path>
+      <path d="M352 492 Q358 522 348 542"></path>
+    </g>
+
+    <!-- Kopf -->
+    <path d="M356 160 C420 148 480 190 490 254 C498 310 462 356 404 366 C346 376 296 342 288 284 C280 224 306 170 356 160 Z"
+          fill="#ff9f85" stroke="#7c2a1e" stroke-width="8" stroke-linejoin="round"></path>
+
+    <!-- Fuehler -->
+    <g stroke="#7c2a1e" stroke-width="6" stroke-linecap="round" fill="none">
+      <path d="M368 166 Q330 96 262 82"></path>
+      <path d="M406 158 Q396 84 344 52"></path>
+    </g>
+
+    <!-- Augen (gross, entschlossen) -->
+    <ellipse cx="392" cy="240" rx="30" ry="34" fill="#f6f4ec" stroke="#7c2a1e" stroke-width="6"></ellipse>
+    <ellipse cx="452" cy="248" rx="24" ry="28" fill="#f6f4ec" stroke="#7c2a1e" stroke-width="6"></ellipse>
+    <circle cx="398" cy="246" r="12" fill="#1c1410"></circle>
+    <circle cx="456" cy="252" r="10" fill="#1c1410"></circle>
+    <circle cx="394" cy="241" r="4" fill="#ffffff"></circle>
+    <circle cx="452" cy="248" r="3.4" fill="#ffffff"></circle>
+    <!-- strenge Brauen -->
+    <path d="M358 202 L424 216" stroke="#7c2a1e" stroke-width="8" stroke-linecap="round"></path>
+    <path d="M478 222 L432 214" stroke="#7c2a1e" stroke-width="7" stroke-linecap="round"></path>
+
+    <!-- Mund: entschlossen -->
+    <path d="M408 312 Q436 324 462 308" fill="none" stroke="#7c2a1e" stroke-width="7" stroke-linecap="round"></path>
+
+    <!-- Rote Gewerkschafts-Armbinde am Koerper -->
+    <path d="M248 276 L302 252 L318 306 L266 332 Z" fill="url(#kl-band)" stroke="#5e1212" stroke-width="6" stroke-linejoin="round"></path>
+    <circle cx="284" cy="292" r="16" fill="#ffd24a" stroke="#5e1212" stroke-width="4"></circle>
+    <path d="M276 292 L282 298 L294 284" fill="none" stroke="#5e1212" stroke-width="4" stroke-linecap="round"></path>
+
+    <!-- Protokollbuch in der Schere -->
+    <g stroke="#7c2a1e" stroke-width="6" stroke-linejoin="round">
+      <path d="M150 330 Q120 322 108 296 Q136 288 158 302 Z" fill="#ff9f85"></path>
+      <rect x="86" y="236" width="88" height="66" rx="6" fill="#f2ead2" stroke-width="6"></rect>
+      <path d="M86 252 L174 252 M86 268 L174 268 M86 284 L150 284" stroke="#b9ab84" stroke-width="4"></path>
+      <rect x="86" y="236" width="88" height="14" rx="6" fill="#d8302f"></rect>
+    </g>
+  </g>
+</svg>

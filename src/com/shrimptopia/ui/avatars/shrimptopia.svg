@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="ShrimpTopia Maskottchen avatar">
+  <defs>
+    <clipPath id="st-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="st-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#37b2c4"></stop><stop offset="100%" stop-color="#1e7f96"></stop>
+    </radialGradient>
+    <linearGradient id="st-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff9a86"></stop><stop offset="100%" stop-color="#f26a52"></stop>
+    </linearGradient>
+    <linearGradient id="st-crown" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd971"></stop><stop offset="100%" stop-color="#e6a92c"></stop>
+    </linearGradient>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#st-bg)"></circle>
+
+  <g clip-path="url(#st-frame)">
+    <ellipse cx="300" cy="580" rx="330" ry="120" fill="#186a80"></ellipse>
+    <!-- Blasen -->
+    <g fill="#ffffff" opacity="0.22">
+      <circle cx="110" cy="200" r="12"></circle><circle cx="138" cy="146" r="7"></circle>
+      <circle cx="490" cy="180" r="14"></circle><circle cx="466" cy="120" r="8"></circle>
+      <circle cx="520" cy="260" r="6"></circle><circle cx="86" cy="280" r="6"></circle>
+    </g>
+    <!-- Sonnenstrahlen hinterm Maskottchen -->
+    <g stroke="#ffffff" stroke-width="10" opacity="0.13" stroke-linecap="round">
+      <path d="M300 300 L300 40"></path><path d="M300 300 L120 90"></path><path d="M300 300 L480 90"></path>
+      <path d="M300 300 L60 260"></path><path d="M300 300 L540 260"></path>
+    </g>
+
+    <!-- Schwanzfaecher -->
+    <g stroke="#8f2c1e" stroke-width="7" stroke-linejoin="round" fill="#ffb09a">
+      <path d="M436 462 Q496 458 528 494 Q486 514 442 500 Z"></path>
+      <path d="M432 486 Q480 504 490 546 Q440 546 416 514 Z"></path>
+    </g>
+
+    <!-- Gekruemmter froehlicher Shrimp -->
+    <path d="M446 470 C486 400 462 306 386 268 C306 228 212 254 180 330 C154 394 186 462 258 490 C328 516 412 528 446 470 Z"
+          fill="url(#st-body)" stroke="#8f2c1e" stroke-width="8" stroke-linejoin="round"></path>
+    <g stroke="#d4553d" stroke-width="6" fill="none" opacity="0.85">
+      <path d="M398 292 Q422 360 400 452"></path>
+      <path d="M340 268 Q368 356 336 490"></path>
+      <path d="M278 262 Q298 368 268 486"></path>
+      <path d="M218 288 Q230 372 214 452"></path>
+    </g>
+
+    <!-- Beinchen: winkend -->
+    <g stroke="#8f2c1e" stroke-width="7" stroke-linecap="round" fill="none">
+      <path d="M340 506 Q344 534 332 552"></path>
+      <path d="M288 500 Q286 530 272 546"></path>
+      <path d="M238 482 Q228 510 208 520"></path>
+    </g>
+    <!-- winkende Schere -->
+    <g stroke="#8f2c1e" stroke-width="7" stroke-linejoin="round" fill="#ffb09a">
+      <path d="M198 350 Q140 330 120 280 Q160 268 194 292 Q176 268 182 240 Q222 254 234 300 Z"></path>
+    </g>
+
+    <!-- Kopf -->
+    <path d="M240 158 C176 150 118 196 112 260 C106 316 144 360 202 366 C260 372 308 336 314 278 C320 218 292 164 240 158 Z"
+          fill="#ffb09a" stroke="#8f2c1e" stroke-width="8" stroke-linejoin="round"></path>
+
+    <!-- Fuehler -->
+    <g stroke="#8f2c1e" stroke-width="6" stroke-linecap="round" fill="none">
+      <path d="M226 162 Q250 96 316 74"></path>
+      <path d="M190 164 Q192 88 246 50"></path>
+    </g>
+
+    <!-- Goldene Krone -->
+    <g stroke="#8a5c10" stroke-width="6" stroke-linejoin="round">
+      <path d="M148 156 L160 100 L192 132 L216 84 L240 128 L276 92 L282 150 C240 170 186 170 148 156 Z" fill="url(#st-crown)"></path>
+      <circle cx="160" cy="98" r="7" fill="#ff6b5e"></circle>
+      <circle cx="216" cy="82" r="7" fill="#4fc3d9"></circle>
+      <circle cx="277" cy="90" r="7" fill="#8fd06a"></circle>
+    </g>
+
+    <!-- Riesige froehliche Augen -->
+    <ellipse cx="204" cy="252" rx="32" ry="36" fill="#f6f4ec" stroke="#8f2c1e" stroke-width="6"></ellipse>
+    <ellipse cx="140" cy="258" rx="25" ry="29" fill="#f6f4ec" stroke="#8f2c1e" stroke-width="6"></ellipse>
+    <circle cx="198" cy="258" r="13" fill="#1c1410"></circle>
+    <circle cx="136" cy="263" r="10" fill="#1c1410"></circle>
+    <circle cx="203" cy="252" r="4.5" fill="#ffffff"></circle>
+    <circle cx="140" cy="258" r="3.5" fill="#ffffff"></circle>
+    <!-- froehliche Brauen -->
+    <path d="M172 208 Q200 196 232 210" fill="none" stroke="#8f2c1e" stroke-width="7" stroke-linecap="round"></path>
+    <path d="M112 222 Q128 212 156 216" fill="none" stroke="#8f2c1e" stroke-width="6" stroke-linecap="round"></path>
+
+    <!-- Grosses Lachen -->
+    <path d="M124 306 Q160 342 208 330 Q186 352 156 348 Q132 342 124 306 Z"
+          fill="#7c1f14" stroke="#8f2c1e" stroke-width="5" stroke-linejoin="round"></path>
+    <path d="M136 322 Q158 336 186 334 Q160 344 144 336 Z" fill="#ff8a76" stroke="none"></path>
+    <!-- Wangen-Roete -->
+    <ellipse cx="238" cy="304" rx="16" ry="10" fill="#ff7a62" opacity="0.6"></ellipse>
+  </g>
+</svg>

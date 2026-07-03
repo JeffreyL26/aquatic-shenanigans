@@ -62,7 +62,7 @@ public class ZoneTabs extends JPanel {
             g.setColor(unlocked ? Palette.TEXT : Palette.TEXT_DIM);
             String label = unlocked ? zone.displayName : zone.displayName + "  (gesperrt)";
             FontMetrics fm = g.getFontMetrics();
-            g.drawString(label, 12, (h + fm.getAscent() - fm.getDescent()) / 2);
+            g.drawString(TextUtil.clip(fm, label, w - 20), 12, (h + fm.getAscent() - fm.getDescent()) / 2);
             g.dispose();
         }
     }

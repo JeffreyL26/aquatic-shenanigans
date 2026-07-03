@@ -11,12 +11,12 @@ import java.awt.Color;
  */
 public enum GameCharacter {
     ADVISOR ("Dr. Perla Pereira", "Garnelen-Biologin",   IconKind.PORTRAIT_ADVISOR,  new Color(0, 199, 183), "perla"),
-    MAYOR   ("Stadtverwaltung",   "Bürgermeisteramt",   IconKind.PORTRAIT_MAYOR,    new Color(120, 160, 220), null),
-    PRESS   ("Die Presse",        "Boulevard-Redaktion", IconKind.PORTRAIT_MAYOR,    new Color(230, 180, 90), null),
+    MAYOR   ("Stadtverwaltung",   "Bürgermeisteramt",   IconKind.PORTRAIT_MAYOR,    new Color(120, 160, 220), "rathaus"),
+    PRESS   ("Die Presse",        "Boulevard-Redaktion", IconKind.PORTRAIT_MAYOR,    new Color(230, 180, 90), "presse"),
     KRILLKILL("General \"Krillkill\" Johnson", "Kriegsveteran a.D.", IconKind.PORTRAIT_GENERAL, new Color(150, 80, 70), "krillkill"),
     AKWANOV ("Außenminister Akwanov", "Usbekistan",     IconKind.PORTRAIT_DIPLOMAT, new Color(90, 150, 130), "ivan"),
     KYLE    ("u/KrustenKyle_87",      "Reddit-Rivale & Keller-Mogul", IconKind.PORTRAIT_MAYOR, new Color(255, 105, 50), "kyle"),
-    NARRATOR("ShrimpTopia",       "",                    IconKind.SHRIMP,            new Color(255, 118, 104), null);
+    NARRATOR("ShrimpTopia",       "",                    IconKind.SHRIMP,            new Color(255, 118, 104), "shrimptopia");
 
     public final String displayName, role;
     public final IconKind portrait;
