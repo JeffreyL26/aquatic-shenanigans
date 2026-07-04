@@ -38,7 +38,7 @@ build.bat
 | **Märkte** | Verkaufsorte akzeptieren nur **bestimmte** Tiers: Börse (Standard/Bio), Restaurant (bis Gourmet), Export-Hafen, Militär-Depot (Krillkill), Schwarzmarkt. Falsches Tier am falschen Markt = kein Verkauf. |
 | **Inspektor** | Surviving-Mars-artiges Detail-Panel rechts: Live-Durchsatz, Status, Modus-Wahl, Upgrade-Käufe. |
 | **Modi & Upgrades** | Jedes Gebäude hat Betriebs-Modi (Trade-offs) und Upgrades — viele wirken **farmweit** (z.B. Strom-Spar, Wasser-Boost, Preis-Bonus). Dazu 4 **Arbeiter-Politiken**. |
-| **Zonen** | 4 themenbezogene Bereiche (Produktion, Forschung, Logistik, Empfang) mit eigenen Reitern, Optik und progressiver Freischaltung. |
+| **Zonen** | 4 themenbezogene Bereiche (Produktion, Forschung, Logistik, Empfang) mit eigener Optik und progressiver Freischaltung — Wechsel über die Seitenleiste links. |
 | **Lebendigkeit** | Schwimmende Shrimps in den Becken (Farbe = Tier), aufsteigende Blasen, pulsierende Auswahl. |
 | **Progression** | Zonen, Tiers, Gebäude & Mechaniken schalten sich über Meilensteine und Quest-Entscheidungen nach und nach frei. |
 
@@ -51,12 +51,12 @@ build.bat
 
 | Aktion | Eingabe |
 |---|---|
-| Gebäude wählen / platzieren | Klick im **Baumenü** (links), dann **Linksklick** auf ein freies Feld |
+| Baumenü öffnen | **BAUEN**-Knopf links, Taste **B** oder **Rechtsklick** auf die Karte |
+| Gebäude wählen / platzieren | Klick im **Baumenü**, dann **Linksklick** auf ein freies Feld |
 | Gebäude inspizieren | **Linksklick** auf ein platziertes Gebäude → Inspektor rechts |
 | Modus wählen / Upgrade kaufen | im **Inspektor** anklicken |
-| Zone wechseln | **Reiter** über der Karte |
-| Arbeiter-Politik | unten links im Baumenü |
-| Abriss | „Abriss-Modus", dann Gebäude anklicken (50 % zurück) |
+| Zone wechseln | **STANDORTE**-Knöpfe in der Seitenleiste links |
+| Abriss | **Abriss**-Knopf links, dann Gebäude anklicken (50 % zurück) |
 | Pause / Tempo | **Leertaste** / **1 2 3** (oder Buttons oben rechts) |
 | Auswahl/Modus abbrechen | **Rechtsklick** oder **ESC** |
 | Quest beantworten | Auswahl-Button im Popup |

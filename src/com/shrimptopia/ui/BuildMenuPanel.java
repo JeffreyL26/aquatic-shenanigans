@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tropico-Stil-Baumenü: öffnet sich per Rechtsklick auf ein freies Kartenfeld direkt
- * an der Maus. Gebäude sind in Typ-Reiter gruppiert (Strom, Wasser & Futter, Zucht ...);
- * ein Klick wählt das Gebäude zum Platzieren und schließt das Menü. Klick daneben schließt.
+ * Tropico-Stil-Baumenü: fest neben der Seitenleiste angedockt, geöffnet über den
+ * BAUEN-Knopf, die Taste B oder Rechtsklick auf die Karte (Position des Klicks ist egal).
+ * Gebäude sind in Typ-Reiter gruppiert (Strom, Versorgung, Zucht ...); ein Klick wählt
+ * das Gebäude zum Platzieren und schließt das Menü. Klick daneben schließt ebenfalls.
  */
 public class BuildMenuPanel extends JComponent {
 
@@ -43,7 +44,6 @@ public class BuildMenuPanel extends JComponent {
     private final List<Rectangle> tabRects = new ArrayList<>();
     private final List<Rectangle> rowRects = new ArrayList<>();
     private final List<BuildingType> rowTypes = new ArrayList<>();
-    private Point anchor = new Point();
     private int hoverRow = -1;
 
     public BuildMenuPanel(GameFrame frame) {
@@ -74,8 +74,8 @@ public class BuildMenuPanel extends JComponent {
 
     @Override public boolean contains(int x, int y) { return isVisible(); }   // fängt den Schließ-Klick
 
-    /** Öffnet das Menü mit der Ankerposition (in Koordinaten dieses Panels) für die aktuelle Zone. */
-    public void openAt(Point p, Zone zone) {
+    /** Öffnet das Menü an seiner festen Andock-Position für die angegebene Zone. */
+    public void open(Zone zone) {
         visibleCats = new ArrayList<>();
         for (Cat c : CATS) {
             for (BuildingType t : c.types())
@@ -89,7 +89,6 @@ public class BuildMenuPanel extends JComponent {
             for (int i = 0; i < visibleCats.size(); i++)
                 for (BuildingType t : visibleCats.get(i).types()) if (t == tut) catIdx = i;
         }
-        anchor = p;
         hoverRow = -1;
         setVisible(true);
         relayout();
@@ -99,8 +98,8 @@ public class BuildMenuPanel extends JComponent {
     public void close() { setVisible(false); frame.afterBuildMenuClosed(); }
 
     /**
-     * Öffnet das Menü zentriert und stellt die Kategorie des angegebenen Gebäudes scharf -
-     * für den Freischalt-Wegweiser ("Zeig mir!"): das neue Gebäude leuchtet dann in der Liste auf.
+     * Öffnet das Menü (an der festen Andock-Position) und stellt die Kategorie des angegebenen
+     * Gebäudes scharf - für den Freischalt-Wegweiser ("Zeig mir!"): der Eintrag leuchtet auf.
      */
     public void openForBuilding(BuildingType target) {
         Zone zone = frame.currentZone();
@@ -116,7 +115,6 @@ public class BuildMenuPanel extends JComponent {
         if (visibleCats.isEmpty()) return;
         catIdx = Math.min(wantIdx, visibleCats.size() - 1);
         hoverRow = -1;
-        anchor = new Point(Math.max(8, (getWidth() - MENU_W) / 2), Math.max(8, getHeight() / 2 - 180));
         setVisible(true);
         relayout();
         repaint();
@@ -144,8 +142,11 @@ public class BuildMenuPanel extends JComponent {
     private void relayout() {
         List<BuildingType> rows = currentRows();
         int h = HEAD_H + TAB_H + 8 + rows.size() * ROW_H + 10;
-        int x = Math.min(Math.max(8, anchor.x), Math.max(8, getWidth() - MENU_W - 8));
-        int y = Math.min(Math.max(8, anchor.y), Math.max(8, getHeight() - h - 8));
+        // Feste Andock-Position neben der Seitenleiste (unabhängig vom Mausklick),
+        // nur nach unten begrenzt, damit hohe Kategorien nicht aus dem Fenster laufen.
+        Point a = frame.buildMenuAnchor();
+        int x = Math.min(Math.max(8, a.x), Math.max(8, getWidth() - MENU_W - 8));
+        int y = Math.min(Math.max(8, a.y), Math.max(8, getHeight() - h - 8));
         card.setBounds(x, y, MENU_W, h);
     }
 

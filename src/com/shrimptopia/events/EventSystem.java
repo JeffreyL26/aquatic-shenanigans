@@ -1,5 +1,6 @@
 package com.shrimptopia.events;
 
+import com.shrimptopia.model.Building;
 import com.shrimptopia.model.GameState;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.Random;
 /**
  * Hält den Katalog der Zufallsereignisse und entscheidet, wann eines feuert.
  * Ereignisse können nur alle paar Tage und mit einer gewissen Wahrscheinlichkeit auftreten.
+ * Die Garagen-Phase bleibt ereignisfrei; einzelne Ereignisse setzen zusätzlich passende
+ * Voraussetzungen voraus (z.B. ein Becken, damit keines "auslaufen" kann, das es nicht gibt).
  */
 public class EventSystem {
 
@@ -35,12 +38,12 @@ public class EventSystem {
 
         add("Praktikant verwechselt die Schalter",
             "Jemand hielt den Notausschalter für den Lichtschalter. Kurzer Blackout, halbes Becken ausgelaufen.",
-            GameEvent.Kind.BAD, null,
+            GameEvent.Kind.BAD, gs -> hasTank(gs) && gs.getPowerUsed() > 0,
             gs -> { gs.multWater(0.75); gs.addReputation(-2); });
 
         add("Algenblüte!",
             "Die Algenfarm läuft heiß: unerwartet fette Ernte. Das Futterlager quillt über.",
-            GameEvent.Kind.GOOD, null,
+            GameEvent.Kind.GOOD, EventSystem::hasAlgae,
             gs -> gs.addFeed(40));
 
         add("Gourmet-Kritiker incognito",
@@ -53,7 +56,7 @@ public class EventSystem {
 
         add("Shrimp-Gewerkschaft gegründet",
             "Deine Shrimps... äh, Arbeiter fordern bessere Konditionen. Einmalige Sonderzahlung fällig.",
-            GameEvent.Kind.BAD, null,
+            GameEvent.Kind.BAD, gs -> gs.getMoney() > 1500,
             gs -> gs.addMoney(-900));
 
         add("Finanzamt klopft an",
@@ -68,7 +71,7 @@ public class EventSystem {
 
         add("Wasserrohrbruch in Halle 3",
             "Ein Rohr gibt auf. Die Halfte des Wasservorrats versickert im Hallenboden.",
-            GameEvent.Kind.BAD, null,
+            GameEvent.Kind.BAD, gs -> gs.getWater() > 40,
             gs -> gs.multWater(0.5));
 
         add("Futter-Sonderangebot beim Großhändler",
@@ -78,7 +81,7 @@ public class EventSystem {
 
         add("Shrimp-Babyboom",
             "Romantische Beleuchtung im Becken zeigt Wirkung. Die Population explodiert (im guten Sinne).",
-            GameEvent.Kind.GOOD, null,
+            GameEvent.Kind.GOOD, gs -> hasTank(gs) && gs.getShrimp() > 5,
             gs -> gs.multShrimp(1.25));
 
         add("Krankheit im Becken",
@@ -98,7 +101,7 @@ public class EventSystem {
 
         add("Stromnetz-Bonus",
             "Du speist Überschuss-Strom ins Netz zurück. Der Versorger überweist dir eine hübsche Prämie.",
-            GameEvent.Kind.GOOD, null,
+            GameEvent.Kind.GOOD, gs -> gs.getPowerProduced() > gs.getPowerUsed(),
             gs -> gs.addMoney(1500));
 
         add("Möwen-Einbruch",
@@ -113,8 +116,21 @@ public class EventSystem {
         catalog.add(new GameEvent(title, text, kind, cond, effect));
     }
 
+    private static boolean hasTank(GameState gs) {
+        for (Building b : gs.buildings()) if (b.type.isTank()) return true;
+        return false;
+    }
+
+    private static boolean hasAlgae(GameState gs) {
+        for (Building b : gs.buildings()) if (b.type.isAlgae()) return true;
+        return false;
+    }
+
     /** Pro Tick aufgerufen: feuert evtl. ein passendes Zufallsereignis. */
     public void maybeTrigger(GameState gs) {
+        // Garagen-Phase bleibt ereignisfrei: Kein Werkstor, keine Halle 3, keine Presse -
+        // Zufallsereignisse starten erst mit dem Hallen-Ausbau.
+        if (!gs.isUnlocked("era.HALLE")) return;
         if (gs.getDay() - lastEventDay < MIN_GAP) return;
         if (rng.nextDouble() > CHANCE) return;
 

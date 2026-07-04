@@ -276,6 +276,11 @@ public final class QuestContent {
         QS.add(q);
     }
     private static Choice c(String text, String result, QuestEffect... e) { return new Choice(text, result, e); }
+    /** Mindestens ein Zucht-Becken vorhanden (Garagen-Aquarium oder Shrimp-Becken). */
+    private static Condition anyTank() {
+        return Condition.any(Condition.buildCount(BuildingType.GARAGE_TANK, 1),
+                             Condition.buildCount(BuildingType.SHRIMP_TANK, 1));
+    }
 
     // ===================== KETTE A - Behörden-Dschungel =====================
     private static void behoerden() {
@@ -637,7 +642,10 @@ public final class QuestContent {
 
     // ===================== EINZELQUESTS =====================
     private static void einzelquests() {
-        auto("kat_blackout", GameCharacter.MAYOR, "Technischer Leiter Olaf", Condition.day(90), 2,
+        // Becken-Katastrophen setzen ein Becken voraus - sonst wirkt der Text absurd,
+        // wenn das Tutorial übersprungen und noch kein Becken gebaut wurde.
+        auto("kat_blackout", GameCharacter.MAYOR, "Technischer Leiter Olaf",
+            Condition.all(Condition.day(90), anyTank()), 2,
             "Es wird dunkel im Becken",
             "Blackout, Chef. Die Shrimps schwimmen im Dunkeln und werden nervös. Eine hat gerade eine "
             + "andere angeschaut. So fangen Massenpaniken an.",
@@ -662,7 +670,8 @@ public final class QuestContent {
             c("Mit Charme und Show ablenken.", "Die Show kommt an.", rep(5)),
             c("Normale Karte geben.", "Solide, unspektakulär.", rep(3)));
 
-        auto("kat_moewen", GameCharacter.MAYOR, "Technischer Leiter Olaf (mit Besen)", Condition.day(200), 2,
+        auto("kat_moewen", GameCharacter.MAYOR, "Technischer Leiter Olaf (mit Besen)",
+            Condition.all(Condition.day(200), anyTank()), 2,
             "Sie sind durchs Dach!",
             "MÖWEN, CHEF! Ein Schwarm hält unsere Becken für ein All-you-can-eat-Buffet. Eine wohnt "
             + "jetzt auf dem HQ. Sie heißt angeblich Kevin.",

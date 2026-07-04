@@ -60,9 +60,10 @@ public class MapPanel extends JPanel implements Scrollable {
     private void handleClick(MouseEvent e) {
         computeOrigin();
         if (SwingUtilities.isRightMouseButton(e)) {
-            // Mit aktiver Auswahl/Abriss: abwählen. Ohne Auswahl: Baumenü an der Maus öffnen.
+            // Mit aktiver Auswahl/Abriss: abwählen. Ohne Auswahl: das (fest angedockte)
+            // Baumenü öffnen - wo der Rechtsklick landet, spielt keine Rolle.
             if (frame.tool() != GameFrame.Tool.NONE) { frame.clearTool(); return; }
-            frame.openBuildMenu(this, e.getPoint());
+            frame.openBuildMenu();
             return;
         }
         int c = colAt(e.getX()), r = rowAt(e.getY());

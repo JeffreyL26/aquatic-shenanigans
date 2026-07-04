@@ -33,21 +33,23 @@ public final class TutorialContent {
             Advance.ACK).res(ResourceType.MONEY));
 
         s.add(new TutorialStep(Region.MAP,
-            "Gebaut wird direkt auf der Karte: RECHTSKLICK auf ein freies Feld öffnet das Baumenü an "
-            + "der Maus - sortiert nach Gebäudetyp (Strom, Versorgung, Zucht ...). Wir starten mit "
-            + "Flohmarkt-Technik; die großen Hallen-Gebäude sind noch gesperrt, bis wir aus der Garage "
-            + "rauswachsen. Jede Garagen-Anlage lässt sich später an gleicher Stelle UPGRADEN.",
+            "Gebaut wird über das BAUMENÜ: Öffne es mit dem BAUEN-Knopf links in der Seitenleiste - "
+            + "oder per Rechtsklick irgendwo auf die Karte. Gebäude auswählen, dann mit Klick auf ein "
+            + "freies Feld platzieren. Wir starten mit Flohmarkt-Technik; die großen Hallen-Gebäude "
+            + "sind noch gesperrt, bis wir aus der Garage rauswachsen. Jede Garagen-Anlage lässt sich "
+            + "später an gleicher Stelle UPGRADEN.",
             Advance.ACK));
 
         s.add(new TutorialStep(Region.MAP,
-            "Erste Regel: Ohne Strom keine Pumpen, ohne Pumpen keine Party. RECHTSKLICK auf ein freies "
-            + "Feld, öffne die Kategorie STROM und setz den ROSTIGEN DIESEL-GENERATOR ab - der passende "
-            + "Eintrag leuchtet bereits. Er stinkt, er dröhnt, er funktioniert. Meistens. (Tipp: "
-            + "Rechtsklick mit gewähltem Gebäude hebt die Auswahl wieder auf.)",
+            "Erste Regel: Ohne Strom keine Pumpen, ohne Pumpen keine Party. Öffne das BAUMENÜ "
+            + "(BAUEN-Knopf links), wähle in der Kategorie STROM den ROSTIGEN DIESEL-GENERATOR - der "
+            + "passende Eintrag leuchtet bereits - und setz ihn mit Klick auf ein freies Feld ab. Er "
+            + "stinkt, er dröhnt, er funktioniert. Meistens. (Tipp: Rechtsklick hebt die Auswahl "
+            + "wieder auf.)",
             Advance.BUILD).build(BuildingType.OLD_GENERATOR));
 
         s.add(new TutorialStep(Region.MAP,
-            "Garnelen sind, Überraschung, auf Wasser angewiesen. Rechtsklick → Kategorie VERSORGUNG → "
+            "Garnelen sind, Überraschung, auf Wasser angewiesen. Baumenü → Kategorie VERSORGUNG → "
             + "REGENTONNE mit Gartenschlauch. Ich nenne es 'improvisierte Aquakultur-Infrastruktur' und "
             + "weine dabei nur ein bisschen.",
             Advance.BUILD).build(BuildingType.RAIN_BARREL));
@@ -95,9 +97,9 @@ public final class TutorialContent {
             Advance.ACK).tab(5));
 
         s.add(new TutorialStep(Region.ZONE_TABS,
-            "Eine Garage ist erst der Anfang. Über die ZONEN-REITER (oben) wechselst du später "
-            + "zwischen Standorten: Produktion, Forschung, Logistik, Empfang. Sie schalten sich nach "
-            + "und nach frei.",
+            "Eine Garage ist erst der Anfang. Über die ZONEN-Knöpfe links in der Seitenleiste "
+            + "(unter STANDORTE) wechselst du später zwischen den Karten: Produktion, Forschung, "
+            + "Logistik, Empfang. Sie schalten sich nach und nach frei.",
             Advance.ACK));
 
         s.add(new TutorialStep(Region.CONTROLS,

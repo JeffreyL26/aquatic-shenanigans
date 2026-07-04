@@ -39,7 +39,8 @@ public class GameFrame extends JFrame {
     private LogPanel logPanel;
     private InspectorPanel inspector;
     private QuestLogPanel questLog;
-    private ZoneTabs zoneTabs;
+    private SideBar sideBar;
+    private JPanel centerPanel;
     private OverlayHost overlay;
     private AlmanacPanel almanac;
     private QuestTreePanel questTree;
@@ -61,11 +62,12 @@ public class GameFrame extends JFrame {
         logPanel = new LogPanel(this);
         inspector = new InspectorPanel(this);
         questLog = new QuestLogPanel(this);
-        zoneTabs = new ZoneTabs(this);
+        sideBar = new SideBar(this);
 
         JPanel center = new JPanel(new BorderLayout());
         center.setBackground(Palette.BG_DARK);
-        center.add(zoneTabs, BorderLayout.NORTH);
+        // Tropico-Stil: links die feste Seitenleiste (Bauen, Abriss, Zonen-Wechsel)
+        center.add(sideBar, BorderLayout.WEST);
         // Karte in einer Scrollpane: passt der Bereich (kleiner/skalierter Bildschirm) nicht,
         // wird das Gitter gescrollt statt abgeschnitten.
         JScrollPane mapScroll = new JScrollPane(mapPanel);
@@ -76,6 +78,7 @@ public class GameFrame extends JFrame {
         mapScroll.getVerticalScrollBar().setUnitIncrement(32);
         mapScroll.getHorizontalScrollBar().setUnitIncrement(32);
         center.add(mapScroll, BorderLayout.CENTER);
+        centerPanel = center;
 
         JPanel east = new JPanel(new BorderLayout());
         east.setBackground(Palette.PANEL);
@@ -102,7 +105,7 @@ public class GameFrame extends JFrame {
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
-        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); buildMenu.tickGlow(); topBar.tickCritical(); });
+        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); buildMenu.tickGlow(); sideBar.tickGlow(); topBar.tickCritical(); });
 
         refreshAll();
         pack();
@@ -136,7 +139,7 @@ public class GameFrame extends JFrame {
 
     public void refreshAll() {
         topBar.refresh();
-        zoneTabs.refresh();
+        sideBar.refresh();
         mapPanel.repaint();
         logPanel.refresh();
         inspector.refresh();
@@ -204,15 +207,16 @@ public class GameFrame extends JFrame {
             return almanac.isVisible()
                 ? SwingUtilities.convertRectangle(almanac, almanac.cardBounds(), overlay)
                 : null;
-        // Bau-Schritte: die Karte freistellen - gebaut wird per Rechtsklick direkt auf der Karte.
+        // Bau-Schritte: Seitenleiste + Karte freistellen - Baumenü öffnen (BAUEN-Knopf/Rechtsklick)
+        // und dann auf der Karte platzieren.
         if (s.advance == TutorialStep.Advance.BUILD) {
-            return SwingUtilities.convertRectangle(mapPanel,
-                new Rectangle(0, 0, mapPanel.getWidth(), mapPanel.getHeight()), overlay);
+            return SwingUtilities.convertRectangle(centerPanel,
+                new Rectangle(0, 0, centerPanel.getWidth(), centerPanel.getHeight()), overlay);
         }
         JComponent c = switch (s.region) {
-            case BUILD_MENU -> mapPanel;
+            case BUILD_MENU -> sideBar;
             case MAP -> mapPanel;
-            case ZONE_TABS -> zoneTabs;
+            case ZONE_TABS -> sideBar;
             case INSPECTOR -> inspector;
             case POPUP -> null;
             default -> topBar;   // TOPBAR, RESOURCE, CONTROLS
@@ -283,7 +287,7 @@ public class GameFrame extends JFrame {
             return;
         }
         // build.* und era.HALLE: erstes baubares Gebäude mit diesem Flag suchen, in die passende
-        // Zone wechseln und das Rechtsklick-Baumenü mit aufleuchtendem Eintrag öffnen.
+        // Zone wechseln und das Baumenü mit aufleuchtendem Eintrag öffnen.
         BuildingType t = null;
         for (BuildingType bt : BuildingType.buildable())
             if (flag.equals(bt.unlockFlag())) { t = bt; break; }
@@ -315,13 +319,28 @@ public class GameFrame extends JFrame {
     public void toggleDemolish() { if (tool == Tool.DEMOLISH) clearTool(); else { tool = Tool.DEMOLISH; selectedType = null; refreshAll(); } }
     public void clearTool() { tool = Tool.NONE; selectedType = null; refreshAll(); }
 
-    /** Tropico-Stil: Rechtsklick auf ein freies Kartenfeld öffnet das Baumenü an der Maus. */
-    public void openBuildMenu(java.awt.Component src, Point p) {
-        Point lp = SwingUtilities.convertPoint(src, p, getLayeredPane());
+    /**
+     * Tropico-Stil: das Baumenü dockt immer an derselben Stelle neben der Seitenleiste an -
+     * egal ob es über den BAUEN-Knopf, die Taste B oder Rechtsklick auf die Karte geöffnet wird.
+     */
+    public void openBuildMenu() {
         buildMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
         getLayeredPane().moveToFront(buildMenu);
-        buildMenu.openAt(lp, currentZone);
+        buildMenu.open(currentZone);
+        refreshAll();
     }
+    public void toggleBuildMenu() {
+        if (buildMenu.isVisible()) buildMenu.close(); else openBuildMenu();
+    }
+    public boolean buildMenuVisible() { return buildMenu.isVisible(); }
+
+    /** Feste Andock-Position des Baumenüs (in Layered-Pane-Koordinaten): oben, neben der Seitenleiste. */
+    public Point buildMenuAnchor() {
+        if (sideBar != null && sideBar.getWidth() > 0)
+            return SwingUtilities.convertPoint(sideBar, new Point(sideBar.getWidth() + 10, 10), getLayeredPane());
+        return new Point(SideBar.WIDTH + 10, 96);
+    }
+
     public void afterBuildMenuClosed() { refreshAll(); }
 
     public void openAlmanac(int tab) {
@@ -411,6 +430,7 @@ public class GameFrame extends JFrame {
         bind(root, KeyEvent.VK_Q, "questtree", () -> {
             if (questTree.isVisible()) questTree.close(); else openQuestTree();
         });
+        bind(root, KeyEvent.VK_B, "buildmenu", this::toggleBuildMenu);
     }
     private void bind(JComponent c, int key, String name, Runnable action) {
         c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(key, 0), name);

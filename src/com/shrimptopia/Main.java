@@ -127,8 +127,16 @@ public class Main {
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_tutorial.png");
 
+                // 1a) Bauschritt (Generator) mit dem fest angedockten Baumenü: Menü und
+                //     Tutorial-Dialog dürfen sich nicht überdecken.
+                for (int i = 0; i < 4; i++) f.tutorialAdvance();
+                f.openBuildMenu();
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_buildmenu.png");
+                f.toggleBuildMenu();
+
                 // 1b) Almanach-Schritte des Tutorials: Tier-Menü, dann Marketing-Menü
-                for (int i = 0; i < 11; i++) f.tutorialAdvance();
+                for (int i = 0; i < 7; i++) f.tutorialAdvance();
                 snap(f.getRootPane(), "shrimptopia_v3_tutorial_tiers.png");
                 f.tutorialAdvance();
                 snap(f.getRootPane(), "shrimptopia_v3_tutorial_marketing.png");

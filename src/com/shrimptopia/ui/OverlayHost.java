@@ -112,7 +112,7 @@ public class OverlayHost extends JComponent {
     /** Wo findet der Spieler die Neuerung? */
     private static String hintFor(String flag) {
         if (flag == null) return null;
-        if (flag.startsWith("zone.")) return "Neue Karte! Oben über die ZONEN-REITER wechseln.";
+        if (flag.startsWith("zone.")) return "Neue Karte! Links in der Seitenleiste unter STANDORTE wechseln.";
         if (flag.equals("era.HALLE")) return "Neue Gebäude im Baumenü links - Garagen-Technik lässt sich im Inspektor UPGRADEN.";
         if (flag.startsWith("mkt."))  return "Buchbar im Almanach unter MARKETING.";
         if (flag.startsWith("build.")) return "Neues Gebäude im Baumenü (in der passenden Zone).";
