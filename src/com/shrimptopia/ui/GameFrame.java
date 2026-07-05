@@ -442,6 +442,12 @@ public class GameFrame extends JFrame {
 
     // Test-Hooks (für --guitest)
     public void debugRefreshOverlay() { updateOverlays(); }
+    public void debugOpenBuildMenu(BuildingType t) {
+        setZone(t.zone());
+        buildMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        getLayeredPane().moveToFront(buildMenu);
+        buildMenu.openForBuilding(t);
+    }
     public void debugForceQuest(String id) { questSystem.forceStart(id); refreshAll(); updateOverlays(); }
     public void debugScrollQuestTree(int y) { questTree.scrollTo(y); }
 

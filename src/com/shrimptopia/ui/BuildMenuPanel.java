@@ -1,6 +1,7 @@
 package com.shrimptopia.ui;
 
 import com.shrimptopia.model.BuildingType;
+import com.shrimptopia.model.IconKind;
 import com.shrimptopia.model.Zone;
 import javax.swing.*;
 import java.awt.*;
@@ -12,44 +13,54 @@ import java.util.List;
 /**
  * Tropico-Stil-Baumenü: fest neben der Seitenleiste angedockt, geöffnet über den
  * BAUEN-Knopf, die Taste B oder Rechtsklick auf die Karte (Position des Klicks ist egal).
- * Gebäude sind in Typ-Reiter gruppiert (Strom, Versorgung, Zucht ...); ein Klick wählt
- * das Gebäude zum Platzieren und schließt das Menü. Klick daneben schließt ebenfalls.
+ *
+ * Aufbau wie in Tropico: oben eine Reihe von Kategorie-Reitern mit ICONS, darunter ein
+ * großzügiges Karten-Raster (Symbol oben, Name darunter) und ganz unten eine Detail-Zeile,
+ * die das gerade überfahrene Gebäude erklärt. Klick auf eine Karte wählt es zum Platzieren.
  */
 public class BuildMenuPanel extends JComponent {
 
-    /** Eine Kategorie (Reiter) mit ihren Gebäuden. */
-    private record Cat(String name, BuildingType... types) {}
+    /** Eine Kategorie (Reiter) mit Icon, Signaturfarbe und ihren Gebäuden. */
+    private record Cat(String name, IconKind icon, Color color, BuildingType... types) {}
 
     private static final Cat[] CATS = {
-        new Cat("Strom",     BuildingType.OLD_GENERATOR, BuildingType.POWER_PLANT, BuildingType.SOLAR_ROOF),
-        new Cat("Versorgung", BuildingType.RAIN_BARREL, BuildingType.WATER_PLANT, BuildingType.WATER_HUB,
-                              BuildingType.ALGAE_BUCKET, BuildingType.ALGAE_FARM),
-        new Cat("Zucht",     BuildingType.GARAGE_TANK, BuildingType.SHRIMP_TANK),
-        new Cat("Verkauf",   BuildingType.YARD_SALE, BuildingType.SALES_OFFICE, BuildingType.RESTAURANT,
-                             BuildingType.EXPORT_DOCK, BuildingType.MILITARY_DEPOT, BuildingType.BLACK_MARKET,
-                             BuildingType.BOOST_STAND),
-        new Cat("Personal & Lager", BuildingType.CAMPER, BuildingType.HOUSING,
-                             BuildingType.STORAGE_SHED, BuildingType.WAREHOUSE),
-        new Cat("Industrie", BuildingType.LAB, BuildingType.GENLAB, BuildingType.SHELL_PRESS,
-                             BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS, BuildingType.KRILL_BARRACKS,
-                             BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT),
-        new Cat("Ruf & Deko", BuildingType.VISITOR_CENTER, BuildingType.ZEN_GARDEN),
+        new Cat("Strom",      IconKind.BOLT,   Palette.POWER,
+                BuildingType.OLD_GENERATOR, BuildingType.POWER_PLANT, BuildingType.SOLAR_ROOF),
+        new Cat("Versorgung", IconKind.DROP,   Palette.WATER,
+                BuildingType.RAIN_BARREL, BuildingType.WATER_PLANT, BuildingType.WATER_HUB,
+                BuildingType.ALGAE_BUCKET, BuildingType.ALGAE_FARM),
+        new Cat("Zucht",      IconKind.SHRIMP, Palette.SHRIMP,
+                BuildingType.GARAGE_TANK, BuildingType.SHRIMP_TANK),
+        new Cat("Verkauf",    IconKind.COIN,   Palette.MONEY,
+                BuildingType.YARD_SALE, BuildingType.SALES_OFFICE, BuildingType.RESTAURANT,
+                BuildingType.EXPORT_DOCK, BuildingType.MILITARY_DEPOT, BuildingType.BLACK_MARKET,
+                BuildingType.BOOST_STAND),
+        new Cat("Personal & Lager", IconKind.PERSON, Palette.WORKERS,
+                BuildingType.CAMPER, BuildingType.HOUSING,
+                BuildingType.STORAGE_SHED, BuildingType.WAREHOUSE),
+        new Cat("Industrie",  IconKind.ROBOT,  Palette.ROBOT,
+                BuildingType.LAB, BuildingType.GENLAB, BuildingType.SHELL_PRESS,
+                BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS, BuildingType.KRILL_BARRACKS,
+                BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT),
+        new Cat("Ruf & Deko", IconKind.STAR,   Palette.REP,
+                BuildingType.VISITOR_CENTER, BuildingType.ZEN_GARDEN),
     };
 
-    // Größeres Menü mit 2-Spalten-Raster: Gebäude einer Kategorie stehen schön nebeneinander.
-    private static final int PADDING = 10, GAP = 10;
-    private static final int GRID_COLS = 2, CARD_H = 64, CARD_W = 214;
-    private static final int MENU_W = PADDING * 2 + GRID_COLS * CARD_W + (GRID_COLS - 1) * GAP;
-    private static final int TAB_H = 32, HEAD_H = 40;
+    // Tropico-Raster: Symbol oben, Name darunter - mehr Übersicht auf einen Blick.
+    private static final int PAD = 12, GAP = 10;
+    private static final int GRID_COLS = 3, CARD_W = 150, CARD_H = 112;
+    private static final int MENU_W = PAD * 2 + GRID_COLS * CARD_W + (GRID_COLS - 1) * GAP;
+    private static final int HEAD_H = 30, TABBAR_H = 52, CATNAME_H = 22, FOOTER_H = 46;
+    private static final int TAB_SIZE = 46, TAB_GAP = 7;
 
     private final GameFrame frame;
     private final Rectangle card = new Rectangle();
     private List<Cat> visibleCats = new ArrayList<>();
     private int catIdx = 0;
+    private int hoverTab = -1, hoverRow = -1;
     private final List<Rectangle> tabRects = new ArrayList<>();
     private final List<Rectangle> rowRects = new ArrayList<>();
     private final List<BuildingType> rowTypes = new ArrayList<>();
-    private int hoverRow = -1;
 
     public BuildMenuPanel(GameFrame frame) {
         this.frame = frame;
@@ -59,7 +70,7 @@ public class BuildMenuPanel extends JComponent {
             @Override public void mousePressed(MouseEvent e) {
                 if (!card.contains(e.getPoint())) { close(); return; }
                 for (int i = 0; i < tabRects.size(); i++)
-                    if (tabRects.get(i).contains(e.getPoint())) { catIdx = i; relayout(); repaint(); return; }
+                    if (tabRects.get(i).contains(e.getPoint())) { catIdx = i; hoverRow = -1; relayout(); repaint(); return; }
                 for (int i = 0; i < rowRects.size(); i++)
                     if (rowRects.get(i).contains(e.getPoint())) {
                         BuildingType t = rowTypes.get(i);
@@ -68,9 +79,10 @@ public class BuildMenuPanel extends JComponent {
                     }
             }
             @Override public void mouseMoved(MouseEvent e) {
-                int h = -1;
-                for (int i = 0; i < rowRects.size(); i++) if (rowRects.get(i).contains(e.getPoint())) h = i;
-                if (h != hoverRow) { hoverRow = h; repaint(); }
+                int hr = -1, ht = -1;
+                for (int i = 0; i < rowRects.size(); i++) if (rowRects.get(i).contains(e.getPoint())) hr = i;
+                for (int i = 0; i < tabRects.size(); i++) if (tabRects.get(i).contains(e.getPoint())) ht = i;
+                if (hr != hoverRow || ht != hoverTab) { hoverRow = hr; hoverTab = ht; repaint(); }
             }
         };
         addMouseListener(ma);
@@ -81,20 +93,13 @@ public class BuildMenuPanel extends JComponent {
 
     /** Öffnet das Menü an seiner festen Andock-Position für die angegebene Zone. */
     public void open(Zone zone) {
-        visibleCats = new ArrayList<>();
-        for (Cat c : CATS) {
-            for (BuildingType t : c.types())
-                if (t.zone() == zone) { visibleCats.add(c); break; }
-        }
+        buildVisible(zone);
         if (visibleCats.isEmpty()) return;
         catIdx = Math.min(catIdx, visibleCats.size() - 1);
         // Im Tutorial direkt die Kategorie des geforderten Gebäudes aufschlagen (Eintrag leuchtet).
         BuildingType tut = frame.tutorialBuildTarget();
-        if (tut != null && tut.zone() == zone) {
-            for (int i = 0; i < visibleCats.size(); i++)
-                for (BuildingType t : visibleCats.get(i).types()) if (t == tut) catIdx = i;
-        }
-        hoverRow = -1;
+        if (tut != null && tut.zone() == zone) selectCatOf(tut);
+        hoverRow = hoverTab = -1;
         setVisible(true);
         relayout();
         repaint();
@@ -107,22 +112,28 @@ public class BuildMenuPanel extends JComponent {
      * Gebäudes scharf - für den Freischalt-Wegweiser ("Zeig mir!"): der Eintrag leuchtet auf.
      */
     public void openForBuilding(BuildingType target) {
-        Zone zone = frame.currentZone();
-        visibleCats = new ArrayList<>();
-        int wantIdx = 0;
-        for (Cat c : CATS) {
-            boolean has = false;
-            for (BuildingType t : c.types()) if (t.zone() == zone) { has = true; break; }
-            if (!has) continue;
-            for (BuildingType t : c.types()) if (t == target) wantIdx = visibleCats.size();
-            visibleCats.add(c);
-        }
+        buildVisible(frame.currentZone());
         if (visibleCats.isEmpty()) return;
-        catIdx = Math.min(wantIdx, visibleCats.size() - 1);
-        hoverRow = -1;
+        selectCatOf(target);
+        hoverRow = hoverTab = -1;
         setVisible(true);
         relayout();
         repaint();
+    }
+
+    /** Sammelt die Kategorien mit Inhalt in dieser Zone. */
+    private void buildVisible(Zone zone) {
+        visibleCats = new ArrayList<>();
+        for (Cat c : CATS)
+            for (BuildingType t : c.types())
+                if (t.zone() == zone) { visibleCats.add(c); break; }
+    }
+
+    /** Wählt die Kategorie, die das gegebene Gebäude enthält (falls sichtbar). */
+    private void selectCatOf(BuildingType target) {
+        for (int i = 0; i < visibleCats.size(); i++)
+            for (BuildingType t : visibleCats.get(i).types()) if (t == target) { catIdx = i; return; }
+        catIdx = Math.min(catIdx, visibleCats.size() - 1);
     }
 
     /** Puls-Phase für ein aufleuchtendes Gebäude (Freischalt-Wegweiser / Tutorial). */
@@ -144,27 +155,14 @@ public class BuildMenuPanel extends JComponent {
         return out;
     }
 
-    /** Anzahl der Reiter-Zeilen (Reiter brechen um, wenn sie nicht in eine Zeile passen). */
-    private int tabRowCount() {
-        FontMetrics tfm = getFontMetrics(Palette.FONT_TINY);
-        int rows = 1, tx = 10;
-        for (Cat c : visibleCats) {
-            int tw = tfm.stringWidth(c.name()) + 16;
-            if (tx + tw > MENU_W - 10) { tx = 10; rows++; }
-            tx += tw + 6;
-        }
-        return rows;
-    }
-
-    /** Y-Offset (relativ zu card.y), an dem die Gebäude-Karten beginnen. */
-    private int gridTop() {
-        return HEAD_H + (tabRowCount() - 1) * (TAB_H - 6) + TAB_H;
+    private int gridRows() {
+        int n = currentRows().size();
+        return Math.max(1, (n + GRID_COLS - 1) / GRID_COLS);
     }
 
     private void relayout() {
-        int n = currentRows().size();
-        int gridRows = Math.max(1, (n + GRID_COLS - 1) / GRID_COLS);
-        int h = gridTop() + gridRows * CARD_H + (gridRows - 1) * GAP + PADDING;
+        int gridH = gridRows() * CARD_H + (gridRows() - 1) * GAP;
+        int h = HEAD_H + TABBAR_H + CATNAME_H + gridH + FOOTER_H + PAD;
         // Feste Andock-Position neben der Seitenleiste (unabhängig vom Mausklick),
         // nur nach unten begrenzt, damit hohe Kategorien nicht aus dem Fenster laufen.
         Point a = frame.buildMenuAnchor();
@@ -180,96 +178,178 @@ public class BuildMenuPanel extends JComponent {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         relayout();
 
+        // Panel mit Schatten
+        g.setColor(new Color(0, 0, 0, 90));
+        g.fillRoundRect(card.x + 3, card.y + 5, card.width, card.height, 14, 14);
         g.setColor(Palette.PANEL);
-        g.fillRoundRect(card.x, card.y, card.width, card.height, 12, 12);
+        g.fillRoundRect(card.x, card.y, card.width, card.height, 14, 14);
         g.setColor(Palette.ACCENT);
-        g.setStroke(new BasicStroke(1.6f));
-        g.drawRoundRect(card.x, card.y, card.width, card.height, 12, 12);
+        g.setStroke(new BasicStroke(1.8f));
+        g.drawRoundRect(card.x, card.y, card.width, card.height, 14, 14);
 
+        // Kopfzeile
         g.setFont(Palette.FONT_H2);
         g.setColor(Palette.TEXT);
-        g.drawString("Bauen: " + frame.currentZone().displayName, card.x + 14, card.y + 24);
+        g.drawString("Bauen", card.x + 14, card.y + 21);
+        g.setFont(Palette.FONT_SMALL);
+        g.setColor(Palette.TEXT_DIM);
+        String zn = frame.currentZone().displayName;
+        FontMetrics zfm = g.getFontMetrics();
+        g.drawString(zn, card.x + card.width - zfm.stringWidth(zn) - 14, card.y + 21);
+        g.setColor(new Color(255, 255, 255, 22));
+        g.fillRect(card.x + 12, card.y + HEAD_H - 2, card.width - 24, 1);
 
-        // Kategorie-Reiter (nur mit Inhalt in dieser Zone)
-        tabRects.clear();
-        int tx = card.x + 10, ty = card.y + HEAD_H;
+        drawTabBar(g);
+
+        // Kategorie-Name (Titel über dem Raster)
+        Cat cat = visibleCats.get(catIdx);
+        int catY = card.y + HEAD_H + TABBAR_H;
+        g.setFont(Palette.FONT_H2);
+        g.setColor(Palette.ACCENT2);
+        g.drawString(cat.name(), card.x + 14, catY + 15);
+        List<BuildingType> rows = currentRows();
         g.setFont(Palette.FONT_TINY);
-        FontMetrics tfm = g.getFontMetrics();
-        for (int i = 0; i < visibleCats.size(); i++) {
-            String name = visibleCats.get(i).name();
-            int tw = tfm.stringWidth(name) + 16;
-            if (tx + tw > card.x + card.width - 10) { tx = card.x + 10; ty += TAB_H - 6; }
-            Rectangle r = new Rectangle(tx, ty, tw, TAB_H - 8);
-            tabRects.add(r);
-            g.setColor(i == catIdx ? new Color(0, 90, 84) : Palette.PANEL_LIGHT);
-            g.fillRoundRect(r.x, r.y, r.width, r.height, 8, 8);
-            if (i == catIdx) { g.setColor(Palette.ACCENT); g.drawRoundRect(r.x, r.y, r.width, r.height, 8, 8); }
-            g.setColor(i == catIdx ? Palette.TEXT : Palette.TEXT_DIM);
-            g.drawString(name, r.x + 8, r.y + r.height / 2 + tfm.getAscent() / 2 - 1);
-            tx += tw + 6;
-        }
+        g.setColor(Palette.TEXT_DIM);
+        String cnt = rows.size() + " Gebäude";
+        g.drawString(cnt, card.x + card.width - g.getFontMetrics().stringWidth(cnt) - 14, catY + 14);
 
-        // Gebäude-Karten im 2-Spalten-Raster
+        // Karten-Raster
         rowRects.clear(); rowTypes.clear();
         double money = frame.game().getMoney();
-        List<BuildingType> rows = currentRows();
-        int gridX0 = card.x + PADDING, gridY0 = card.y + gridTop();
+        int gridX0 = card.x + PAD, gridY0 = catY + CATNAME_H;
         for (int i = 0; i < rows.size(); i++) {
-            BuildingType t = rows.get(i);
             int col = i % GRID_COLS, gr = i / GRID_COLS;
             int rx = gridX0 + col * (CARD_W + GAP);
             int ry = gridY0 + gr * (CARD_H + GAP);
             Rectangle r = new Rectangle(rx, ry, CARD_W, CARD_H);
-            rowRects.add(r); rowTypes.add(t);
-            drawCard(g, r, t, money, hoverRow == i);
+            rowRects.add(r); rowTypes.add(rows.get(i));
+            drawCard(g, r, rows.get(i), money, hoverRow == i);
         }
+
+        drawFooter(g);
         g.dispose();
     }
 
-    /** Zeichnet eine einzelne Gebäude-Karte im Raster. */
-    private void drawCard(Graphics2D g, Rectangle r, BuildingType t, double money, boolean hover) {
-        boolean unlocked = frame.game().isBuildingUnlocked(t);
-        boolean affordable = money >= t.cost;
-        g.setColor(hover && unlocked ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
-        g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
-        // Freischalt-Wegweiser / Tutorial: das gemeinte Gebäude leuchtet pulsierend auf.
-        if (t == frame.highlightBuild() || t == frame.tutorialBuildTarget()) {
-            float p = (float) (0.5 + 0.5 * Math.sin(glowPhase));
-            g.setColor(new Color(0, 199, 183, (int) (16 + 26 * p)));
+    /** Die Icon-Reiterleiste am oberen Rand (eine Kachel je Kategorie). */
+    private void drawTabBar(Graphics2D g) {
+        tabRects.clear();
+        int y = card.y + HEAD_H + (TABBAR_H - TAB_SIZE) / 2;
+        int x = card.x + PAD;
+        for (int i = 0; i < visibleCats.size(); i++) {
+            Cat c = visibleCats.get(i);
+            Rectangle r = new Rectangle(x, y, TAB_SIZE, TAB_SIZE);
+            tabRects.add(r);
+            boolean sel = i == catIdx;
+            boolean hov = i == hoverTab;
+            g.setColor(sel ? new Color(0, 90, 84) : hov ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
             g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
-            g.setColor(new Color(0, 199, 183, (int) (110 + 120 * p)));
-            g.setStroke(new BasicStroke(3f));
+            g.setColor(sel ? Palette.ACCENT : new Color(70, 84, 92));
+            g.setStroke(new BasicStroke(sel ? 2f : 1.2f));
             g.drawRoundRect(r.x, r.y, r.width, r.height, 10, 10);
-        }
-        g.setColor(Icons.darker(t.color, unlocked ? 0.85 : 0.5));
-        g.fillRoundRect(r.x + 8, r.y + 8, 40, 40, 8, 8);
-        Icons.building(g, t.icon, r.x + 28, r.y + 28, 28);
-
-        int textX = r.x + 56;
-        g.setFont(Palette.FONT_BOLD);
-        g.setColor(unlocked ? (affordable ? Palette.TEXT : Palette.TEXT_DIM) : Palette.TEXT_DIM);
-        g.drawString(TextUtil.clip(g.getFontMetrics(), t.displayName, r.width - 56 - 10), textX, r.y + 22);
-
-        g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-        String sub = tagline(t);
-        if (!unlocked) {
-            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(t.unlockFlag(), frame.questSystem());
-            sub = hint != null ? hint : "noch gesperrt";
-        }
-        g.drawString(TextUtil.clip(g.getFontMetrics(), sub, r.width - 56 - 10), textX, r.y + 40);
-
-        if (unlocked) {
-            g.setFont(Palette.FONT_BOLD);
-            String cost = String.format("%,d", t.cost);
-            int cw = g.getFontMetrics().stringWidth(cost);
-            g.setColor(affordable ? Palette.MONEY : Palette.BAD);
-            g.drawString(cost, r.x + r.width - cw - 10, r.y + r.height - 10);
-        } else {
-            Icons.padlock(g, r.x + r.width - 16, r.y + r.height - 16, 15, Palette.TEXT_DIM);
+            Icons.resource(g, c.icon(), r.getCenterX(), r.getCenterY() - 3, 24, sel ? c.color() : Icons.darker(c.color(), 0.7));
+            // aktiver Reiter: kleiner "Zeiger" nach unten
+            if (sel) {
+                g.setColor(Palette.ACCENT);
+                int cx = (int) r.getCenterX();
+                int[] xs = { cx - 6, cx + 6, cx };
+                int[] ys = { r.y + r.height + 1, r.y + r.height + 1, r.y + r.height + 7 };
+                g.fillPolygon(xs, ys, 3);
+            }
+            x += TAB_SIZE + TAB_GAP;
         }
     }
 
-    /** Kurzbeschreibung eines Gebäudes für die Menü-Zeile. */
+    /** Eine Gebäude-Karte: farbige Symbolkachel oben, Name darunter, Preis/Schloss unten. */
+    private void drawCard(Graphics2D g, Rectangle r, BuildingType t, double money, boolean hover) {
+        boolean unlocked = frame.game().isBuildingUnlocked(t);
+        boolean affordable = money >= t.cost;
+        boolean glow = t == frame.highlightBuild() || t == frame.tutorialBuildTarget();
+
+        g.setColor(hover && unlocked ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
+        g.fillRoundRect(r.x, r.y, r.width, r.height, 12, 12);
+        g.setColor(hover && unlocked ? Palette.ACCENT : new Color(58, 70, 78));
+        g.setStroke(new BasicStroke(hover && unlocked ? 1.8f : 1.1f));
+        g.drawRoundRect(r.x, r.y, r.width, r.height, 12, 12);
+        if (glow) {
+            float p = (float) (0.5 + 0.5 * Math.sin(glowPhase));
+            g.setColor(new Color(0, 199, 183, (int) (110 + 120 * p)));
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(r.x, r.y, r.width, r.height, 12, 12);
+        }
+
+        // Symbolkachel (mittig oben)
+        int isz = 56;
+        int ix = r.x + (r.width - isz) / 2, iy = r.y + 10;
+        g.setColor(Icons.darker(t.color, unlocked ? 0.9 : 0.5));
+        g.fillRoundRect(ix, iy, isz, isz, 12, 12);
+        g.setColor(unlocked ? Icons.brighter(t.color, 1.05) : Icons.darker(t.color, 0.6));
+        g.setStroke(new BasicStroke(1.2f));
+        g.drawRoundRect(ix, iy, isz, isz, 12, 12);
+        Icons.building(g, t.icon, ix + isz / 2.0, iy + isz / 2.0, isz * 0.62);
+        if (!unlocked) {
+            g.setColor(new Color(20, 26, 31, 150));
+            g.fillRoundRect(ix, iy, isz, isz, 12, 12);
+            Icons.padlock(g, ix + isz / 2.0, iy + isz / 2.0, 22, Palette.TEXT);
+        }
+
+        // Name (zentriert, bis zu 2 Zeilen)
+        g.setFont(Palette.FONT_SMALL);
+        g.setColor(unlocked ? Palette.TEXT : Palette.TEXT_DIM);
+        FontMetrics fm = g.getFontMetrics();
+        List<String> lines = TextUtil.wrap(fm, t.displayName, r.width - 12, 2);
+        int ny = r.y + isz + 24;
+        for (String line : lines) {
+            g.drawString(line, r.x + (r.width - fm.stringWidth(line)) / 2, ny);
+            ny += 13;
+        }
+
+        // Preis (oder "gesperrt")
+        g.setFont(Palette.FONT_BOLD);
+        if (unlocked) {
+            String cost = String.format("%,d", t.cost);
+            g.setColor(affordable ? Palette.MONEY : Palette.BAD);
+            g.drawString(cost, r.x + (r.width - g.getFontMetrics().stringWidth(cost)) / 2, r.y + r.height - 10);
+        } else {
+            g.setColor(Palette.TEXT_DIM);
+            g.setFont(Palette.FONT_TINY);
+            String lk = "gesperrt";
+            g.drawString(lk, r.x + (r.width - g.getFontMetrics().stringWidth(lk)) / 2, r.y + r.height - 10);
+        }
+    }
+
+    /** Fußzeile: Details zum überfahrenen Gebäude (Name, Kurzinfo bzw. Freischalt-Hinweis). */
+    private void drawFooter(Graphics2D g) {
+        int fy = card.y + card.height - FOOTER_H;
+        g.setColor(new Color(255, 255, 255, 20));
+        g.fillRect(card.x + 12, fy, card.width - 24, 1);
+
+        BuildingType t = hoverRow >= 0 && hoverRow < rowTypes.size() ? rowTypes.get(hoverRow) : null;
+        if (t == null) {
+            g.setFont(Palette.FONT_SMALL);
+            g.setColor(Palette.TEXT_DIM);
+            g.drawString(TextUtil.clip(g.getFontMetrics(),
+                "Gebäude wählen, dann auf ein freies Feld setzen.", card.width - 28), card.x + 14, fy + 27);
+            return;
+        }
+        boolean unlocked = frame.game().isBuildingUnlocked(t);
+        g.setFont(Palette.FONT_BOLD);
+        g.setColor(Palette.TEXT);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), t.displayName, card.width - 28), card.x + 14, fy + 20);
+        g.setFont(Palette.FONT_SMALL);
+        g.setColor(Palette.TEXT_DIM);
+        String sub;
+        if (unlocked) {
+            sub = tagline(t);
+            if (sub.isEmpty()) sub = t.description;
+        } else {
+            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(t.unlockFlag(), frame.questSystem());
+            sub = hint != null ? "Freischaltung: " + hint : "Noch gesperrt.";
+            g.setColor(Palette.ACCENT);
+        }
+        g.drawString(TextUtil.clip(g.getFontMetrics(), sub, card.width - 28), card.x + 14, fy + 37);
+    }
+
+    /** Kurzbeschreibung eines Gebäudes für die Detail-Zeile. */
     static String tagline(BuildingType t) {
         return switch (t) {
             case OLD_GENERATOR -> "+12 Strom, laut";
@@ -299,10 +379,10 @@ public class BuildMenuPanel extends JComponent {
             case BOOST_STAND         -> "verkauft Boost ~90/Dose";
             case ROBOT_WORKS         -> "Roboter = je +2 Arbeiter";
             case KRILL_BARRACKS      -> "+Armee-Stärke";
-            case STORAGE_SHED        -> "+Lagerkapazität";
-            case WAREHOUSE           -> "viel Lagerkapazität";
             case GUT_STATION         -> "Gourmet-Voraussetzung, +Abfall";
             case BIOGAS_PLANT        -> "entsorgt Abfall zu Biogas";
+            case STORAGE_SHED        -> "+Lagerkapazität";
+            case WAREHOUSE           -> "viel Lagerkapazität";
             default           -> "";
         };
     }

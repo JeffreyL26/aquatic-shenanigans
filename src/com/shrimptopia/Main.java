@@ -168,8 +168,15 @@ public class Main {
                 f.tutorialAdvance();
                 snap(f.getRootPane(), "shrimptopia_v3_tutorial_marketing.png");
 
-                // 2) Haupt-UI mit ausgewähltem Becken (Inspektor)
+                // 1c) Baumenü im Tropico-Stil mit voller Kategorie (Versorgung: 5 Gebäude,
+                //     lange Namen mit 2-Zeilen-Umbruch) - zeigt Icon-Reiter + Karten-Raster + Fußzeile.
                 f.tutorialSkip();
+                f.debugOpenBuildMenu(BuildingType.WATER_HUB);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_buildmenu_full.png");
+                f.toggleBuildMenu();
+
+                // 2) Haupt-UI mit ausgewähltem Becken (Inspektor)
                 f.selectBuilding(gs.at(Zone.PRODUKTION, 5, 0));
                 f.debugForceQuest("krillkill_1"); f.debugForceQuest("akwanov_1");
                 f.validate(); f.debugRefreshOverlay();
