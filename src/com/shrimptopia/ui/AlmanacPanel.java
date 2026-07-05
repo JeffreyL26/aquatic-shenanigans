@@ -350,10 +350,11 @@ public class AlmanacPanel extends JComponent {
         head(g, x, yy, "Edikte - Klick erlässt/hebt auf; Edikte derselben Gruppe schließen sich aus"); yy += 12;
         Edict[] all = Edict.values();
         int gap = 10;
-        int cols = Math.max(2, Math.min(3, w / 300));
+        // 4 Spalten auf breiten Schirmen: weniger Reihen -> höhere Kacheln -> lesbarer Text.
+        int cols = Math.max(2, Math.min(4, w / 232));
         int rows = (all.length + cols - 1) / cols;
         int tileW = (w - (cols - 1) * gap) / cols;
-        int tileH = Math.max(66, (bottom - yy - (rows - 1) * gap) / rows);
+        int tileH = Math.min(104, Math.max(88, (bottom - yy - (rows - 1) * gap) / rows));
         for (int i = 0; i < all.length; i++) {
             Rectangle rr = new Rectangle(x + (i % cols) * (tileW + gap), yy + (i / cols) * (tileH + gap), tileW, tileH);
             edictRects.add(rr); edictAt.add(all[i]);
@@ -413,58 +414,57 @@ public class AlmanacPanel extends JComponent {
         g.setFont(FONT_LAW_SIGN);
         g.setColor(locked ? Palette.TEXT_DIM : on ? Palette.ACCENT : Palette.ACCENT2);
         g.drawString("§", r.x + 12, r.y + 27);
-        // Stempel-Maße vorab (der GESPERRT-Stempel sitzt bei gesperrten Kacheln oben rechts,
-        // damit der zweizeilige Freischalt-Hinweis unten nicht überlappt).
+        // Lesbares Kachel-Layout mit fest reserviertem Fußband: oben Titel, Mitte Beschreibung
+        // (so viele Zeilen, wie wirklich Platz ist), unten IMMER getrennt Plakette + Stempel.
         String tag = on ? "ERLASSEN" : locked ? "GESPERRT" : "AUS";
         Color stampCol = on ? Palette.GOOD : locked ? Palette.BAD : Palette.TEXT_DIM;
-        g.setFont(Palette.FONT_TINY);
-        int sw = g.getFontMetrics().stringWidth(tag) + 14, sh = 17;
+        int bandH = 26;   // reserviertes Fußband - Beschreibung darf hier nie hineinlaufen
 
-        // Titel in Serifenschrift (bei gesperrt: Platz für den oben-rechts-Stempel lassen)
+        // Titel in Serifenschrift
         int tx = r.x + 34;
-        int titleMax = r.x + r.width - 12 - tx - (locked ? sw + 6 : 0);
         g.setFont(FONT_LAW_TITLE);
         g.setColor(locked ? Palette.TEXT_DIM : Palette.TEXT);
-        g.drawString(TextUtil.clip(g.getFontMetrics(), e.name, titleMax), tx, r.y + 21);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), e.name, r.x + r.width - 12 - tx), tx, r.y + 21);
         // Trennlinie unter dem Titel
         g.setColor(new Color(frameCol.getRed(), frameCol.getGreen(), frameCol.getBlue(), 130));
         g.drawLine(tx, r.y + 28, r.x + r.width - 12, r.y + 28);
-        // Beschreibung (bzw. Freischalt-Hinweis) über bis zu zwei Zeilen
+
+        // Beschreibung (bzw. Freischalt-Hinweis); Zeilenzahl aus der tatsächlichen Kachelhöhe
         String sub = e.desc;
         if (locked) {
             String hint = QuestTree.unlockHintFor(e.requiresFlag, frame.questSystem());
             sub = hint != null ? "Freischaltung: " + hint : "noch gesperrt";
         }
         g.setFont(Palette.FONT_SMALL);
-        g.setColor(Palette.TEXT_DIM);
+        g.setColor(locked ? new Color(150, 166, 176, 210) : Palette.TEXT_DIM);
+        int maxLines = Math.max(1, (r.height - 42 - bandH) / 14 + 1);
         int ly = r.y + 42;
-        for (String line : TextUtil.wrap(g.getFontMetrics(), sub, r.width - 24, 2)) {
+        for (String line : TextUtil.wrap(g.getFontMetrics(), sub, r.width - 24, maxLines)) {
             g.drawString(line, r.x + 12, ly);
             ly += 14;
         }
-        // Gruppen-Plakette unten links - nur bei nutzbaren Edikten (Gruppe = Ausschluss-Regel;
-        // bei gesperrten Kacheln irrelevant und würde den Hinweis überlappen).
+
+        // Fußband: Gruppen-Plakette links (nur nutzbar), Status-Stempel rechts - kollisionsfrei.
+        g.setFont(Palette.FONT_TINY);
         FontMetrics fm = g.getFontMetrics();
+        int by = r.y + r.height - bandH + 4;
         if (!locked) {
             String grp = (e.group != null ? e.group : "frei").toUpperCase();
-            g.setFont(Palette.FONT_TINY);
-            fm = g.getFontMetrics();
-            int gw = fm.stringWidth(grp) + 12, gh = 15, gy = r.y + r.height - gh - 7;
+            int gw = fm.stringWidth(grp) + 12, gh = 15;
             g.setColor(new Color(frameCol.getRed(), frameCol.getGreen(), frameCol.getBlue(), 60));
-            g.fillRoundRect(r.x + 12, gy, gw, gh, 7, 7);
+            g.fillRoundRect(r.x + 12, by, gw, gh, 7, 7);
             g.setColor(Palette.TEXT);
-            g.drawString(grp, r.x + 18, gy + 11);
+            g.drawString(grp, r.x + 18, by + 11);
         }
-        // Stempel (leicht gedreht wie ein Amtsstempel): gesperrt oben rechts, sonst unten rechts.
+        int sw = fm.stringWidth(tag) + 14, sh = 17;
         int sx = r.x + r.width - sw - 12;
-        int sy = locked ? r.y + 8 : r.y + r.height - sh - 6;
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.rotate(Math.toRadians(-4), sx + sw / 2.0, sy + sh / 2.0);
+        g2.rotate(Math.toRadians(-4), sx + sw / 2.0, by + sh / 2.0);
         g2.setColor(stampCol);
         g2.setStroke(new BasicStroke(1.4f));
-        g2.drawRoundRect(sx, sy, sw, sh, 5, 5);
+        g2.drawRoundRect(sx, by - 1, sw, sh, 5, 5);
         g2.setFont(Palette.FONT_TINY);
-        g2.drawString(tag, sx + 7, sy + 12);
+        g2.drawString(tag, sx + 7, by + 11);
         g2.dispose();
     }
     private static String rank(double money) {

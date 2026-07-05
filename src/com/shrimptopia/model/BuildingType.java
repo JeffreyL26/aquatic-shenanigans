@@ -317,6 +317,135 @@ public enum BuildingType {
         "Drillt Kampf-Krill zu einer stehenden Armee. 'WER BRAUCHT EINE MARINE, WENN MAN "
         + "EINE HALLE HAT?' Verbraucht Kampf-Krill + SHRIMPBOOST, erzeugt Armee-Stärke."),
 
+    // ===================== v4: Kategorie-Ausbau (Strom / Versorgung / Zucht / Personal / Deko) =====================
+
+    SHRIMP_WHEEL(
+        "Garnelen-Laufrad", 260,
+        0, 0, 7, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0.01, 1.2,
+        IconKind.WHEEL, new Color(196, 148, 92),
+        "Zwölf besonders sportliche Garnelen in Hamsterrädern, an einen Dynamo gekoppelt. +7 Strom. "
+        + "Die Läufer werden in Futter bezahlt (in den Betriebskosten enthalten) und fühlen sich 'gesehen'."),
+
+    WIND_TURBINE(
+        "Windrad überm Dach", 700,
+        0, 0, 22, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0.02, 1.2,
+        IconKind.WIND, new Color(140, 170, 200),
+        "Ein gebrauchtes Kleinwindrad vom Energiepark-Flohmarkt. +22 Strom, keine Abgase, "
+        + "und es wedelt beruhigend. Die Möwen nutzen es als Karussell."),
+
+    GEO_PLANT(
+        "Geothermie-Bohrung", 3200,
+        0, 3, 70, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 12,
+        IconKind.POWER, new Color(170, 96, 60),
+        "800 Meter runter, dann kommt Wärme satt. +70 Strom rund um die Uhr. Der Bohrtrupp hat "
+        + "'nur zwei- bis dreimal' etwas angebohrt, worüber wir nicht sprechen."),
+
+    PLANKTON_PRESS(
+        "Plankton-Presse", 1200,
+        0, 2, 0, 5,
+        0, 3, 14, 0,
+        0, 0, 0, 0, 6,
+        IconKind.ALGAE, new Color(60, 140, 110),
+        "Industrielle Futter-Fertigung: presst Plankton, Algen und Optimismus zu +14 Futter/Tag. "
+        + "Riecht wie Meeresbrise, wenn die Meeresbrise durch eine Kantine wehte."),
+
+    KIDDIE_POOL(
+        "Planschbecken-Zucht", 200,
+        0, 0, 0, 1,
+        0, 2, 0, 1.2,
+        2.2, 0, 0, 0, 1,
+        IconKind.TANK, new Color(110, 170, 200),
+        "Ein aufblasbares Kinderplanschbecken mit Folie und Fantasie. +2,2 Shrimps/Tag. "
+        + "Bei Regen ein Feature, bei Hagel ein Problem."),
+
+    HATCHERY(
+        "Brutstation", 900,
+        0, 1, 0, 4,
+        0, 3, 0, 1.5,
+        3.5, 0, 0, 0, 3,
+        IconKind.EGGS, new Color(220, 170, 110),
+        "Temperierte Aufzuchtwannen für Garnelen-Larven: +3,5 Shrimps/Tag bei wenig Futterbedarf. "
+        + "Dr. Perla singt den Larven abends vor. Es hilft. Wir wissen nicht, warum."),
+
+    MEGA_TANK(
+        "Mega-Becken", 2600,
+        0, 3, 0, 14,
+        0, 18, 0, 7,
+        11, 0, 0, 0, 9,
+        IconKind.TANK, new Color(0, 120, 150),
+        "Ein Becken wie ein Schwimmbad: +11 Shrimps/Tag, dafür ordentlich Durst, Hunger und "
+        + "Stromrechnung. Die Garnelen haben Bezirke gebildet. Bezirk 3 wählt anders."),
+
+    REEF_DOME(
+        "Riff-Kuppel", 3800,
+        0, 2, 0, 12,
+        0, 10, 0, 5,
+        3.2, 0, 0, 0.05, 8,
+        IconKind.DOME, new Color(90, 180, 190),
+        "Glaskuppel mit lebendem Korallenriff: hier reifen ausschließlich Gourmet-Shrimps in "
+        + "Spitzenqualität (+3,2/Tag). Besucher drücken sich die Nase platt (+Reputation)."),
+
+    CANTEEN(
+        "Betriebs-Kantine", 450,
+        4, 0, 0, 2,
+        0, 0, 0, 0,
+        0, 0, 0, 0.03, 2,
+        IconKind.FOOD, new Color(200, 150, 90),
+        "Warmes Essen zieht Personal an: +4 Arbeiter, die eigentlich nur wegen Ingrids "
+        + "Algen-Auflauf bleiben. Der Auflauf hat eigene Stammgäste."),
+
+    COLD_STORE(
+        "Kühlhaus", 950,
+        0, 1, 0, 6,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 3,
+        IconKind.CRATE, new Color(120, 160, 200),
+        "Minus 18 Grad, maximale Frische: großes Zusatzlager vor allem für Shrimps und Futter. "
+        + "Wer die Tür offen lässt, zahlt die nächste Runde Glühwein."),
+
+    MASCOT_STATUE(
+        "Greg-Denkmal", 620,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0.15, 0.5,
+        IconKind.STATUE, new Color(210, 180, 100),
+        "Das Denkmal des krummen Kerlchens: Greg in Gold, Blick in die Ferne, eine Antenne "
+        + "im Wind. General Krillkill salutiert jedes Mal. Besucher lieben es (+Reputation)."),
+
+    FOUNTAIN(
+        "Garnelen-Fontäne", 380,
+        0, 0, 0, 1,
+        0, 1, 0, 0,
+        0, 0, 0, 0.08, 0.8,
+        IconKind.FOUNTAIN, new Color(100, 170, 210),
+        "Ein Springbrunnen in Garnelenform, der Wasser aus den Fühlern sprüht. Deko pur, "
+        + "etwas Wasserverbrauch, stetig +Reputation. Nachts beleuchtet: Kitsch-Level Endboss."),
+
+    PETTING_POOL(
+        "Streichelbecken", 520,
+        0, 1, 0, 1,
+        0, 2, 0, 0.5,
+        0, 0, 0, 0.12, 1.5,
+        IconKind.TANK, new Color(220, 140, 170),
+        "Flaches Becken mit besonders geduldigen Garnelen. Kinder streicheln, Eltern fotografieren, "
+        + "alle sind gerührt (+Reputation). Die Garnelen führen Buch über Übergriffe."),
+
+    BOYBAND_STAGE(
+        "Show-Bühne", 1500,
+        0, 2, 0, 6,
+        0, 0, 0, 0,
+        0, 0, 0, 0.2, 7,
+        IconKind.MUSIC, new Color(230, 110, 180),
+        "Bühne, Nebelmaschine, fünf Mikrofone über einem Aquarium: Heimspielstätte der Boygroup "
+        + "NEW KRILLS ON THE BLOCK. Konzerte polieren den Ruf - und zwischen den Refrains "
+        + "flüstert es 'kauf Shrimps'."),
+
     // ===================== Premium-Veredelung: Darmentleerung & Abfall-Kreislauf =====================
 
     GUT_STATION(
@@ -438,16 +567,34 @@ public enum BuildingType {
             case BIOGAS_PLANT        -> "Biogas";
             case STORAGE_SHED        -> "Lager";
             case WAREHOUSE           -> "Hochregal";
+            case SHRIMP_WHEEL        -> "Laufrad";
+            case WIND_TURBINE        -> "Windrad";
+            case GEO_PLANT           -> "Geothermie";
+            case PLANKTON_PRESS      -> "Plankton";
+            case KIDDIE_POOL         -> "Planschen";
+            case HATCHERY            -> "Brutstation";
+            case MEGA_TANK           -> "Mega-Becken";
+            case REEF_DOME           -> "Riff-Kuppel";
+            case CANTEEN             -> "Kantine";
+            case COLD_STORE          -> "Kühlhaus";
+            case MASCOT_STATUE       -> "Greg";
+            case FOUNTAIN            -> "Fontäne";
+            case PETTING_POOL        -> "Streicheln";
+            case BOYBAND_STAGE       -> "Bühne";
         };
     }
 
     /** Alle baubaren Gebäude (HQ ist vorplatziert). Das Menü filtert nach Zone & Freischaltung. */
     public static BuildingType[] buildable() {
         return new BuildingType[] {
-            OLD_GENERATOR, RAIN_BARREL, ALGAE_BUCKET, GARAGE_TANK, CAMPER, YARD_SALE, STORAGE_SHED,
-            POWER_PLANT, SOLAR_ROOF, WATER_PLANT, WATER_HUB, ALGAE_FARM, SHRIMP_TANK,
-            HOUSING, WAREHOUSE, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
-            EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET, VISITOR_CENTER, ZEN_GARDEN,
+            OLD_GENERATOR, SHRIMP_WHEEL, RAIN_BARREL, ALGAE_BUCKET, GARAGE_TANK, KIDDIE_POOL,
+            CAMPER, YARD_SALE, STORAGE_SHED,
+            POWER_PLANT, SOLAR_ROOF, WIND_TURBINE, GEO_PLANT,
+            WATER_PLANT, WATER_HUB, ALGAE_FARM, PLANKTON_PRESS,
+            SHRIMP_TANK, HATCHERY, MEGA_TANK, REEF_DOME,
+            HOUSING, CANTEEN, WAREHOUSE, COLD_STORE, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
+            EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET,
+            VISITOR_CENTER, ZEN_GARDEN, MASCOT_STATUE, FOUNTAIN, PETTING_POOL, BOYBAND_STAGE,
             SHELL_PRESS, SHRIMPBOOST_FACTORY, BOOST_STAND, ROBOT_WORKS, KRILL_BARRACKS,
             GUT_STATION, BIOGAS_PLANT
         };
@@ -499,8 +646,29 @@ public enum BuildingType {
         META.put(HOUSING,       m(Zone.PRODUKTION, "build.housing"));
         META.put(LAB,           m(Zone.FORSCHUNG,  "zone.FORSCHUNG"));
 
-        Meta tank = m(Zone.PRODUKTION, "era.HALLE"); tank.producesTier = ShrimpTier.STANDARD;
+        // Becken-Kette im Tropico-Stil: Garagen-Aquarium -> Shrimp-Becken -> Mega-Becken
+        Meta tank = up(m(Zone.PRODUKTION, "era.HALLE"), MEGA_TANK); tank.producesTier = ShrimpTier.STANDARD;
         META.put(SHRIMP_TANK, tank);
+
+        // v4: Kategorie-Ausbau
+        META.put(SHRIMP_WHEEL,   m(Zone.PRODUKTION, null));                 // Garagen-Strom, Stufe 2
+        Meta kiddie = up(m(Zone.PRODUKTION, null), SHRIMP_TANK); kiddie.producesTier = ShrimpTier.STANDARD;
+        META.put(KIDDIE_POOL,    kiddie);                                    // Garagen-Zucht, billig
+        META.put(WIND_TURBINE,   m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(GEO_PLANT,      m(Zone.PRODUKTION, "build.geo"));
+        META.put(PLANKTON_PRESS, m(Zone.PRODUKTION, "build.plankton"));
+        Meta hatch = m(Zone.PRODUKTION, "era.HALLE"); hatch.producesTier = ShrimpTier.STANDARD;
+        META.put(HATCHERY,       hatch);
+        Meta mega = m(Zone.PRODUKTION, "build.megatank"); mega.producesTier = ShrimpTier.STANDARD;
+        META.put(MEGA_TANK,      mega);
+        Meta reef = m(Zone.PRODUKTION, "tier.GOURMET"); reef.producesTier = ShrimpTier.GOURMET;
+        META.put(REEF_DOME,      reef);                                      // Premium-Zucht nach Darm-Audit
+        META.put(CANTEEN,        m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(COLD_STORE,     m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(MASCOT_STATUE,  m(Zone.EMPFANG,    "zone.EMPFANG"));
+        META.put(FOUNTAIN,       m(Zone.EMPFANG,    "zone.EMPFANG"));
+        META.put(PETTING_POOL,   m(Zone.EMPFANG,    "zone.EMPFANG"));
+        META.put(BOYBAND_STAGE,  m(Zone.EMPFANG,    "build.stage"));         // via Siggi-Scampi-Quest
 
         META.put(SALES_OFFICE,   market(Zone.PRODUKTION, "era.HALLE",     1.0, ShrimpTier.STANDARD, ShrimpTier.BIO));
         META.put(RESTAURANT,     market(Zone.EMPFANG,    "zone.EMPFANG",  1.7, ShrimpTier.STANDARD, ShrimpTier.BIO, ShrimpTier.GOURMET));
@@ -535,6 +703,7 @@ public enum BuildingType {
         STORAGE.put(HEADQUARTERS, new double[]{ 350, 250, 120, 150,  80,  60 });
         STORAGE.put(STORAGE_SHED, new double[]{ 250, 180,  60, 120,  50,  40 });
         STORAGE.put(WAREHOUSE,    new double[]{ 900, 650, 250, 450, 250, 160 });
+        STORAGE.put(COLD_STORE,   new double[]{   0, 140, 320,  60, 120,  40 });   // Frische-Spezialist
     }
     public double[] storage() { return STORAGE.get(this); }
 
@@ -551,9 +720,12 @@ public enum BuildingType {
     /** Nächste Ausbaustufe (Tropico-Stil) oder null. */
     public BuildingType upgradesTo()   { return meta().upgradesTo; }
     /** Produziert dieses Gebäude Shrimps (Becken jeder Stufe)? */
-    public boolean isTank()            { return this == SHRIMP_TANK || this == GARAGE_TANK; }
+    public boolean isTank() {
+        return this == SHRIMP_TANK || this == GARAGE_TANK || this == KIDDIE_POOL
+            || this == HATCHERY || this == MEGA_TANK || this == REEF_DOME;
+    }
     /** Erzeugt dieses Gebäude Futter aus Wasser (Algen jeder Stufe)? */
-    public boolean isAlgae()           { return this == ALGAE_FARM || this == ALGAE_BUCKET; }
+    public boolean isAlgae()           { return this == ALGAE_FARM || this == ALGAE_BUCKET || this == PLANKTON_PRESS; }
 
     // ===================== v3-Flows (Schalen/SHRIMPBOOST/Roboter/Armee) =====================
     private static final java.util.EnumMap<BuildingType, Flows> FLOWS = new java.util.EnumMap<>(BuildingType.class);

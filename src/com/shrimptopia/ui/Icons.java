@@ -64,8 +64,134 @@ public final class Icons {
             case GUT         -> gutStation(g, cx, cy, size);
             case BIOGAS      -> biogas(g, cx, cy, size);
             case WASTE       -> waste(g, cx, cy, size, new Color(150, 132, 84));
+            case WIND        -> wind(g, cx, cy, size);
+            case WHEEL       -> wheel(g, cx, cy, size);
+            case EGGS        -> eggs(g, cx, cy, size);
+            case DOME        -> dome(g, cx, cy, size);
+            case STATUE      -> statue(g, cx, cy, size);
+            case FOUNTAIN    -> fountainIcon(g, cx, cy, size);
+            case MUSIC       -> music(g, cx, cy, size);
             default    -> { }
         }
+    }
+
+    /** Windrad: Mast + drei Rotorblätter + Nabe. */
+    private static void wind(Graphics2D g, double cx, double cy, double s) {
+        double hub = cy - s * 0.12;
+        g.setColor(WHITE);
+        g.setStroke(new BasicStroke((float) (s * 0.09), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Line2D.Double(cx, hub, cx, cy + s * 0.42));
+        for (int i = 0; i < 3; i++) {
+            double a = Math.toRadians(-90 + i * 120);
+            Path2D blade = new Path2D.Double();
+            blade.moveTo(cx, hub);
+            blade.lineTo(cx + Math.cos(a - 0.16) * s * 0.34, hub + Math.sin(a - 0.16) * s * 0.34);
+            blade.lineTo(cx + Math.cos(a + 0.10) * s * 0.30, hub + Math.sin(a + 0.10) * s * 0.30);
+            blade.closePath();
+            g.fill(blade);
+        }
+        g.setColor(new Color(120, 150, 190));
+        g.fill(new Ellipse2D.Double(cx - s * 0.07, hub - s * 0.07, s * 0.14, s * 0.14));
+    }
+
+    /** Garnelen-Laufrad: Rad mit Speichen, eine Garnele rennt darin. */
+    private static void wheel(Graphics2D g, double cx, double cy, double s) {
+        double r = s * 0.36;
+        g.setColor(WHITE);
+        g.setStroke(new BasicStroke((float) (s * 0.07)));
+        g.draw(new Ellipse2D.Double(cx - r, cy - r, 2 * r, 2 * r));
+        g.setStroke(new BasicStroke((float) (s * 0.04)));
+        for (int i = 0; i < 4; i++) {
+            double a = Math.toRadians(i * 45);
+            g.draw(new Line2D.Double(cx - Math.cos(a) * r, cy - Math.sin(a) * r,
+                                     cx + Math.cos(a) * r, cy + Math.sin(a) * r));
+        }
+        shrimp(g, cx, cy + r * 0.35, s * 0.34, new Color(255, 150, 130));
+        // Bewegungs-Striche
+        g.setColor(new Color(255, 255, 255, 170));
+        g.setStroke(new BasicStroke((float) (s * 0.035), BasicStroke.CAP_ROUND, 0));
+        g.draw(new Line2D.Double(cx - r - s * 0.16, cy - s * 0.06, cx - r - s * 0.05, cy - s * 0.06));
+        g.draw(new Line2D.Double(cx - r - s * 0.13, cy + s * 0.08, cx - r - s * 0.04, cy + s * 0.08));
+    }
+
+    /** Brutstation: drei Eier mit Glanzpunkt, eines schlüpft. */
+    private static void eggs(Graphics2D g, double cx, double cy, double s) {
+        double ew = s * 0.26, eh = s * 0.34;
+        g.setColor(WHITE);
+        g.fill(new Ellipse2D.Double(cx - ew * 1.5, cy - eh * 0.2, ew, eh));
+        g.fill(new Ellipse2D.Double(cx + ew * 0.5, cy - eh * 0.2, ew, eh));
+        g.setColor(new Color(255, 214, 170));
+        g.fill(new Ellipse2D.Double(cx - ew * 0.5, cy - eh * 0.65, ew, eh));
+        // Riss im mittleren Ei
+        g.setColor(INK);
+        g.setStroke(new BasicStroke((float) (s * 0.035), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Line2D.Double(cx - ew * 0.3, cy - eh * 0.42, cx - ew * 0.1, cy - eh * 0.3));
+        g.draw(new Line2D.Double(cx - ew * 0.1, cy - eh * 0.3, cx + ew * 0.1, cy - eh * 0.44));
+        g.draw(new Line2D.Double(cx + ew * 0.1, cy - eh * 0.44, cx + ew * 0.3, cy - eh * 0.32));
+    }
+
+    /** Riff-Kuppel: Glaskuppel über Korallenzweig. */
+    private static void dome(Graphics2D g, double cx, double cy, double s) {
+        double r = s * 0.40;
+        g.setColor(new Color(190, 235, 240, 120));
+        g.fill(new Arc2D.Double(cx - r, cy - r * 0.7, 2 * r, 2 * r, 0, 180, Arc2D.CHORD));
+        g.setColor(WHITE);
+        g.setStroke(new BasicStroke((float) (s * 0.06)));
+        g.draw(new Arc2D.Double(cx - r, cy - r * 0.7, 2 * r, 2 * r, 0, 180, Arc2D.OPEN));
+        g.draw(new Line2D.Double(cx - r, cy + r * 0.3, cx + r, cy + r * 0.3));
+        // Korallenzweig
+        g.setColor(new Color(255, 160, 140));
+        g.setStroke(new BasicStroke((float) (s * 0.06), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Line2D.Double(cx, cy + r * 0.3, cx, cy - r * 0.08));
+        g.draw(new Line2D.Double(cx, cy + r * 0.02, cx - s * 0.12, cy - r * 0.18));
+        g.draw(new Line2D.Double(cx, cy + r * 0.1, cx + s * 0.12, cy - r * 0.1));
+    }
+
+    /** Greg-Denkmal: Sockel mit Garnele in Heldenpose. */
+    private static void statue(Graphics2D g, double cx, double cy, double s) {
+        g.setColor(new Color(200, 205, 210));
+        g.fill(new RoundRectangle2D.Double(cx - s * 0.26, cy + s * 0.12, s * 0.52, s * 0.16, 4, 4));
+        g.fill(new RoundRectangle2D.Double(cx - s * 0.16, cy - s * 0.02, s * 0.32, s * 0.16, 3, 3));
+        shrimp(g, cx, cy - s * 0.2, s * 0.42, new Color(230, 190, 90));   // goldener Greg
+        // Glanz-Sternchen
+        g.setColor(WHITE);
+        Path2D star = poly(cx + s * 0.26, cy - s * 0.3, s * 0.16,
+            0, -0.5,  0.14, -0.14,  0.5, 0,  0.14, 0.14,  0, 0.5,  -0.14, 0.14,  -0.5, 0,  -0.14, -0.14);
+        g.fill(star);
+    }
+
+    /** Garnelen-Fontäne: Becken + Fontänenstrahl + Tropfen. */
+    private static void fountainIcon(Graphics2D g, double cx, double cy, double s) {
+        g.setColor(new Color(200, 205, 210));
+        g.fill(new Arc2D.Double(cx - s * 0.34, cy + s * 0.02, s * 0.68, s * 0.42, 180, 180, Arc2D.CHORD));
+        g.setColor(new Color(120, 200, 240));
+        g.setStroke(new BasicStroke((float) (s * 0.06), BasicStroke.CAP_ROUND, 0));
+        g.draw(new Line2D.Double(cx, cy + s * 0.06, cx, cy - s * 0.3));
+        g.draw(new QuadCurve2D.Double(cx, cy - s * 0.3, cx - s * 0.14, cy - s * 0.3, cx - s * 0.2, cy - s * 0.1));
+        g.draw(new QuadCurve2D.Double(cx, cy - s * 0.3, cx + s * 0.14, cy - s * 0.3, cx + s * 0.2, cy - s * 0.1));
+        g.fill(new Ellipse2D.Double(cx - s * 0.28, cy - s * 0.04, s * 0.08, s * 0.08));
+        g.fill(new Ellipse2D.Double(cx + s * 0.2, cy - s * 0.04, s * 0.08, s * 0.08));
+    }
+
+    /** Show-Bühne: Note + Scheinwerferstrahlen (Boygroup!). */
+    private static void music(Graphics2D g, double cx, double cy, double s) {
+        // Scheinwerfer-Kegel
+        g.setColor(new Color(255, 240, 170, 90));
+        Path2D beam = new Path2D.Double();
+        beam.moveTo(cx - s * 0.4, cy - s * 0.42);
+        beam.lineTo(cx - s * 0.05, cy + s * 0.3);
+        beam.lineTo(cx - s * 0.3, cy + s * 0.3);
+        beam.closePath();
+        g.fill(beam);
+        // Doppelnote
+        g.setColor(WHITE);
+        g.setStroke(new BasicStroke((float) (s * 0.07), BasicStroke.CAP_ROUND, 0));
+        double nx1 = cx - s * 0.04, nx2 = cx + s * 0.26, top = cy - s * 0.3;
+        g.draw(new Line2D.Double(nx1, top, nx1, cy + s * 0.18));
+        g.draw(new Line2D.Double(nx2, top - s * 0.06, nx2, cy + s * 0.1));
+        g.draw(new Line2D.Double(nx1, top, nx2, top - s * 0.06));
+        g.fill(new Ellipse2D.Double(nx1 - s * 0.14, cy + s * 0.1, s * 0.2, s * 0.15));
+        g.fill(new Ellipse2D.Double(nx2 - s * 0.14, cy + s * 0.02, s * 0.2, s * 0.15));
     }
 
     /** Darmentleerungsanlage: Hälterungsbecken mit Ablassventil und "sauberer" Garnele darin. */

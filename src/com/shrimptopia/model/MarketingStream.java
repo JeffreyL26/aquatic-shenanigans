@@ -19,7 +19,10 @@ public enum MarketingStream {
     BILLBOARD("Autobahn-Plakat", "20 Meter Garnele an der A6. Niemand vergisst dieses Plakat. Niemand.",
               200, 90, "mkt.billboard"),
     TV_SPOT  ("TV-Spot 'Shrimp your day!'", "Primetime-Werbung von der Agentur Krusten & Krusten. Ohrwurm-Garantie.",
-              480, 210, "mkt.tv");
+              480, 210, "mkt.tv"),
+    BOYBAND  ("Subliminal-Pop (New Krills)", "Siggi Scampis Boygroup flüstert 'kauf Shrimps' zwischen die Refrains. "
+              + "Wirkt unterschwellig: Nachfrage steigt zusätzlich mit eurer Reputation.",
+              45, 10, "mkt.boyband");
 
     public final String displayName, desc;
     /** Geld pro Tag, solange der Stream läuft. */

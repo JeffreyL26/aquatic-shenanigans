@@ -9,6 +9,8 @@ public enum IconKind {
     SHELL, CAN, ROBOT, SHIELD, CRATE,
     // Darmentleerung & Abfall-Kreislauf
     GUT, BIOGAS, WASTE,
+    // v4-Gebaeude (Kategorie-Ausbau + Boygroup)
+    WIND, WHEEL, EGGS, DOME, STATUE, FOUNTAIN, MUSIC,
     // reine Ressourcen-/UI-Symbole
     COIN, BOLT, DROP, LEAF, SHRIMP, PERSON, STAR,
     // Charakter-Portraits

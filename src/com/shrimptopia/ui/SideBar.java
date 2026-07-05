@@ -147,49 +147,53 @@ public class SideBar extends JPanel {
             g.dispose();
         }
 
-        /** Der hervorgehobene Haupt-Knopf: kräftig gefüllter Teal-Verlauf mit dunklem Text. */
+        /**
+         * Der Haupt-Knopf: flacher, präziser "Primary Button" - satte Teal-Fläche,
+         * 1px-Kante, Hotkey-Chip. Kein Verlauf, kein Glanz, kein Schatten-Blob.
+         */
         private void paintBuild(Graphics2D g) {
             int w = getWidth(), h = getHeight();
             boolean open = frame.buildMenuVisible() || frame.tool() == GameFrame.Tool.PLACE;
 
-            // Farbschema: satter Teal-Verlauf; offen/gedrückt etwas dunkler, Hover heller.
-            Color top = open ? new Color(0, 150, 138)
-                      : hover ? Icons.brighter(Palette.ACCENT, 1.12)
-                      : Palette.ACCENT;
-            Color bot = open ? new Color(0, 110, 101)
-                      : hover ? new Color(0, 168, 156)
-                      : new Color(0, 158, 146);
-            // Schlagschatten für "erhabene" Hero-Optik
-            g.setColor(new Color(0, 0, 0, 70));
-            g.fillRoundRect(2, 5, w - 3, h - 4, 12, 12);
-            g.setPaint(new GradientPaint(0, 0, top, 0, h, bot));
-            g.fillRoundRect(0, 0, w - 1, h - 4, 12, 12);
-            // heller oberer Glanz + Rahmen
-            g.setColor(new Color(255, 255, 255, 40));
-            g.fillRoundRect(3, 3, w - 7, (h - 4) / 2, 10, 10);
-            g.setColor(open ? Icons.brighter(Palette.ACCENT, 1.3) : new Color(180, 255, 246));
-            g.setStroke(new BasicStroke(open ? 2.4f : 1.6f));
-            g.drawRoundRect(0, 0, w - 2, h - 5, 12, 12);
+            // Fläche: geschlossen = Akzent (Primary), offen = dunkel mit Akzent-Kante (aktiver Zustand)
+            Color fill = open ? new Color(0, 62, 57)
+                       : hover ? new Color(0, 176, 162)
+                       : new Color(0, 160, 148);
+            g.setColor(fill);
+            g.fillRoundRect(0, 0, w - 1, h - 1, 10, 10);
+            g.setColor(open ? Palette.ACCENT : Icons.darker(fill, 0.72));
+            g.setStroke(new BasicStroke(open ? 1.8f : 1.2f));
+            g.drawRoundRect(0, 0, w - 2, h - 2, 10, 10);
 
             // Tutorial-Wegweiser: pulsierender Leuchtrahmen, solange ein Bauschritt aussteht.
             if (frame.tutorialBuildTarget() != null && !frame.buildMenuVisible()) {
                 float p = (float) (0.5 + 0.5 * Math.sin(glow));
-                g.setColor(new Color(255, 255, 255, (int) (60 + 150 * p)));
-                g.setStroke(new BasicStroke(3f));
-                g.drawRoundRect(1, 1, w - 4, h - 7, 12, 12);
+                g.setColor(new Color(255, 255, 255, (int) (50 + 130 * p)));
+                g.setStroke(new BasicStroke(2.6f));
+                g.drawRoundRect(1, 1, w - 4, h - 4, 10, 10);
             }
 
-            // Hammer + Text, mittig, dunkel für Kontrast auf hellem Teal
-            g.setFont(Palette.FONT_H1.deriveFont(17f));
+            Color ink = open ? Palette.ACCENT : new Color(8, 28, 26);
+            String text = open ? "SCHLIESSEN" : "BAUEN";
+            g.setFont(Palette.FONT_H2.deriveFont(15f));
             FontMetrics fm = g.getFontMetrics();
-            String text = frame.buildMenuVisible() ? "SCHLIESSEN" : "BAUEN";
             int tw = fm.stringWidth(text);
-            int contentW = tw + 30;
-            int startX = (w - contentW) / 2;
-            int midY = (h - 4) / 2;
-            g.setColor(new Color(10, 30, 28));
-            drawHammer(g, startX + 11, midY, 22, new Color(10, 30, 28));
-            g.drawString(text, startX + 30, midY + fm.getAscent() / 2 - 2);
+            // Hammer + Text als Block mittig; rechts dezenter Hotkey-Chip "B"
+            int contentW = 24 + tw;
+            int startX = Math.max(14, (w - contentW) / 2 - 6);
+            int midY = h / 2;
+            drawHammer(g, startX + 9, midY, 19, ink);
+            g.setColor(ink);
+            g.drawString(text, startX + 24, midY + fm.getAscent() / 2 - 2);
+            // Hotkey-Chip
+            g.setFont(Palette.FONT_TINY);
+            FontMetrics kf = g.getFontMetrics();
+            int ks = 17, kx = w - ks - 8, ky = midY - ks / 2;
+            g.setColor(open ? new Color(0, 199, 183, 40) : new Color(0, 0, 0, 55));
+            g.fillRoundRect(kx, ky, ks, ks, 5, 5);
+            g.setColor(open ? Palette.ACCENT : new Color(8, 28, 26, 190));
+            g.drawRoundRect(kx, ky, ks, ks, 5, 5);
+            g.drawString("B", kx + (ks - kf.stringWidth("B")) / 2 + 1, ky + ks / 2 + kf.getAscent() / 2 - 1);
             g.dispose();
         }
 

@@ -47,6 +47,8 @@ public final class QuestTree {
             "kyle_intro", "kyle_1", "kyle_2", "kyle_3", "kyle_4", "kyle_5"),
         new Line("marketing",  "Marketing-Offensive",      new Color(150, 220, 120),
             "mark_intro", "mark_social", "mark_agency"),
+        new Line("boygroup",   "New Krills on the Block",  new Color(255, 120, 190),
+            "boy_intro", "boy_casting", "boy_training", "boy_debut", "boy_scandal", "boy_finale"),
         new Line("krillkill",  "Operation Protein-Sturm",  new Color(150, 165, 90),
             "krillkill_intro", "krillkill_1", "krillkill_2", "krillkill_3",
             "krillkill_4", "krillkill_5", "krillkill_6", "krillkill_7"),
@@ -79,6 +81,8 @@ public final class QuestTree {
         UNLOCK_LABEL.put("mkt.tube",           "Marketing: ShrimpTube-Kanal");
         UNLOCK_LABEL.put("mkt.billboard",      "Marketing: Autobahn-Plakat");
         UNLOCK_LABEL.put("mkt.tv",             "Marketing: TV-Spot 'Shrimp your day!'");
+        UNLOCK_LABEL.put("build.stage",        "Gebäude: Show-Bühne (Empfang & Garten)");
+        UNLOCK_LABEL.put("mkt.boyband",        "Marketing: Subliminal-Pop (New Krills on the Block)");
         UNLOCK_LABEL.put("tier.BIO",           "Bio-Shrimp (Tier + Becken-Modus)");
         UNLOCK_LABEL.put("build.gut_station",  "Gebäude: Darmentleerungsanlage (Voraussetzung für Gourmet)");
         UNLOCK_LABEL.put("build.waste_plant",  "Gebäude: Biogas-Kläranlage (entsorgt Klärschlamm)");
@@ -101,7 +105,11 @@ public final class QuestTree {
     private static final Map<String, String> MILESTONE_HINT = Map.of(
         "era.HALLE",          "Ab dem Hallen-Ausbau (raus aus der Garage)",
         "build.shrimpboost",  "Ab der SHRIMPBOOST-Fabrik (Forschung, ~18.000 Geld)",
-        "build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~40.000 Geld)");
+        "build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~40.000 Geld)",
+        "build.plankton",     "Meilenstein: Hallen-Betrieb & ~20.000 Geld",
+        "build.genlab",       "Meilenstein: Forschungsflügel & ~22.000 Geld",
+        "build.megatank",     "Meilenstein: Hallen-Betrieb & ~35.000 Geld",
+        "build.geo",          "Meilenstein: Hallen-Betrieb & ~55.000 Geld");
 
     public static String unlockLabel(String key) { return UNLOCK_LABEL.get(key); }
     public static Set<String> knownUnlockKeys() { return UNLOCK_LABEL.keySet(); }

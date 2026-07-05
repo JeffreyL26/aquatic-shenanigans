@@ -37,6 +37,9 @@ public final class BuildingCatalog {
         upgrades(BuildingType.SHRIMP_TANK,
             new Upgrade("autofeed", "Automatik-Fütterung", 400, "-20% Futterverbrauch dieses Beckens.").feed(0.8),
             new Upgrade("oxygen",  "Sauerstoff-Anreicherung", 500, "+20% Shrimp-Output dieses Beckens.").shrimp(1.2));
+        // Mega-Becken erbt Tier-Modi & Upgrades des Shrimp-Beckens (gleiche Zuchtlogik, mehr Volumen)
+        MODES.put(BuildingType.MEGA_TANK, MODES.get(BuildingType.SHRIMP_TANK));
+        UPGRADES.put(BuildingType.MEGA_TANK, UPGRADES.get(BuildingType.SHRIMP_TANK));
 
         // ---------------- Kraftwerk ----------------
         modes(BuildingType.POWER_PLANT,

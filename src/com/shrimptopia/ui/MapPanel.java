@@ -95,7 +95,7 @@ public class MapPanel extends JPanel implements Scrollable {
         // Zonen-getönter Hintergrund + Vignette (auch neben dem Gitter sichtbar)
         drawBackdrop(g, accent);
 
-        // Boden (zone-/ära-spezifisch)
+        // Boden (zone-/ära-spezifisch) mit Kachel-Relief und dezenten Gebrauchsspuren
         Color[] floor = floorColors(zone, garage);
         Color gridCol = mix(Palette.GRID, accent, 0.14);
         for (int r = 0; r < GameState.ROWS; r++)
@@ -103,11 +103,22 @@ public class MapPanel extends JPanel implements Scrollable {
                 int x = originX + c * TILE, y = originY + r * TILE;
                 g.setColor(((c + r) % 2 == 0) ? floor[0] : floor[1]);
                 g.fillRect(x, y, TILE, TILE);
+                // Relief: helle Ober-, dunkle Unterkante - die Kacheln wirken wie verlegt
+                g.setColor(new Color(255, 255, 255, 8));
+                g.drawLine(x + 1, y + 1, x + TILE - 2, y + 1);
+                g.setColor(new Color(0, 0, 0, 30));
+                g.drawLine(x + 1, y + TILE - 1, x + TILE - 1, y + TILE - 1);
+                // deterministische Gebrauchsspuren (kein Zufall -> flackerfrei)
+                int h = (c * 31 + r * 17) % 11;
+                if (h == 0) {
+                    g.setColor(new Color(0, 0, 0, garage ? 22 : 12));
+                    g.fillRoundRect(x + 9 + (c % 3) * 8, y + 12 + (r % 4) * 6, 26, 16, 8, 8);
+                }
                 g.setColor(gridCol);
                 g.drawRect(x, y, TILE, TILE);
             }
         drawFloorDecor(g, zone, garage, accent);
-        drawGridFrame(g, accent);
+        drawWalls(g, zone, garage, accent);
         drawAmbient(g, zone, garage);
 
         // Gebäude der aktuellen Zone
@@ -229,15 +240,58 @@ public class MapPanel extends JPanel implements Scrollable {
         g.fillRect(0, 0, w, h);
     }
 
-    /** Akzent-Rahmen samt weichem Glühen um das Bau-Gitter. */
-    private void drawGridFrame(Graphics2D g, Color accent) {
-        int gw = GameState.COLS * TILE, gh = GameState.ROWS * TILE;
-        g.setColor(alpha(accent, 26));
-        g.setStroke(new BasicStroke(7f));
-        g.drawRoundRect(originX - 5, originY - 5, gw + 10, gh + 10, 14, 14);
-        g.setColor(alpha(accent, 120));
-        g.setStroke(new BasicStroke(2.4f));
-        g.drawRoundRect(originX - 3, originY - 3, gw + 6, gh + 6, 12, 12);
+    /**
+     * Gebäudehülle statt bloßem Rahmen: massive Wände rund ums Gitter, ein Rolltor unten
+     * (Produktion/Garage), Decken-Schatten am oberen Rand und Niet-Ecken - die Karte wirkt
+     * wie ein Raum, nicht wie eine schwebende Tabelle.
+     */
+    private void drawWalls(Graphics2D g, Zone zone, boolean garage, Color accent) {
+        int gx = originX, gy = originY, gw = GameState.COLS * TILE, gh = GameState.ROWS * TILE;
+        int t = 10;   // Wandstärke
+
+        // Decken-Schatten: oben fällt Schatten in den Raum (Tiefe)
+        g.setPaint(new GradientPaint(0, gy, new Color(0, 0, 0, 70), 0, gy + 44, new Color(0, 0, 0, 0)));
+        g.fillRect(gx, gy, gw, 44);
+        g.setPaint(new GradientPaint(gx, 0, new Color(0, 0, 0, 40), gx + 26, 0, new Color(0, 0, 0, 0)));
+        g.fillRect(gx, gy, 26, gh);
+
+        // Wände (Ring aus vier Rechtecken)
+        Color wall = garage ? new Color(66, 55, 45) : mix(new Color(34, 44, 52), accent, 0.20);
+        Color wallEdge = Icons.darker(wall, 0.62);
+        g.setColor(wall);
+        g.fillRect(gx - t, gy - t, gw + 2 * t, t);            // oben
+        g.fillRect(gx - t, gy + gh, gw + 2 * t, t);           // unten
+        g.fillRect(gx - t, gy - t, t, gh + 2 * t);            // links
+        g.fillRect(gx + gw, gy - t, t, gh + 2 * t);           // rechts
+        g.setColor(wallEdge);
+        g.setStroke(new BasicStroke(1.4f));
+        g.drawRect(gx - t, gy - t, gw + 2 * t - 1, gh + 2 * t - 1);
+        // Akzent-Lichtleiste an der Wand-Innenkante
+        g.setColor(alpha(accent, 150));
+        g.setStroke(new BasicStroke(2f));
+        g.drawRect(gx - 1, gy - 1, gw + 1, gh + 1);
+
+        // Rolltor unten Mitte (Produktion & Garage): hier fährt der Lieferwagen rein
+        if (zone == Zone.PRODUKTION) {
+            int dw = garage ? 84 : 120;
+            int dx = gx + (gw - dw) / 2;
+            g.setColor(Icons.darker(wall, 0.8));
+            g.fillRect(dx, gy + gh, dw, t);
+            g.setColor(alpha(garage ? new Color(230, 190, 120) : accent, 190));
+            g.setStroke(new BasicStroke(2.2f));
+            g.drawLine(dx, gy + gh + 2, dx + dw, gy + gh + 2);
+            g.setColor(new Color(255, 255, 255, 60));
+            for (int lx = dx + 8; lx < dx + dw - 6; lx += 12)
+                g.drawLine(lx, gy + gh + 4, lx, gy + gh + t - 2);
+        }
+
+        // Niet-Ecken
+        g.setColor(alpha(accent, 130));
+        int rr = 3;
+        g.fillOval(gx - t / 2 - rr, gy - t / 2 - rr, 2 * rr, 2 * rr);
+        g.fillOval(gx + gw + t / 2 - rr, gy - t / 2 - rr, 2 * rr, 2 * rr);
+        g.fillOval(gx - t / 2 - rr, gy + gh + t / 2 - rr, 2 * rr, 2 * rr);
+        g.fillOval(gx + gw + t / 2 - rr, gy + gh + t / 2 - rr, 2 * rr, 2 * rr);
     }
 
     /** Deko auf dem Boden (unter den Gebäuden): gibt jeder Karte einen eigenen Charakter. */
@@ -472,8 +526,11 @@ public class MapPanel extends JPanel implements Scrollable {
 
     private void drawBuilding(Graphics2D g, Building b) {
         int x = originX + b.col * TILE, y = originY + b.row * TILE;
+        // weicher Bodenschatten unter dem Gebäude (Tiefe)
+        g.setColor(new Color(0, 0, 0, 55));
+        g.fill(new Ellipse2D.Double(x + 7, y + TILE - 13, TILE - 14, 9));
         drawGlyph(g, b.type, x, y, b.efficiency);
-        if (b.type == BuildingType.SHRIMP_TANK) drawSwimmers(g, b, x, y);
+        if (b.type.isTank()) drawSwimmers(g, b, x, y);
         Color dot = b.efficiency > 0.85 ? Palette.GOOD : b.efficiency > 0.35 ? Palette.WARN : Palette.BAD;
         if (b.type.workerNeed == 0 && b.type.powerUse == 0 && b.type.powerProduce == 0) dot = Palette.GOOD;
         g.setColor(dot);

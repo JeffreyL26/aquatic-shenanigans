@@ -269,6 +269,15 @@ public class GameState {
         if (isUnlocked("tier.WARKRILL"))
             unlock("build.barracks", "Freigeschaltet: Krill-Kaserne - jetzt lässt sich eine Armee aufbauen.");
         if (halle && money >= 9_000)  unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
+        if (halle && money >= 20_000)
+            unlock("build.plankton", "Freigeschaltet: Plankton-Presse - Futterproduktion im Industrie-Maßstab.");
+        if (halle && money >= 35_000)
+            unlock("build.megatank", "Freigeschaltet: Mega-Becken - Shrimp-Zucht im Schwimmbad-Format (auch als Becken-Ausbau).");
+        if (halle && money >= 55_000)
+            unlock("build.geo", "Freigeschaltet: Geothermie-Bohrung - Grundlast-Strom aus 800 Metern Tiefe.");
+        // Genlabor war bisher gar nicht regulär erreichbar (Logiklücke) - jetzt per Meilenstein:
+        if (isUnlocked("zone.FORSCHUNG") && money >= 22_000)
+            unlock("build.genlab", "Freigeschaltet: Genlabor - hier entsteht später der Designer-Shrimp.");
         // Wohnheim erst, wenn der Betrieb spürbar Personal braucht (nicht direkt mit der Halle).
         if (halle && (workersUsed >= 10 || money >= 12_000))
             unlock("build.housing", "Der Betrieb wächst: Arbeiterwohnheim freigeschaltet - Schluss mit dem Wohnwagen-Slum.");
@@ -359,6 +368,18 @@ public class GameState {
         water -= tankWaterDemand * tankServe;
         feed -= tankFeedDemand * tankServe;
 
+        // Übrige Wasser-/Futterverbraucher (Darmentleerung, Fontäne, Streichelbecken, Kantine ...):
+        // einfacher Abzug ohne eigene Engpass-Logik - Algen & Becken haben Vorrang.
+        double miscWater = 0, miscFeed = 0;
+        for (Building b : buildings) {
+            if (b.type.isAlgae() || b.type.isTank()) continue;
+            miscWater += b.lastStats.waterUse;
+            miscFeed  += b.lastStats.feedUse;
+        }
+        miscWater *= opsEff; miscFeed *= opsEff;
+        water = Math.max(0, water - miscWater);
+        feed  = Math.max(0, feed  - miscFeed);
+
         double shrimpIn = 0;
         for (Building b : buildings) {
             if (b.type.isTank()) {
@@ -398,6 +419,17 @@ public class GameState {
         // --- v3: Verarbeitung (Schalen -> SHRIMPBOOST -> Roboter / Kaserne) ---
         double repMultLocal = 0.6 + (reputation / 100.0) * 0.8;
         for (Building b : buildings) shells += b.lastStats.shellProduce * opsEff;   // Schälerei
+
+        // Schalentier-Kraftwerk verfeuert jetzt WIRKLICH Schalen (der Name log bisher):
+        // pro Kraftwerk bis zu 2 Schalen/Tag, vergütet als Fernwärme-Gutschrift.
+        double burnCap = countType(BuildingType.POWER_PLANT) * 2.0 * opsEff;
+        double burned = Math.min(shells, burnCap);
+        if (burned > 0) {
+            shells -= burned;
+            double heat = burned * 1.5;
+            money += heat;
+            incomeByType.merge(BuildingType.POWER_PLANT, heat, Double::sum);
+        }
 
         double bsShrimp = 0, bsShell = 0, bsOut = 0;
         for (Building b : buildings) if (b.type == BuildingType.SHRIMPBOOST_FACTORY) {
@@ -469,7 +501,14 @@ public class GameState {
         // --- Marketing: Streams erzeugen Nachfrage und kosten Geld ---
         double demandBase = BASE_DEMAND;
         double mktCost = 0;
-        for (MarketingStream s : activeStreams) { demandBase += s.demand; mktCost += s.costPerDay; }
+        for (MarketingStream s : activeStreams) {
+            double d = s.demand;
+            // Subliminal-Pop wirkt unterschwellig: je berühmter die Farm, desto mehr Hörer
+            // summen unbewusst "kauf Shrimps" - Nachfrage skaliert mit der Reputation.
+            if (s == MarketingStream.BOYBAND) d += reputation * 0.15;
+            demandBase += d;
+            mktCost += s.costPerDay;
+        }
         money -= mktCost;
         marketingCostLast = mktCost;
         double demandLeft = demandBase * demandRepFactor();
@@ -529,10 +568,10 @@ public class GameState {
         for (Building b : buildings) {
             double eff;
             switch (b.type) {
-                case POWER_PLANT, SOLAR_ROOF, OLD_GENERATOR -> eff = workerRatio;
-                case HOUSING, CAMPER, HEADQUARTERS, ZEN_GARDEN -> eff = powerRatio;
-                case ALGAE_FARM, ALGAE_BUCKET -> eff = opsEff * algaeServe;
-                case SHRIMP_TANK, GARAGE_TANK -> eff = opsEff * tankServe;
+                case POWER_PLANT, SOLAR_ROOF, OLD_GENERATOR, WIND_TURBINE, GEO_PLANT, SHRIMP_WHEEL -> eff = workerRatio;
+                case HOUSING, CAMPER, HEADQUARTERS, ZEN_GARDEN, CANTEEN -> eff = powerRatio;
+                case ALGAE_FARM, ALGAE_BUCKET, PLANKTON_PRESS -> eff = opsEff * algaeServe;
+                case SHRIMP_TANK, GARAGE_TANK, KIDDIE_POOL, HATCHERY, MEGA_TANK, REEF_DOME -> eff = opsEff * tankServe;
                 default -> eff = opsEff;
             }
             String note = "";
@@ -553,8 +592,8 @@ public class GameState {
         boostNet = energy - boostBefore;
         robotsNet = robots - robotsBefore;
         incomeLast = 0; for (double v : incomeByType.values()) incomeLast += v;
-        waterNet = waterIn - algaeWaterDemand * algaeServe - tankWaterDemand * tankServe;
-        feedNet = feedIn - tankFeedDemand * tankServe;
+        waterNet = waterIn - algaeWaterDemand * algaeServe - tankWaterDemand * tankServe - miscWater;
+        feedNet = feedIn - tankFeedDemand * tankServe - miscFeed;
         shrimpNet = shrimpIn - soldTotal;
 
         // --- Lagergrenzen: was nicht ins Lager passt, verfällt (bremst Horten & Tempo) ---

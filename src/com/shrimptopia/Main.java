@@ -130,6 +130,7 @@ public class Main {
                         "build.water_hub", "build.export", "build.military", "build.genlab",
                         "build.shrimpboost", "build.robotworks", "build.barracks", "tier.WARKRILL",
                         "build.gut_station", "build.waste_plant",
+                        "build.stage", "mkt.boyband", "build.geo", "build.megatank", "build.plankton",
                         "tier.BIO", "tier.GOURMET", "tier.PROTEIN", "krillkill.bootcamp",
                         "mkt.radio", "mkt.social", "mkt.tube", "mkt.billboard", "mkt.tv",
                         "sts6", "shrimp_union"})
@@ -144,8 +145,10 @@ public class Main {
                     BuildingType.WATER_HUB, BuildingType.ALGAE_FARM, BuildingType.SHRIMP_TANK,
                     BuildingType.SHRIMP_TANK, BuildingType.HOUSING, BuildingType.SALES_OFFICE,
                     BuildingType.SHELL_PRESS, BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS,
-                    BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT };
-                int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1},{2,1},{3,1},{4,1},{5,1},{6,1} };
+                    BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT,
+                    BuildingType.WIND_TURBINE, BuildingType.MEGA_TANK, BuildingType.HATCHERY, BuildingType.CANTEEN };
+                int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1},{2,1},{3,1},{4,1},{5,1},{6,1},
+                                {7,0},{8,0},{7,1},{8,1} };
                 for (int i = 0; i < prod.length; i++) gs.place(prod[i], Zone.PRODUKTION, pos[i][0], pos[i][1], false);
                 for (int i = 0; i < 30; i++) gs.tick();
                 while (gs.pollAnnouncement() != null) { }   // Meilenstein-Ansagen abräumen (stören die Snaps)
@@ -241,6 +244,12 @@ public class Main {
                 snap(f.getRootPane(), "shrimptopia_v3_darm.png");
                 f.resolveQuest(0); f.dismissOutcome();
 
+                // 5g) Siggi Scampi & die Boygroup (New Krills on the Block, eigener Avatar)
+                f.debugForceQuest("boy_intro");
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_boyband.png");
+                f.resolveQuest(0); f.dismissOutcome();
+
                 f.openQuestTree();
                 f.validate();
                 snap(f.getRootPane(), "shrimptopia_v3_questtree.png");
@@ -276,6 +285,10 @@ public class Main {
                 gs.place(BuildingType.RESTAURANT,    Zone.EMPFANG, 4, 2, false);
                 gs.place(BuildingType.VISITOR_CENTER, Zone.EMPFANG, 6, 3, false);
                 gs.place(BuildingType.ZEN_GARDEN,     Zone.EMPFANG, 3, 4, false);
+                gs.place(BuildingType.BOYBAND_STAGE,  Zone.EMPFANG, 7, 2, false);
+                gs.place(BuildingType.MASCOT_STATUE,  Zone.EMPFANG, 5, 4, false);
+                gs.place(BuildingType.FOUNTAIN,       Zone.EMPFANG, 6, 5, false);
+                gs.place(BuildingType.PETTING_POOL,   Zone.EMPFANG, 8, 3, false);
                 f.setZone(Zone.PRODUKTION); f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_hall.png");
                 f.setZone(Zone.FORSCHUNG);  f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_forschung.png");
                 f.setZone(Zone.LOGISTIK);   f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_logistik.png");

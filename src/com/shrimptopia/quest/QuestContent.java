@@ -25,6 +25,7 @@ public final class QuestContent {
         influencer();
         krabbo();
         kyle();
+        boygroup();
         boostSpill();
         usbekistan();
         einzelquests();
@@ -223,6 +224,12 @@ public final class QuestContent {
             "9.000 Shrimps produziert & 400 Schalen auf Lager");
         obj("kyle_5", Condition.all(Condition.money(150_000), Condition.sold(7_000)),
             "150.000 Vermögen & 7.000 verkauft (Kyle überflügeln)");
+        // New Krills on the Block (Boygroup): Bühne bauen -> Fans sammeln -> Single verkaufen -> Tour-Budget
+        obj("boy_casting", Condition.buildCount(BuildingType.BOYBAND_STAGE, 1),
+            "Bau die Show-Bühne (Ruf & Deko, Empfang & Garten)");
+        obj("boy_training", Condition.rep(68), "Erreiche Reputation 68 (die Stadt muss euch lieben)");
+        obj("boy_scandal", Condition.sold(2_500), "Verkaufe insgesamt 2.500 Shrimps (die Single läuft überall)");
+        obj("boy_finale", Condition.money(90_000), "Erreiche 90.000 Vermögen (Welttournee-Budget)");
         // Becken-3-Vorfall (Spätspiel: kombiniert Boost-Produktion mit allem anderen)
         obj("boost_2", Condition.all(Condition.resource("boost", 60), Condition.rep(60)),
             "60 SHRIMPBOOST auf Lager & Reputation 60 (die Räte beobachten dich)");
@@ -387,6 +394,94 @@ public final class QuestContent {
             c("Niemals - Fusion zu gleichen Teilen.", "Cleverer Deal. Chad besitzt jetzt einen Zipfel von dir.", money(5000), rep(5)),
             c("In deine Träume, Chad!", "David gegen Goliath. Die Bevölkerung jubelt.", rep(10)),
             c("Ich kaufe DICH. (-25000)", "Chad weint. Seine Hallen gehören jetzt dir.", money(-25_000), rep(10)));
+    }
+
+    // ===================== KETTE H - New Krills on the Block (Boygroup) =====================
+    private static void boygroup() {
+        auto("boy_intro", GameCharacter.SIGGI, null,
+            Condition.all(Condition.unlock("zone.EMPFANG"), Condition.rep(55)), 0,
+            "Fünf Garnelen können singen",
+            "Ein Mann in Glitzer-Sakko und Sonnenbrille steht plötzlich in der Halle: 'Siggi Scampi, "
+            + "Star-Produzent - Sie kennen mich aus dem Fernsehen, tun Sie nicht so. In Becken 2 singen "
+            + "FÜNF Garnelen im Takt der Umwälzpumpe. FÜNF! Das ist keine Zucht, das ist ein CASTING! "
+            + "Wir gründen die größte Boygroup aller Zeiten: NEW KRILLS ON THE BLOCK. Sie liefern die "
+            + "Bühne, ich liefere HITS. Und zwischen den Refrains... nun ja... kleine Kaufempfehlungen. "
+            + "Ganz leise. Ganz legal. Fragen Sie nicht.'",
+            c("Casting starten! (-800)", "Siggi mietet Nebelmaschine, Windmaschine und eine dritte "
+                + "Maschine, über die er nicht sprechen will. Die Show-Bühne ist jetzt im Baumenü (Empfang).",
+                money(-800), unlock("build.stage"), rep(2)).then("boy_casting"),
+            c("Nur wenn Greg Co-Manager wird.", "Siggi beäugt das Wasserglas. Greg beäugt zurück. 'Der "
+                + "Kleine hat Hunger in den Augen. DEAL.' Show-Bühne im Baumenü freigeschaltet.",
+                money(-500), unlock("build.stage"), rep(4)).then("boy_casting"),
+            c("Garnelen singen nicht, Herr Scampi.", "Siggi geht rückwärts hinaus, ohne die Sonnenbrille "
+                + "abzunehmen. Draußen hört man ein gekränktes 'UNDANKBAR!'. Becken 2 summt weiter.", rep(1)));
+
+        chain("boy_casting", GameCharacter.SIGGI, "Siggi Scampi (mit Nebelmaschine)", 0,
+            "Das große Krill-Casting",
+            "300 Bewerber, drei Wochen, ein Klemmbrett voller Sternchen. Die finalen Fünf: Justin Krill "
+            + "(Frontgarnele, Fühler-Föhnwelle), Shrimpo (der Lustige), MC Plankton (der mit Attitüde), "
+            + "Chris Chitin (der Schöne) und der stille Kai (niemand weiß, was Kai macht - aber es wirkt). "
+            + "Siggi: 'Jetzt fehlt nur noch die RICHTUNG. Was für eine Band werden wir?'",
+            c("Harmonie über alles - saubere Ballade.", "Fünfstimmiger Satzgesang über einem 80-BPM-Beat. "
+                + "Gänsehaut bis ins Chitin.", rep(5)).then("boy_training"),
+            c("Autotune auf 200%. (-400)", "Siggi dreht den Regler, bis die Software um Gnade fleht. "
+                + "'PERFEKT. Klingt wie die Zukunft, die keiner wollte.'", money(-400), grantFlag("boy_autotune")).then("boy_training"),
+            c("Skandal-Image: BAD KRILLS.", "Lederjacken in Größe XXXS. Die Presse ist entsetzt und "
+                + "KANN NICHT WEGSEHEN.", rep(-3), grantFlag("boy_bad")).then("boy_training"));
+
+        chain("boy_training", GameCharacter.SIGGI, "Choreograf a.D. Salsa-Sepp", 0,
+            "Trainingsmontage!",
+            "5 Uhr früh. Fünf Garnelen schwimmen Formation zur Bassline der Umwälzpumpe. Salsa-Sepp "
+            + "(früher Eiskunstlauf, dann Zumba, jetzt das hier) brüllt Ansagen ins Becken: 'UND drehen! "
+            + "UND Fühler! KAI, WO BIST DU?!' Kai ist längst in Position. Kai war immer in Position. "
+            + "Siggi nippt am SHRIMPBOOST: 'Sie brauchen Fans, Boss. Eine Stadt, die euch LIEBT.'",
+            c("Drill wie bei Krillkill.", "Der General schaut vorbei und weint vor Stolz in die "
+                + "Nebelmaschine. Doppelte Rationen für die Jungs.", feed(-10), rep(3)).then("boy_debut"),
+            c("Wellness & freie Entfaltung. (-600)", "Massage-Strömungsdüsen und ein Mediations-Kies. "
+                + "Die Band findet 'ihren Sound'. Kai findet einen noch stilleren Ort.", money(-600), rep(5)).then("boy_debut"),
+            c("Einfach machen lassen.", "Salsa-Sepp improvisiert. Es sieht aus wie Chaos und ist es "
+                + "auch - aber es GROOVT.", rep(2)).then("boy_debut"));
+
+        chain("boy_debut", GameCharacter.SIGGI, "Siggi Scampi (Premierenfieber)", 0,
+            "Debüt-Single: 'Butterfly (In My Becken)'",
+            "Release-Nacht auf der Show-Bühne. Nebel, fünf Spots, ein Aquarium in Herzform. Der Refrain "
+            + "sitzt, die Menge kreischt, eine Oma wirft Futterflocken auf die Bühne. Und zwischen Refrain "
+            + "zwei und drei, kaum hörbar, ein Flüstern: 'kauf Shrimps'. Siggi grinst: 'Kunst, Boss. "
+            + "Moderne KUNST. Ab morgen läuft das Ding in Dauerrotation - buchbar im Marketing-Menü.'",
+            c("Veröffentlichen. Alles.", "Nummer 1 der Lokalcharts, Platz 4 der Herzen. Subliminal-Pop "
+                + "ist jetzt als Marketing-Stream buchbar!", money(1200), unlock("mkt.boyband"), rep(6)).then("boy_scandal"),
+            c("Die Flüster-Spur leiser mischen.", "Fast unhörbar. FAST. Siggi nennt es 'Homöopathie-"
+                + "Marketing'. Stream buchbar.", unlock("mkt.boyband"), rep(8)).then("boy_scandal"),
+            c("LAUTER. Deutlich lauter.", "Der Refrain ist jetzt praktisch ein Werbespot mit Beat. "
+                + "Rechtlich 'ein Graubereich', wirtschaftlich ein Feuerwerk.", money(2000), unlock("mkt.boyband"),
+                rep(-4), grantFlag("boy_loud")).then("boy_scandal"));
+
+        chain("boy_scandal", GameCharacter.PRESS, "Die Presse (mit Tontechniker)", 2,
+            "Rückwärts abgespielt: 'KAUF SHRIMPS'?!",
+            "Ein Tontechniker hat die Single rückwärts abgespielt (wer TUT sowas?) und vorwärts gleich "
+            + "mit. Beides sagt 'kauf Shrimps'. Die Schlagzeile: 'GARNELEN-ILLUMINATEN?'. Vor der Halle "
+            + "campen Journalisten, drei Verschwörungs-Podcasts und ein Mann mit Aluhut, der ehrlich "
+            + "gesagt sehr höflich ist.",
+            c("Pressekonferenz: 'Das ist KUNST.' (-300)", "Siggi doziert 40 Minuten über Backmasking als "
+                + "Stilmittel seit Bach. Niemand versteht es. Alle applaudieren.", money(-300), rep(4)).then("boy_finale"),
+            c("Alles abstreiten. Hart.", "'Welches Flüstern?' Die Podcasts explodieren, die Verkäufe "
+                + "auch. Moral: dehnbar.", money(1000), rep(-6)).then("boy_finale"),
+            c("Flüster-Spur entfernen. (-1200)", "Neuer Mix, offizielle Entschuldigung, Spendenlauf. "
+                + "Die Presse nennt euch 'die anständigste Boygroup Deutschlands'.", money(-1200), rep(10)).then("boy_finale"));
+
+        chain("boy_finale", GameCharacter.SIGGI, "Siggi Scampi (Tourplakat unterm Arm)", 1,
+            "Welttournee: SHRIMP AROUND THE WORLD",
+            "Siggi rollt ein Plakat aus: 38 Städte, 12 Länder, ein Spezialtank im Tourbus. 'Boss, die "
+            + "Jungs sind bereit. Justin hat Starallüren, Shrimpo hat eine Duftkerzen-Linie, MC Plankton "
+            + "hat BEEF mit einer Languste aus Bremerhaven, und Kai... Kai hat einen Fanclub in Japan. "
+            + "Es ist SO WEIT.'",
+            c("Tournee starten!", "Ausverkaufte Hallen von Cuxhaven bis Taschkent (Akwanov kauft 40 "
+                + "Tickets und leugnet es). Die Kasse klingelt im Takt.", money(9000), rep(12)),
+            c("Auflösen - auf dem Höhepunkt.", "Justin geht solo ('Krill Me Softly'), der Rest gründet "
+                + "eine Coverband. Das Abschiedskonzert bricht alle Rekorde. Kai winkt. ALLE weinen.",
+                money(4000), rep(8)),
+            c("Greg featured auf dem Live-Album.", "Greg 'singt' den Bass (er blubbert ins Wasserglas, "
+                + "Siggi pitcht es runter). Kritiker: 'Roh. Ehrlich. Nass.' Doppelplatin.", money(6000), rep(10)));
     }
 
     // ===================== KETTE E - Kyle, der neidische Redditor =====================

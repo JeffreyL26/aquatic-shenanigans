@@ -25,25 +25,28 @@ public class BuildMenuPanel extends JComponent {
 
     private static final Cat[] CATS = {
         new Cat("Strom",      IconKind.BOLT,   Palette.POWER,
-                BuildingType.OLD_GENERATOR, BuildingType.POWER_PLANT, BuildingType.SOLAR_ROOF),
+                BuildingType.OLD_GENERATOR, BuildingType.SHRIMP_WHEEL, BuildingType.POWER_PLANT,
+                BuildingType.SOLAR_ROOF, BuildingType.WIND_TURBINE, BuildingType.GEO_PLANT),
         new Cat("Versorgung", IconKind.DROP,   Palette.WATER,
                 BuildingType.RAIN_BARREL, BuildingType.WATER_PLANT, BuildingType.WATER_HUB,
-                BuildingType.ALGAE_BUCKET, BuildingType.ALGAE_FARM),
+                BuildingType.ALGAE_BUCKET, BuildingType.ALGAE_FARM, BuildingType.PLANKTON_PRESS),
         new Cat("Zucht",      IconKind.SHRIMP, Palette.SHRIMP,
-                BuildingType.GARAGE_TANK, BuildingType.SHRIMP_TANK),
+                BuildingType.KIDDIE_POOL, BuildingType.GARAGE_TANK, BuildingType.SHRIMP_TANK,
+                BuildingType.HATCHERY, BuildingType.MEGA_TANK, BuildingType.REEF_DOME),
         new Cat("Verkauf",    IconKind.COIN,   Palette.MONEY,
                 BuildingType.YARD_SALE, BuildingType.SALES_OFFICE, BuildingType.RESTAURANT,
                 BuildingType.EXPORT_DOCK, BuildingType.MILITARY_DEPOT, BuildingType.BLACK_MARKET,
                 BuildingType.BOOST_STAND),
         new Cat("Personal & Lager", IconKind.PERSON, Palette.WORKERS,
-                BuildingType.CAMPER, BuildingType.HOUSING,
-                BuildingType.STORAGE_SHED, BuildingType.WAREHOUSE),
+                BuildingType.CAMPER, BuildingType.HOUSING, BuildingType.CANTEEN,
+                BuildingType.STORAGE_SHED, BuildingType.WAREHOUSE, BuildingType.COLD_STORE),
         new Cat("Industrie",  IconKind.ROBOT,  Palette.ROBOT,
                 BuildingType.LAB, BuildingType.GENLAB, BuildingType.SHELL_PRESS,
                 BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS, BuildingType.KRILL_BARRACKS,
                 BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT),
         new Cat("Ruf & Deko", IconKind.STAR,   Palette.REP,
-                BuildingType.VISITOR_CENTER, BuildingType.ZEN_GARDEN),
+                BuildingType.VISITOR_CENTER, BuildingType.ZEN_GARDEN, BuildingType.MASCOT_STATUE,
+                BuildingType.FOUNTAIN, BuildingType.PETTING_POOL, BuildingType.BOYBAND_STAGE),
     };
 
     // Tropico-Raster: Symbol oben, Name darunter - mehr Übersicht auf einen Blick.
@@ -383,6 +386,20 @@ public class BuildMenuPanel extends JComponent {
             case BIOGAS_PLANT        -> "entsorgt Abfall zu Biogas";
             case STORAGE_SHED        -> "+Lagerkapazität";
             case WAREHOUSE           -> "viel Lagerkapazität";
+            case SHRIMP_WHEEL        -> "+7 Strom, sportlich";
+            case WIND_TURBINE        -> "+22 Strom, sauber";
+            case GEO_PLANT           -> "+70 Strom, Grundlast";
+            case PLANKTON_PRESS      -> "+14 Futter, industriell";
+            case KIDDIE_POOL         -> "+2,2 Shrimp/Tag, billig";
+            case HATCHERY            -> "+3,5 Shrimp/Tag, sparsam";
+            case MEGA_TANK           -> "+11 Shrimp/Tag, hungrig";
+            case REEF_DOME           -> "+3,2 GOURMET/Tag";
+            case CANTEEN             -> "+4 Arbeiter, +Ruf";
+            case COLD_STORE          -> "Lager für Shrimps & Futter";
+            case MASCOT_STATUE       -> "+Reputation (Greg!)";
+            case FOUNTAIN            -> "+Reputation, Deko";
+            case PETTING_POOL        -> "+Reputation, Familien";
+            case BOYBAND_STAGE       -> "Boygroup-Heimspielstätte, +Ruf";
             default           -> "";
         };
     }
