@@ -101,6 +101,23 @@ public class Main {
 
                 GameState gs = f.game();
 
+                // 0a) GARAGEN-Karte (eigener Frame, nichts freigeschaltet -> Garagen-Look):
+                //     warmer Ölboden, Funzellicht, "GARAGE"-Schild. Getrennter Frame, damit die
+                //     Hallen-Bestückung unten unberührt bleibt.
+                GameFrame fg = new GameFrame();
+                fg.pack(); fg.setSize(1440, 900); fg.validate();
+                GameState ggs = fg.game();
+                ggs.place(BuildingType.OLD_GENERATOR, Zone.PRODUKTION, 3, 2, false);
+                ggs.place(BuildingType.RAIN_BARREL,   Zone.PRODUKTION, 4, 2, false);
+                ggs.place(BuildingType.ALGAE_BUCKET,  Zone.PRODUKTION, 5, 2, false);
+                ggs.place(BuildingType.GARAGE_TANK,   Zone.PRODUKTION, 4, 3, false);
+                ggs.place(BuildingType.YARD_SALE,     Zone.PRODUKTION, 5, 3, false);
+                for (int i = 0; i < 8; i++) ggs.tick();
+                fg.tutorialSkip();
+                fg.validate();
+                snap(fg.getRootPane(), "shrimptopia_v3_map_garage.png");
+                fg.dispose();
+
                 // 0) HQ-Kommando im GARAGEN-Zustand (nichts freigeschaltet): fast alle Edikte
                 //    gesperrt mit Freischalt-Hinweis - nur "Greg in den Vorstand" ist schaltbar.
                 f.openAlmanac(6);
@@ -241,6 +258,21 @@ public class Main {
                 f.openAlmanac(6);
                 f.validate();
                 snap(f.getRootPane(), "shrimptopia_v3_hq.png");
+                f.closeAlmanac();
+
+                // 9) Karten-Differenzierung: jede Zone hat eigenen Boden, Deko & Nameplate.
+                //    (Produktion hier im Hallen-Zustand, da era.HALLE oben freigeschaltet ist.)
+                gs.place(BuildingType.LAB,     Zone.FORSCHUNG, 3, 2, false);
+                gs.place(BuildingType.GENLAB,  Zone.FORSCHUNG, 5, 3, false);
+                gs.place(BuildingType.EXPORT_DOCK, Zone.LOGISTIK, 4, 2, false);
+                gs.place(BuildingType.WAREHOUSE,   Zone.LOGISTIK, 6, 4, false);
+                gs.place(BuildingType.RESTAURANT,    Zone.EMPFANG, 4, 2, false);
+                gs.place(BuildingType.VISITOR_CENTER, Zone.EMPFANG, 6, 3, false);
+                gs.place(BuildingType.ZEN_GARDEN,     Zone.EMPFANG, 3, 4, false);
+                f.setZone(Zone.PRODUKTION); f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_hall.png");
+                f.setZone(Zone.FORSCHUNG);  f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_forschung.png");
+                f.setZone(Zone.LOGISTIK);   f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_logistik.png");
+                f.setZone(Zone.EMPFANG);    f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_empfang.png");
             });
         } catch (Exception e) {
             System.out.println("GUITEST FAIL: " + e);

@@ -39,8 +39,8 @@ build.bat
 | **Märkte** | Verkaufsorte akzeptieren nur **bestimmte** Tiers: Börse (Standard/Bio), Restaurant (bis Gourmet), Export-Hafen, Militär-Depot (Krillkill), Schwarzmarkt. Falsches Tier am falschen Markt = kein Verkauf. |
 | **Inspektor** | Surviving-Mars-artiges Detail-Panel rechts: Live-Durchsatz, Status, Modus-Wahl, Upgrade-Käufe. |
 | **Modi & Upgrades** | Jedes Gebäude hat Betriebs-Modi (Trade-offs) und Upgrades — viele wirken **farmweit** (z.B. Strom-Spar, Wasser-Boost, Preis-Bonus). Dazu 4 **Arbeiter-Politiken**. |
-| **Zonen** | 4 themenbezogene Bereiche (Produktion, Forschung, Logistik, Empfang) mit eigener Optik und progressiver Freischaltung — Wechsel über die Seitenleiste links. |
-| **Lebendigkeit** | Schwimmende Shrimps in den Becken (Farbe = Tier), aufsteigende Blasen, pulsierende Auswahl. |
+| **Zonen** | 4 themenbezogene Bereiche mit klar unterscheidbarer Optik — eigener Boden, Signaturfarbe, Deko und Karten-Schild: **Produktion** (industrielle Halle mit Warnband & Fahrbahn — als **Garage** noch warmer Ölboden bei Funzellicht), **Forschung** (Knotengitter & Leiterbahn), **Logistik** (Verladespuren mit Pfeilen), **Empfang & Garten** (Steinpfad, Grasbüschel, Teich). Wechsel über die Seitenleiste links. |
+| **Lebendigkeit** | Schwimmende Shrimps in den Becken (Farbe = Tier), zonenspezifische Schwebeteilchen (Staub, Dampf, Glühfunken, fallende Blätter), pulsierende Auswahl. |
 | **Progression** | Zonen, Tiers, Gebäude & Mechaniken schalten sich über Meilensteine und Quest-Entscheidungen nach und nach frei. |
 
 ![Tutorial](screenshot_tutorial.png)
