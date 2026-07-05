@@ -97,6 +97,12 @@ public final class QuestTree {
         "build.barracks", "tier.WARKRILL",
         "worker.bootcamp", "krillkill.bootcamp");
 
+    /** Freischalt-Hinweise für Meilenstein-Flags (nicht per Quest, sondern über Fortschritt). */
+    private static final Map<String, String> MILESTONE_HINT = Map.of(
+        "era.HALLE",          "Ab dem Hallen-Ausbau (raus aus der Garage)",
+        "build.shrimpboost",  "Ab der SHRIMPBOOST-Fabrik (Forschung, ~18.000 Geld)",
+        "build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~40.000 Geld)");
+
     public static String unlockLabel(String key) { return UNLOCK_LABEL.get(key); }
     public static Set<String> knownUnlockKeys() { return UNLOCK_LABEL.keySet(); }
 
@@ -156,7 +162,8 @@ public final class QuestTree {
         if (flag == null) return null;
         String key = UNLOCK_ALIAS.getOrDefault(flag, flag);
         List<UnlockSource> src = unlockSources(qs).get(key);
-        if (src == null || src.isEmpty()) return null;
+        // Kein Quest-Geber? Dann evtl. ein Meilenstein-Flag (Fortschritt statt Quest).
+        if (src == null || src.isEmpty()) return MILESTONE_HINT.get(key);
         // Nach Quest gruppieren: schalten ALLE Optionen einer Quest frei, reicht der Quest-Name.
         Map<String, List<UnlockSource>> byQuest = new LinkedHashMap<>();
         for (UnlockSource s : src) byQuest.computeIfAbsent(s.questId, k -> new ArrayList<>()).add(s);

@@ -100,6 +100,14 @@ public class Main {
                 f.validate();
 
                 GameState gs = f.game();
+
+                // 0) HQ-Kommando im GARAGEN-Zustand (nichts freigeschaltet): fast alle Edikte
+                //    gesperrt mit Freischalt-Hinweis - nur "Greg in den Vorstand" ist schaltbar.
+                f.openAlmanac(6);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_hq_garage.png");
+                f.closeAlmanac();
+
                 // Freischaltungen, damit Zonen/Tiers in der UI sichtbar sind
                 for (String flag : new String[]{"era.HALLE", "zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
                         "build.water_hub", "build.export", "build.military", "build.genlab",

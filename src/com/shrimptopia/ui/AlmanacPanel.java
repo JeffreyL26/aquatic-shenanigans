@@ -413,11 +413,19 @@ public class AlmanacPanel extends JComponent {
         g.setFont(FONT_LAW_SIGN);
         g.setColor(locked ? Palette.TEXT_DIM : on ? Palette.ACCENT : Palette.ACCENT2);
         g.drawString("§", r.x + 12, r.y + 27);
-        // Titel in Serifenschrift
+        // Stempel-Maße vorab (der GESPERRT-Stempel sitzt bei gesperrten Kacheln oben rechts,
+        // damit der zweizeilige Freischalt-Hinweis unten nicht überlappt).
+        String tag = on ? "ERLASSEN" : locked ? "GESPERRT" : "AUS";
+        Color stampCol = on ? Palette.GOOD : locked ? Palette.BAD : Palette.TEXT_DIM;
+        g.setFont(Palette.FONT_TINY);
+        int sw = g.getFontMetrics().stringWidth(tag) + 14, sh = 17;
+
+        // Titel in Serifenschrift (bei gesperrt: Platz für den oben-rechts-Stempel lassen)
         int tx = r.x + 34;
+        int titleMax = r.x + r.width - 12 - tx - (locked ? sw + 6 : 0);
         g.setFont(FONT_LAW_TITLE);
         g.setColor(locked ? Palette.TEXT_DIM : Palette.TEXT);
-        g.drawString(TextUtil.clip(g.getFontMetrics(), e.name, r.x + r.width - 12 - tx), tx, r.y + 21);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), e.name, titleMax), tx, r.y + 21);
         // Trennlinie unter dem Titel
         g.setColor(new Color(frameCol.getRed(), frameCol.getGreen(), frameCol.getBlue(), 130));
         g.drawLine(tx, r.y + 28, r.x + r.width - 12, r.y + 28);
@@ -434,20 +442,22 @@ public class AlmanacPanel extends JComponent {
             g.drawString(line, r.x + 12, ly);
             ly += 14;
         }
-        // Gruppen-Plakette unten links
-        String grp = (e.group != null ? e.group : "frei").toUpperCase();
-        g.setFont(Palette.FONT_TINY);
+        // Gruppen-Plakette unten links - nur bei nutzbaren Edikten (Gruppe = Ausschluss-Regel;
+        // bei gesperrten Kacheln irrelevant und würde den Hinweis überlappen).
         FontMetrics fm = g.getFontMetrics();
-        int gw = fm.stringWidth(grp) + 12, gh = 15, gy = r.y + r.height - gh - 7;
-        g.setColor(new Color(frameCol.getRed(), frameCol.getGreen(), frameCol.getBlue(), 60));
-        g.fillRoundRect(r.x + 12, gy, gw, gh, 7, 7);
-        g.setColor(locked ? Palette.TEXT_DIM : Palette.TEXT);
-        g.drawString(grp, r.x + 18, gy + 11);
-        // Stempel unten rechts (leicht gedreht wie ein Amtsstempel)
-        String tag = on ? "ERLASSEN" : locked ? "GESPERRT" : "AUS";
-        Color stampCol = on ? Palette.GOOD : locked ? Palette.BAD : Palette.TEXT_DIM;
-        int sw = fm.stringWidth(tag) + 14, sh = 17;
-        int sx = r.x + r.width - sw - 12, sy = r.y + r.height - sh - 6;
+        if (!locked) {
+            String grp = (e.group != null ? e.group : "frei").toUpperCase();
+            g.setFont(Palette.FONT_TINY);
+            fm = g.getFontMetrics();
+            int gw = fm.stringWidth(grp) + 12, gh = 15, gy = r.y + r.height - gh - 7;
+            g.setColor(new Color(frameCol.getRed(), frameCol.getGreen(), frameCol.getBlue(), 60));
+            g.fillRoundRect(r.x + 12, gy, gw, gh, 7, 7);
+            g.setColor(Palette.TEXT);
+            g.drawString(grp, r.x + 18, gy + 11);
+        }
+        // Stempel (leicht gedreht wie ein Amtsstempel): gesperrt oben rechts, sonst unten rechts.
+        int sx = r.x + r.width - sw - 12;
+        int sy = locked ? r.y + 8 : r.y + r.height - sh - 6;
         Graphics2D g2 = (Graphics2D) g.create();
         g2.rotate(Math.toRadians(-4), sx + sw / 2.0, sy + sh / 2.0);
         g2.setColor(stampCol);

@@ -350,6 +350,7 @@ public class GameFrame extends JFrame {
         almanac.open(tab);
         applyTimerState();
     }
+    public void closeAlmanac() { if (almanac.isVisible()) almanac.close(); }
     // updateOverlays() öffnet den Almanach im Tier-Tutorial-Schritt ggf. direkt wieder
     public void afterAlmanacClosed() { refreshAll(); updateOverlays(); }
 

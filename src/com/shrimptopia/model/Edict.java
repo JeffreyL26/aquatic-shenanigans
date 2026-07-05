@@ -5,19 +5,21 @@ package com.shrimptopia.model;
  * sich gegenseitig aus (#8); gruppenlose Edikte sind frei kombinierbar.
  */
 public enum Edict {
-    OPEN_HOUSE   ("Tag der offenen Halle", "Besucher strömen rein: +Reputation, dafür höhere Kosten.", "Werbung"),
-    AD_BLITZ     ("Aggressive Werbekampagne", "Marktschreierei: +10% Verkaufspreis, aber -Reputation.", "Werbung"),
-    BOOST_MANDATE("SHRIMPBOOST-Pflicht", "Belegschaft auf Energydrink: +15% Becken-Output, -Reputation.", "Arbeit"),
-    FOUR_DAY     ("Vier-Tage-Woche", "Glückliche Belegschaft (+Reputation), aber -10% Arbeitskraft.", "Arbeit"),
-    MARTIAL_LAW  ("Kriegsrecht", "Eiserne Disziplin: +20% Arbeitskraft, aber kräftig -Reputation.", "Arbeit"),
-    TAX_HAVEN    ("Steueroase Garnelien", "Kreative Buchführung: -20% Betriebskosten, leicht -Reputation.", "Staat"),
-    SUBSIDIES    ("Subventionen beantragt", "Vater Staat zahlt mit: +8% Verkaufspreis.", "Staat"),
-    FREE_TRADE   ("Freihandels-Abkommen", "Mehr Absatz: +20% Verkaufskapazität.", "Handel"),
-    PREMIUM      ("Premium-Strategie", "Luxus-Image: +15% Preis, aber -10% Menge.", "Handel"),
-    ECO_CERT     ("Öko-Zertifizierung", "Grünes Gewissen: ++Reputation, aber -10% Becken-Output.", "Öko"),
-    MAX_EFFICIENCY("Maximale Effizienz", "Output über alles: +12% Becken-Output, -Reputation.", "Öko"),
+    // Betriebsweite Dekrete setzen einen echten Betrieb voraus (Hallen-Ausbau) - eine Garage
+    // erlässt keine imperialen Erlasse. Boost-/Roboter-Edikte brauchen zusätzlich ihre Mechanik.
+    OPEN_HOUSE   ("Tag der offenen Halle", "Besucher strömen rein: +Reputation, dafür höhere Kosten.", "Werbung", "era.HALLE"),
+    AD_BLITZ     ("Aggressive Werbekampagne", "Marktschreierei: +10% Verkaufspreis, aber -Reputation.", "Werbung", "era.HALLE"),
+    BOOST_MANDATE("SHRIMPBOOST-Pflicht", "Belegschaft auf Energydrink: +15% Becken-Output, -Reputation.", "Arbeit", "build.shrimpboost"),
+    FOUR_DAY     ("Vier-Tage-Woche", "Glückliche Belegschaft (+Reputation), aber -10% Arbeitskraft.", "Arbeit", "era.HALLE"),
+    MARTIAL_LAW  ("Kriegsrecht", "Eiserne Disziplin: +20% Arbeitskraft, aber kräftig -Reputation.", "Arbeit", "era.HALLE"),
+    TAX_HAVEN    ("Steueroase Garnelien", "Kreative Buchführung: -20% Betriebskosten, leicht -Reputation.", "Staat", "era.HALLE"),
+    SUBSIDIES    ("Subventionen beantragt", "Vater Staat zahlt mit: +8% Verkaufspreis.", "Staat", "era.HALLE"),
+    FREE_TRADE   ("Freihandels-Abkommen", "Mehr Absatz: +20% Verkaufskapazität.", "Handel", "era.HALLE"),
+    PREMIUM      ("Premium-Strategie", "Luxus-Image: +15% Preis, aber -10% Menge.", "Handel", "era.HALLE"),
+    ECO_CERT     ("Öko-Zertifizierung", "Grünes Gewissen: ++Reputation, aber -10% Becken-Output.", "Öko", "era.HALLE"),
+    MAX_EFFICIENCY("Maximale Effizienz", "Output über alles: +12% Becken-Output, -Reputation.", "Öko", "era.HALLE"),
     GREG_BOARD   ("Greg in den Vorstand", "Dr. Perlas Support-Garnele im Wasserglas führt mit: stetig +Reputation.", null),
-    NIGHT_ROBOTS ("Nachtschicht für Roboter", "Roboter laufen rund um die Uhr: +5% Arbeitskraft.", null),
+    NIGHT_ROBOTS ("Nachtschicht für Roboter", "Roboter laufen rund um die Uhr: +5% Arbeitskraft.", null, "build.robotworks"),
 
     // Shrimp-Gewerkschaft (freigeschaltet über den Becken-3-Vorfall)
     UNION_COUNCIL("Becken-Betriebsrat", "Klausi 2.0 bekommt Mitsprache: +Reputation, aber -5% Becken-Output.", "Gewerkschaft", "shrimp_union"),
