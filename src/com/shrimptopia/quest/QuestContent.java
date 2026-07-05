@@ -46,9 +46,10 @@ public final class QuestContent {
             + "Garage. Nebenan steht eine Industriehalle leer - der Vermieter stellt keine Fragen, "
             + "solange wir keine stellen.",
             c("Die Halle mieten! (-1500)", "Hallen-Gebäude freigeschaltet! Garagen-Technik lässt sich "
-                + "jetzt im Inspektor an Ort und Stelle UPGRADEN.", money(-1500), unlock("era.HALLE"), rep(4)),
+                + "jetzt im Inspektor an Ort und Stelle UPGRADEN.", money(-1500), unlock("era.HALLE"), rep(4),
+                minigame("scrub", 1)),
             c("Erstmal nur den Hof dazu pachten. (-600)", "Etwas beengt, aber es läuft: Hallen-Gebäude "
-                + "freigeschaltet - Upgrade im Inspektor.", money(-600), unlock("era.HALLE")));
+                + "freigeschaltet - Upgrade im Inspektor.", money(-600), unlock("era.HALLE"), minigame("scrub", 1)));
     }
 
     // ===================== MARKETING-OFFENSIVE (Mira) =====================
@@ -84,9 +85,9 @@ public final class QuestContent {
             + "Rührend. Wir machen aus Ihnen eine MARKE. Primetime-TV, Jingle, die volle Dröhnung. Sie "
             + "werden den Jingle hassen. Alle werden ihn hassen. Und dann kaufen alle.'",
             c("TV-Kampagne unterschreiben. (-3000)", "'Shrimp your day!' läuft zur Primetime. Der "
-                + "Jingle verfolgt dich im Schlaf. Stream 'TV-Spot' buchbar!", money(-3000), unlock("mkt.tv")),
+                + "Jingle verfolgt dich im Schlaf. Stream 'TV-Spot' buchbar!", money(-3000), unlock("mkt.tv"), minigame("haggle", 1)),
             c("Nur das Plakat-Paket. (-1200)", "20 Meter Garnele an der A6. Stream 'Autobahn-Plakat' "
-                + "buchbar.", money(-1200), unlock("mkt.billboard")),
+                + "buchbar.", money(-1200), unlock("mkt.billboard"), minigame("haggle", 1)),
             c("Wir bleiben bodenständig.", "Die Herren nicken synchron und verlassen rückwärts den "
                 + "Raum.", rep(3)));
     }
@@ -98,31 +99,31 @@ public final class QuestContent {
             "Eine usbekische 'Forschungsdrohne' verirrt sich über deine Halle. Akwanov: 'Reiner Zufall, mein "
             + "Freund. Wir kartieren nur... Ihre Lüftungsschächte.' General Krillkill - der pensionierte "
             + "Kriegsveteran, der sich zum Verteidiger deiner Halle ernannt hat - steht schon stramm.",
-            c("Verteidigen (Armee einsetzen)", "Die Stellung wird gehalten - oder auch nicht.", QuestEffect.battle(30, 1500)),
+            c("Verteidigen (Armee einsetzen)", "Die Stellung wird gehalten - oder auch nicht.", QuestEffect.battle(30, 1500), minigame("shooter", 1.5)),
             c("Diplomatie (-800)", "Du erkaufst Ruhe. Krillkill ist enttäuscht.", money(-800), rival(-10)));
 
         auto("conf_flotilla", GameCharacter.AKWANOV, null, Condition.rival(30), 2,
             "Die Embargo-Flottille",
             "Akwanov schickt eine Flotte von LKW (kein Meer, schon vergessen?), um deine Lieferketten zu "
             + "blockieren. 'Bedauerlich. Höhere Gewalt. Ich habe Tee dabei.'",
-            c("Gegenangriff mit Kampf-Krill", "Die Garde rückt aus.", QuestEffect.battle(56, 2600)),
-            c("Roboter-Blitz", "Stahl gegen Diplomatie.", QuestEffect.battle(64, 2400)),
+            c("Gegenangriff mit Kampf-Krill", "Die Garde rückt aus.", QuestEffect.battle(56, 2600), minigame("shooter", 2)),
+            c("Roboter-Blitz", "Stahl gegen Diplomatie.", QuestEffect.battle(64, 2400), minigame("shooter", 2)),
             c("Diplomatie (-1500)", "Frieden, aber teuer.", money(-1500), rival(-12)));
 
         auto("conf_raid", GameCharacter.AKWANOV, null, Condition.rival(45), 2,
             "Spionage-Razzia",
             "Dmitri ist zurück - diesmal mit Verstärkung und einem Bolzenschneider. Akwanov: 'Wir nennen es "
             + "Wissensaustausch. Sehr einseitig.'",
-            c("Verteidigen", "Die Halle wehrt sich.", QuestEffect.battle(120, 4000)),
-            c("Gegenangriff mit Kampf-Krill", "Krillkill brüllt 'ANGRIFF!'.", QuestEffect.battle(96, 3800)),
+            c("Verteidigen", "Die Halle wehrt sich.", QuestEffect.battle(120, 4000), minigame("shooter", 2)),
+            c("Gegenangriff mit Kampf-Krill", "Krillkill brüllt 'ANGRIFF!'.", QuestEffect.battle(96, 3800), minigame("shooter", 2)),
             c("Diplomatie (-3000)", "Schweigegeld.", money(-3000), rival(-15)));
 
         auto("conf_siege", GameCharacter.AKWANOV, null, Condition.all(Condition.rival(60), Condition.money(200000)), 2,
             "Die Belagerung",
             "Akwanov riegelt die Zufahrt komplett ab. 'Ein doppelt eingeschlossenes Land weiß, wie man jemanden "
             + "einschließt.' Jetzt zählt nur die Armee.",
-            c("Bis zum letzten Krill verteidigen", "Alles oder nichts.", QuestEffect.battle(200, 7000)),
-            c("Roboter-Blitz", "Die Maschinen-Brigade rollt.", QuestEffect.battle(170, 6000)),
+            c("Bis zum letzten Krill verteidigen", "Alles oder nichts.", QuestEffect.battle(200, 7000), minigame("shooter", 2.5)),
+            c("Roboter-Blitz", "Die Maschinen-Brigade rollt.", QuestEffect.battle(170, 6000), minigame("shooter", 2.5)),
             c("Kapitulieren (-6000, -Ruf)", "Du beugst dich. Vorerst.", money(-6000), rep(-8), rival(-20)));
 
         auto("conf_war", GameCharacter.KRILLKILL, null,
@@ -130,7 +131,7 @@ public final class QuestContent {
             "DER FINALE KRILL-KRIEG",
             "General Krillkill: 'DAS IST ES, REKRUT! Alles, wofür wir gezüchtet haben! Akwanov vor den Toren, "
             + "die Suppe im Rücken - HEUTE schreiben wir GESCHICHTE!' Akwanov: 'Oder eine Rechnung. Ich nehme auch das.'",
-            c("Großoffensive (volle Armee)", "Der entscheidende Schlag.", QuestEffect.battle(400, 30000), rival(-40)),
+            c("Großoffensive (volle Armee)", "Der entscheidende Schlag.", QuestEffect.battle(400, 30000), rival(-40), minigame("shooter", 3)),
             c("Verhandeln statt verheizen (-15000)", "Ein ehrenhafter, sündhaft teurer Frieden.", money(-15000), rep(10), rival(-50)));
     }
 
@@ -305,8 +306,8 @@ public final class QuestContent {
             "Routinemäßige unangemeldete Prüfung",
             "Bitte zeigen Sie mir die Schwimmlizenzen Ihrer Garnelen. Was, die haben keine? "
             + "Schwimmen die etwa schwarz?",
-            c("Lizenzen nachkaufen. (-600)", "Alles legal. Die Garnelen schwimmen jetzt mit Papieren.", money(-600), rep(4)).then("beh_plakette"),
-            c("Charmant durchquatschen.", "Sie lächelt tatsächlich. Glück gehabt.", rep(3)).then("beh_plakette"),
+            c("Lizenzen nachkaufen. (-600)", "Alles legal. Die Garnelen schwimmen jetzt mit Papieren.", money(-600), rep(4), minigame("scrub", 1)).then("beh_plakette"),
+            c("Charmant durchquatschen.", "Sie lächelt tatsächlich. Glück gehabt.", rep(3), minigame("scrub", 1)).then("beh_plakette"),
             c("Garnelen verstecken!", "Zwei Tage 'geschlossen wegen Inventur'. Sehr verdächtig.", rep(-8)).then("beh_plakette"));
 
         chain("beh_plakette", GameCharacter.MAYOR, "Bürgermeisterin Frau Schalk", 1,
@@ -325,7 +326,7 @@ public final class QuestContent {
             "Haben Ihre Shrimps eigentlich Hobbys?",
             "Ihre Garnelen schwimmen den ganzen Tag nur im Kreis - Beschäftigungsmangel! Garnelen "
             + "brauchen Anregung, Selbstverwirklichung, vielleicht ein kleines Podcast-Mikrofon.",
-            c("Becken-Spielzeug installieren. (-400)", "Glücklichere Shrimps, glücklichere Lena.", money(-400), rep(8)).then("tier_demo"),
+            c("Becken-Spielzeug installieren. (-400)", "Glücklichere Shrimps, glücklichere Lena.", money(-400), rep(8), minigame("scrub", 1)).then("tier_demo"),
             c("Das sind Garnelen, Lena.", "Lena ist beleidigt. Das gibt Ärger.", rep(-6)).then("tier_demo"));
 
         chain("tier_demo", GameCharacter.PRESS, "Presse / Lena", 2,
@@ -354,7 +355,7 @@ public final class QuestContent {
             "CHEF! Wir sind TRENDING!",
             "'Guy gets rich farming shrimp indoors' - 4 Millionen Views! Die Kommentare sind zu 60% "
             + "beeindruckt und zu 40% besorgt um unsere geistige Gesundheit. Was machen wir?",
-            c("Voll drauf einsteigen - eigener Kanal! (-500)", "ShrimpTube läuft - als Marketing-Stream buchbar. Die Reichweite explodiert.", money(-500), rep(6), unlock("mkt.tube")).then("inf_sponsor"),
+            c("Voll drauf einsteigen - eigener Kanal! (-500)", "ShrimpTube läuft - als Marketing-Stream buchbar. Die Reichweite explodiert.", money(-500), rep(6), unlock("mkt.tube"), minigame("rhythm", 1)).then("inf_sponsor"),
             c("Bescheiden weiterarbeiten.", "Der Hype verpufft, aber wir bleiben sympathisch.", rep(3)),
             c("Merch verkaufen! (T-Shirts)", "Shrimp-Shirts gehen weg wie warme Semmeln. Etwas Sellout-Vibe.", money(1200), rep(-4)).then("inf_sponsor"));
 
@@ -391,9 +392,9 @@ public final class QuestContent {
             "Lass uns reden, Kleiner",
             "Du hast Talent, aber du spielst in der Kreisliga. Verkauf mir deine Halle - oder wir machen "
             + "Business zusammen - oder du bleibst mein niedlicher kleiner Rivale. Deine Wahl.",
-            c("Niemals - Fusion zu gleichen Teilen.", "Cleverer Deal. Chad besitzt jetzt einen Zipfel von dir.", money(5000), rep(5)),
+            c("Niemals - Fusion zu gleichen Teilen.", "Cleverer Deal. Chad besitzt jetzt einen Zipfel von dir.", money(5000), rep(5), minigame("haggle", 1.5)),
             c("In deine Träume, Chad!", "David gegen Goliath. Die Bevölkerung jubelt.", rep(10)),
-            c("Ich kaufe DICH. (-25000)", "Chad weint. Seine Hallen gehören jetzt dir.", money(-25_000), rep(10)));
+            c("Ich kaufe DICH. (-25000)", "Chad weint. Seine Hallen gehören jetzt dir.", money(-25_000), rep(10), minigame("haggle", 2)));
     }
 
     // ===================== KETTE H - New Krills on the Block (Boygroup) =====================
@@ -436,11 +437,11 @@ public final class QuestContent {
             + "UND Fühler! KAI, WO BIST DU?!' Kai ist längst in Position. Kai war immer in Position. "
             + "Siggi nippt am SHRIMPBOOST: 'Sie brauchen Fans, Boss. Eine Stadt, die euch LIEBT.'",
             c("Drill wie bei Krillkill.", "Der General schaut vorbei und weint vor Stolz in die "
-                + "Nebelmaschine. Doppelte Rationen für die Jungs.", feed(-10), rep(3)).then("boy_debut"),
+                + "Nebelmaschine. Doppelte Rationen für die Jungs.", feed(-10), rep(3), minigame("rhythm", 1)).then("boy_debut"),
             c("Wellness & freie Entfaltung. (-600)", "Massage-Strömungsdüsen und ein Mediations-Kies. "
-                + "Die Band findet 'ihren Sound'. Kai findet einen noch stilleren Ort.", money(-600), rep(5)).then("boy_debut"),
+                + "Die Band findet 'ihren Sound'. Kai findet einen noch stilleren Ort.", money(-600), rep(5), minigame("rhythm", 1)).then("boy_debut"),
             c("Einfach machen lassen.", "Salsa-Sepp improvisiert. Es sieht aus wie Chaos und ist es "
-                + "auch - aber es GROOVT.", rep(2)).then("boy_debut"));
+                + "auch - aber es GROOVT.", rep(2), minigame("rhythm", 1)).then("boy_debut"));
 
         chain("boy_debut", GameCharacter.SIGGI, "Siggi Scampi (Premierenfieber)", 0,
             "Debüt-Single: 'Butterfly (In My Becken)'",
@@ -476,7 +477,7 @@ public final class QuestContent {
             + "hat BEEF mit einer Languste aus Bremerhaven, und Kai... Kai hat einen Fanclub in Japan. "
             + "Es ist SO WEIT.'",
             c("Tournee starten!", "Ausverkaufte Hallen von Cuxhaven bis Taschkent (Akwanov kauft 40 "
-                + "Tickets und leugnet es). Die Kasse klingelt im Takt.", money(9000), rep(12)),
+                + "Tickets und leugnet es). Die Kasse klingelt im Takt.", money(9000), rep(12), minigame("rhythm", 2)),
             c("Auflösen - auf dem Höhepunkt.", "Justin geht solo ('Krill Me Softly'), der Rest gründet "
                 + "eine Coverband. Das Abschiedskonzert bricht alle Rekorde. Kai winkt. ALLE weinen.",
                 money(4000), rep(8)),
@@ -519,7 +520,7 @@ public final class QuestContent {
             + "ein Mining-PC als Heizung und Baustellenlampen, die er 'gefunden' hat. Anwohner "
             + "beschreiben den Geruch als 'juristisch relevant'. Er nennt es DISRUPTION.",
             c("Qualitätsoffensive statt Preiskampf.", "Deine Stammkunden bleiben treu. Kyles Kunden "
-                + "bekommen Ausschlag.", rep(5)).then("kyle_3"),
+                + "bekommen Ausschlag.", rep(5), minigame("sort", 1)).then("kyle_3"),
             c("Kurz mitdumpen. (-1200)", "Teuer, aber Kyles Lager läuft über. Sein Keller riecht "
                 + "jetzt NOCH relevanter.", money(-1200)).then("kyle_3"),
             c("Gesundheitsamt anrufen.", "Ergebnis der Probe: 'grenzwertig, aber legal'. Kyle rahmt "
@@ -581,7 +582,7 @@ public final class QuestContent {
             + "noch keine Skala gibt'. Die Shrimps schwimmen jetzt in Formation. Im Kreis. GEGEN den "
             + "Uhrzeigersinn. Klausi nennt es 'Streikposten'.",
             c("Becken abriegeln und beobachten.", "Dr. Perla bezieht mit Klemmbrett und Schlafsack "
-                + "Stellung vor Becken 3.", grantFlag("boost_beobachtet")).then("boost_2"),
+                + "Stellung vor Becken 3.", grantFlag("boost_beobachtet"), minigame("fuse", 1)).then("boost_2"),
             c("Vertuschen. Hier ist NICHTS passiert. (-800)", "Olaf bekommt Schweigegeld und ein "
                 + "neues Poloshirt. Becken 3 brodelt weiter.", money(-800), grantFlag("boost_vertuscht")).then("boost_2"),
             c("General Krillkill informieren.", "Krillkill starrt lange ins Becken. Dann flüstert er: "
@@ -744,7 +745,7 @@ public final class QuestContent {
             "Es wird dunkel im Becken",
             "Blackout, Chef. Die Shrimps schwimmen im Dunkeln und werden nervös. Eine hat gerade eine "
             + "andere angeschaut. So fangen Massenpaniken an.",
-            c("Notaggregat anwerfen. (-600)", "Laut, stinkt, aber Strom ist da.", money(-600), rep(-3)),
+            c("Notaggregat anwerfen. (-600)", "Laut, stinkt, aber Strom ist da.", money(-600), rep(-3), minigame("fuse", 1)),
             c("Shrimps mit Kerzen beruhigen. (-100)", "Romantisch und leicht brandgefährlich.", money(-100), multShrimp(0.97)),
             c("Aushalten.", "Stress im Becken. Olaf ist enttäuscht.", multShrimp(0.9)));
 
@@ -753,8 +754,8 @@ public final class QuestContent {
             "Ähm... die Algen machen Probleme",
             "Es gibt jetzt VIEL mehr Algen. Sie wachsen aus den Steckdosen. Eine hat einen Namen "
             + "bekommen. Gute Nachricht: Futter im Überfluss. Schlechte: Die Algen wollen Miete.",
-            c("Überschuss-Futter verkaufen.", "Schnelles Geld, volles Lager.", money(400), feed(20)),
-            c("Algen-Smoothies an Touristen.", "Hype! (Jemand wird kurz grün im Gesicht.)", money(700), rep(-2)));
+            c("Überschuss-Futter verkaufen.", "Schnelles Geld, volles Lager.", money(400), feed(20), minigame("scrub", 1)),
+            c("Algen-Smoothies an Touristen.", "Hype! (Jemand wird kurz grün im Gesicht.)", money(700), rep(-2), minigame("scrub", 1)));
 
         // Premium-Veredelung: Sobald die Darmentleerungsanlage steht, zertifiziert Reinhild
         // Darmstädter den Purge-Prozess (schaltet Gourmet frei) und warnt vor dem Klärschlamm.
@@ -769,10 +770,10 @@ public final class QuestContent {
             + "mein erster Ehemann.",
             c("Reinheit über alles - und Biogas-Kläranlage bauen!", "Sie nickt anerkennend. Gourmet-Zucht "
                 + "zertifiziert, und der Schlamm wird zu Biogas vergoren. Makellos.",
-                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(7)),
+                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(7), minigame("sort", 1)),
             c("Gourmet ja, Schlamm-Sorgen später.", "Sie seufzt. 'Wie Sie meinen. Aber der Schlamm wartet "
                 + "nicht.' Gourmet freigeschaltet, Biogas-Kläranlage im Baumenü.",
-                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(2)),
+                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(2), minigame("sort", 1)),
             c("Muss der Darm WIRKLICH leer sein? (-0)", "Reinhild starrt Sie an, bis Sie sich schämen. "
                 + "'JA.' Gourmet freigeschaltet - sie besteht auf die Kläranlage.",
                 unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(-2), money(400)));
@@ -782,7 +783,7 @@ public final class QuestContent {
             "Ein Kritiker kommt incognito",
             "Morgen testet der gefürchtete Gourmet-Kritiker Sebastian Schlemmerle anonym dein "
             + "Restaurant. Er hat schon eine Auster persönlich beleidigt.",
-            c("Nur Spitzen-Shrimps servieren! (-300)", "'Empfohlen von Schlemmerle' - ein Ritterschlag.", money(-300), rep(20)),
+            c("Nur Spitzen-Shrimps servieren! (-300)", "'Empfohlen von Schlemmerle' - ein Ritterschlag.", money(-300), rep(20), minigame("sort", 1)),
             c("Mit Charme und Show ablenken.", "Die Show kommt an.", rep(5)),
             c("Normale Karte geben.", "Solide, unspektakulär.", rep(3)));
 
@@ -791,15 +792,15 @@ public final class QuestContent {
             "Sie sind durchs Dach!",
             "MÖWEN, CHEF! Ein Schwarm hält unsere Becken für ein All-you-can-eat-Buffet. Eine wohnt "
             + "jetzt auf dem HQ. Sie heißt angeblich Kevin.",
-            c("Profi-Falkner engagieren. (-500)", "Möwen weg, humane Lösung.", money(-500), rep(2)),
-            c("Becken mit Netzen sichern. (-250)", "Etwas Verlust, aber künftig sicher.", money(-250), multShrimp(0.95)),
+            c("Profi-Falkner engagieren. (-500)", "Möwen weg, humane Lösung.", money(-500), rep(2), minigame("shooter", 1)),
+            c("Becken mit Netzen sichern. (-250)", "Etwas Verlust, aber künftig sicher.", money(-250), multShrimp(0.95), minigame("shooter", 1)),
             c("Kevin adoptieren.", "Kevin ist jetzt Maskottchen. Frisst aber kräftig mit.", multShrimp(0.85), rep(8)));
 
         auto("beh_steuer", GameCharacter.MAYOR, "Finanzamt (Herr Pfennig)", Condition.money(100_000), 2,
             "Wir hätten da ein paar Fragen",
             "Sie haben '14.000 Garnelen als Geschäftspartner' geltend gemacht. Auch 'romantische "
             + "Beckenbeleuchtung - Bewirtungskosten' wirft Fragen auf.",
-            c("Saubere Bücher vorlegen.", "Kleine Nachzahlung, reines Gewissen.", money(-1200), rep(5)),
+            c("Saubere Bücher vorlegen.", "Kleine Nachzahlung, reines Gewissen.", money(-1200), rep(5), minigame("haggle", 1)),
             c("Steuerberater einfliegen lassen. (-1500)", "Herr Pfennig wird fast freundlich.", money(-1500), rep(1)),
             c("Es drauf ankommen lassen.", "Bußgeld und schlechte Presse.", money(-2000), rep(-6)));
 
@@ -817,8 +818,8 @@ public final class QuestContent {
             "Ich rieche hier Einhorn-Potenzial",
             "Dein 'Shrimp-as-a-Service'-Modell ist disruptiv. Ich biete Kapital im Tausch gegen Anteile "
             + "und ein paar 'Synergien'. Wir bauen ein Garnelen-Imperium. Oder ein hübsches IPO.",
-            c("Deal annehmen (Anteile).", "Frisches Geld, aber Goldberg redet jetzt mit.", money(10_000), grantFlag("investor")),
-            c("Nur ein Kredit, keine Anteile.", "Du behältst die Kontrolle.", money(5000)),
+            c("Deal annehmen (Anteile).", "Frisches Geld, aber Goldberg redet jetzt mit.", money(10_000), grantFlag("investor"), minigame("haggle", 1.5)),
+            c("Nur ein Kredit, keine Anteile.", "Du behältst die Kontrolle.", money(5000), minigame("haggle", 1.5)),
             c("Ich brauche niemanden.", "Selfmade-Image. Respekt.", rep(5)));
     }
 
@@ -831,7 +832,7 @@ public final class QuestContent {
             + "dem Lüftungsschacht. Du züchtest VORSPEISEN! Während DA DRAUSSEN die Suppe näher kommt! "
             + "(Frag nicht, was die Suppe ist, Rekrut - dafür bist du noch nicht bereit.) Lass MICH aus "
             + "diesen Garnelen Soldaten machen. Protein. Kampfkraft. Sag JA, Rekrut!",
-            c("Jawohl, General!", "Die Presse fragt, wer der Mann mit dem Helm ist.", rep(-3)).then("krillkill_1"),
+            c("Jawohl, General!", "Die Presse fragt, wer der Mann mit dem Helm ist. Zum Einstand: Zielübung!", rep(-3), minigame("shooter", 1)).then("krillkill_1"),
             c("Wer hat Sie reingelassen?", "Er campiert jetzt offiziell im Lüftungsschacht.", rep(0)).then("krillkill_1"));
 
         chain("krillkill_1", GameCharacter.KRILLKILL, null, 0,
@@ -917,7 +918,7 @@ public final class QuestContent {
             "Usbekistan führt einen 'Solidaritätsbeitrag für Binnenländer' ein. Eine kleine, "
             + "symbolische Abgabe auf Ihre Garnelen. Etwa so klein wie unser Küstenstreifen.",
             c("Schlucken und weiterproduzieren.", "Embargo aktiv: -15% auf alle Marktpreise.", tariff(0.15)).then("akwanov_3"),
-            c("Gegen-Lobby anheuern. (-2000)", "Abgabe halbiert.", money(-2000), tariff(0.075), rival(10)).then("akwanov_3"),
+            c("Gegen-Lobby anheuern. (-2000)", "Abgabe halbiert.", money(-2000), tariff(0.075), rival(10), minigame("haggle", 1.5)).then("akwanov_3"),
             c("Inlandsmarkt ausbauen.", "Tipp: Restaurants sind weniger anfällig fürs Embargo.", tariff(0)).then("akwanov_3"));
 
         chain("akwanov_3", GameCharacter.AKWANOV, null, 0,

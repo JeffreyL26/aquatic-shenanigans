@@ -45,6 +45,7 @@ public class GameFrame extends JFrame {
     private AlmanacPanel almanac;
     private QuestTreePanel questTree;
     private BuildMenuPanel buildMenu;
+    private MinigamePanel minigame;
 
     public GameFrame() {
         super("ShrimpTopia v2 - Indoor Shrimp Farming Tycoon");
@@ -102,6 +103,9 @@ public class GameFrame extends JFrame {
         buildMenu = new BuildMenuPanel(this);
         getLayeredPane().add(buildMenu, JLayeredPane.POPUP_LAYER);
 
+        minigame = new MinigamePanel(this);
+        getLayeredPane().add(minigame, JLayeredPane.DRAG_LAYER);   // über allem außer Glass-Pane
+
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
@@ -122,6 +126,8 @@ public class GameFrame extends JFrame {
                     almanac.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
                 if (questTree != null && questTree.isVisible())
                     questTree.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+                if (minigame != null && minigame.isVisible())
+                    minigame.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
             }
         });
         animTimer.start();
@@ -156,6 +162,12 @@ public class GameFrame extends JFrame {
     private String[] pendingAnnouncement;
 
     private void updateOverlays() {
+        // Läuft ein Minigame, pausiert alles andere - Popups warten, bis es vorbei ist.
+        if (minigame.isVisible()) {
+            overlay.hideOverlay();
+            applyTimerState();
+            return;
+        }
         // Almanach-Schritte des Tutorials (Tiers, Marketing): Menü automatisch auf-/zuklappen
         TutorialStep cur = tutorial.isActive() ? tutorial.current() : null;
         boolean wantsAlmanac = cur != null && cur.region == TutorialStep.Region.ALMANAC;
@@ -182,7 +194,21 @@ public class GameFrame extends JFrame {
             overlay.hideOverlay();
         }
         applyTimerState();
+
+        // Kein Overlay mehr offen? Dann wartendes Quest-Minigame starten.
+        if (!overlayShowing() && !minigame.isVisible()) {
+            String[] mg = questSystem.pollMinigame();
+            if (mg != null) {
+                minigame.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+                getLayeredPane().moveToFront(minigame);
+                if (minigame.open(mg[0], Double.parseDouble(mg[1]))) applyTimerState();
+            }
+        }
     }
+
+    /** Nach Ende eines Minigames: Spiel fortsetzen, wartende Popups anzeigen. */
+    public void onMinigameClosed() { refreshAll(); updateOverlays(); }
+    public boolean minigameActive() { return minigame.isVisible(); }
 
     private String[] nextAnnouncement() {
         if (pendingAnnouncement == null) pendingAnnouncement = game.pollAnnouncement();
@@ -196,7 +222,8 @@ public class GameFrame extends JFrame {
 
     private void applyTimerState() {
         if (userPaused || overlayShowing() || (almanac != null && almanac.isVisible())
-            || (questTree != null && questTree.isVisible())) timer.stop();
+            || (questTree != null && questTree.isVisible())
+            || (minigame != null && minigame.isVisible())) timer.stop();
         else timer.start();
         topBar.setPausedVisual(userPaused);
     }
@@ -249,6 +276,7 @@ public class GameFrame extends JFrame {
         pendingOutcome = null;
         pendingAnnouncement = null;
         highlightBuild = null;
+        minigame.forceClose();
         userPaused = false;
         speed = 1;
         topBar.selectSpeed(1);
@@ -435,7 +463,13 @@ public class GameFrame extends JFrame {
     }
     private void bind(JComponent c, int key, String name, Runnable action) {
         c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(key, 0), name);
-        c.getActionMap().put(name, new AbstractAction() { @Override public void actionPerformed(ActionEvent e) { action.run(); } });
+        c.getActionMap().put(name, new AbstractAction() {
+            @Override public void actionPerformed(ActionEvent e) {
+                // Während eines Minigames gehören die Tasten dem Minigame.
+                if (minigame != null && minigame.isVisible()) { minigame.handleKey(key); return; }
+                action.run();
+            }
+        });
     }
 
     // ===================== Getter für Panels =====================
@@ -448,6 +482,13 @@ public class GameFrame extends JFrame {
         getLayeredPane().moveToFront(buildMenu);
         buildMenu.openForBuilding(t);
     }
+    public void debugOpenMinigame(String id, double stake, double playSeconds) {
+        minigame.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        getLayeredPane().moveToFront(minigame);
+        minigame.debugForceIntro(id, stake);
+        if (playSeconds > 0) minigame.debugStartAndTick(playSeconds);
+    }
+    public void debugCloseMinigame() { minigame.forceClose(); }
     public void debugForceQuest(String id) { questSystem.forceStart(id); refreshAll(); updateOverlays(); }
     public void debugScrollQuestTree(int y) { questTree.scrollTo(y); }
 

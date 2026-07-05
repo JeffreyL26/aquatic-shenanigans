@@ -250,6 +250,18 @@ public class Main {
                 snap(f.getRootPane(), "shrimptopia_v3_boyband.png");
                 f.resolveQuest(0); f.dismissOutcome();
 
+                // 5h) Minigames: Intro-Bildschirm (Shooter) + Spielszenen (Shooter/Rhythmus)
+                f.debugOpenMinigame("shooter", 2, 0);
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_minigame_intro.png");
+                f.debugCloseMinigame();
+                f.debugOpenMinigame("shooter", 2, 4.0);
+                snap(f.getRootPane(), "shrimptopia_v3_minigame_shooter.png");
+                f.debugCloseMinigame();
+                f.debugOpenMinigame("rhythm", 1, 3.0);
+                snap(f.getRootPane(), "shrimptopia_v3_minigame_rhythm.png");
+                f.debugCloseMinigame();
+
                 f.openQuestTree();
                 f.validate();
                 snap(f.getRootPane(), "shrimptopia_v3_questtree.png");

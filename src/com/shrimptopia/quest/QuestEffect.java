@@ -5,7 +5,7 @@ import com.shrimptopia.model.ShrimpTier;
 
 /** Konsequenz einer Quest-Auswahl. */
 public class QuestEffect {
-    public enum Type { MONEY, REP, FEED, WATER, SHRIMP, MULT_SHRIMP, UNLOCK, GRANT_FLAG, START_QUEST, TARIFF, RIVAL, BATTLE }
+    public enum Type { MONEY, REP, FEED, WATER, SHRIMP, MULT_SHRIMP, UNLOCK, GRANT_FLAG, START_QUEST, TARIFF, RIVAL, BATTLE, MINIGAME }
 
     public final Type type;
     public double amount;
@@ -27,6 +27,8 @@ public class QuestEffect {
     public static QuestEffect tariff(double t)      { QuestEffect e = new QuestEffect(Type.TARIFF); e.amount = t; return e; }
     public static QuestEffect rival(double r)       { QuestEffect e = new QuestEffect(Type.RIVAL); e.amount = r; return e; }
     public static QuestEffect battle(double threat, double reward) { QuestEffect e = new QuestEffect(Type.BATTLE); e.amount = threat; e.amount2 = reward; return e; }
+    /** Startet nach der Ergebnis-Karte ein Minigame; stake skaliert die Belohnung. */
+    public static QuestEffect minigame(String id, double stake) { QuestEffect e = new QuestEffect(Type.MINIGAME); e.key = id; e.amount = stake; return e; }
 
     public void apply(GameState gs, QuestSystem qs) {
         switch (type) {
@@ -43,6 +45,7 @@ public class QuestEffect {
             case START_QUEST -> qs.forceStart(key);
             case TARIFF -> gs.setExportTariff(amount);
             case RIVAL -> qs.addRival(amount);
+            case MINIGAME -> qs.requestMinigame(key, amount <= 0 ? 1 : amount);
             case BATTLE -> {
                 double army = gs.getArmy();
                 double ratio = amount <= 0 ? 2 : army / amount;

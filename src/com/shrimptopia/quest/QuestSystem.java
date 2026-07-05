@@ -188,6 +188,19 @@ public class QuestSystem {
         else { triggered.add(id); pending.add(q); if (q.ending) lastEnding = q.title; }
     }
 
+    // --- Minigames: eine Quest-Option kann ein Minigame anfordern; das GameFrame
+    //     startet es, sobald die Ergebnis-Karte weggeklickt ist. ---
+    private String pendingMinigame;
+    private double pendingMinigameStake = 1;
+    public void requestMinigame(String id, double stake) { pendingMinigame = id; pendingMinigameStake = stake; }
+    /** Liefert {id, stake} genau einmal, sonst null. */
+    public String[] pollMinigame() {
+        if (pendingMinigame == null) return null;
+        String[] r = { pendingMinigame, String.valueOf(pendingMinigameStake) };
+        pendingMinigame = null;
+        return r;
+    }
+
     public void setFlag(String f) { flags.add(f); }
     public boolean hasFlag(String f) { return flags.contains(f); }
     public boolean isDone(String id) { return done.contains(id); }
