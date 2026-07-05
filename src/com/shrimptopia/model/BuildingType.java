@@ -317,6 +317,28 @@ public enum BuildingType {
         "Drillt Kampf-Krill zu einer stehenden Armee. 'WER BRAUCHT EINE MARINE, WENN MAN "
         + "EINE HALLE HAT?' Verbraucht Kampf-Krill + SHRIMPBOOST, erzeugt Armee-Stärke."),
 
+    // ===================== Premium-Veredelung: Darmentleerung & Abfall-Kreislauf =====================
+
+    GUT_STATION(
+        "Darmentleerungsanlage", 1300,
+        0, 3, 0, 8,
+        0, 12, 0, 0,
+        0, 0, 0, 0, 8,
+        IconKind.GUT, new Color(150, 176, 150),
+        "Premium-Shrimps kommen nur mit tadellos leerem Darm auf den Teller: In klaren Hälterungs- "
+        + "becken spülen die Garnelen 24 Stunden lang durch (Darm-Purge), bevor sie als Gourmet-Ware "
+        + "gelten. Voraussetzung für die Gourmet-Zucht - erzeugt dabei aber Klärschlamm (+5 Abfall/Tag)."),
+
+    BIOGAS_PLANT(
+        "Biogas-Kläranlage", 1100,
+        0, 2, 0, 3,
+        0, 0, 0, 0,
+        0, 0, 0, 0, 5,
+        IconKind.BIOGAS, new Color(120, 150, 96),
+        "Frisst den Klärschlamm der Darmentleerung und fault ihn zu Biogas - das du fürs Netz "
+        + "vergütet bekommst. Entsorgt bis zu 6 Abfall/Tag. Ohne Entsorgung stinkt der Schlamm zum "
+        + "Himmel und ruiniert deinen Ruf."),
+
     // ===================== Lager (Ressourcen-Kapazität) =====================
 
     STORAGE_SHED(
@@ -412,6 +434,8 @@ public enum BuildingType {
             case BOOST_STAND         -> "Boost-Stand";
             case ROBOT_WORKS         -> "Roboter-Werk";
             case KRILL_BARRACKS      -> "Kaserne";
+            case GUT_STATION         -> "Darm-Purge";
+            case BIOGAS_PLANT        -> "Biogas";
             case STORAGE_SHED        -> "Lager";
             case WAREHOUSE           -> "Hochregal";
         };
@@ -424,7 +448,8 @@ public enum BuildingType {
             POWER_PLANT, SOLAR_ROOF, WATER_PLANT, WATER_HUB, ALGAE_FARM, SHRIMP_TANK,
             HOUSING, WAREHOUSE, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
             EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET, VISITOR_CENTER, ZEN_GARDEN,
-            SHELL_PRESS, SHRIMPBOOST_FACTORY, BOOST_STAND, ROBOT_WORKS, KRILL_BARRACKS
+            SHELL_PRESS, SHRIMPBOOST_FACTORY, BOOST_STAND, ROBOT_WORKS, KRILL_BARRACKS,
+            GUT_STATION, BIOGAS_PLANT
         };
     }
 
@@ -489,6 +514,9 @@ public enum BuildingType {
         META.put(ZEN_GARDEN,     m(Zone.EMPFANG,    "zone.EMPFANG"));
 
         META.put(SHELL_PRESS,         m(Zone.PRODUKTION, "era.HALLE"));
+        // Premium-Veredelung: Darmentleerung schaltet die Gourmet-Zucht frei, Biogas entsorgt den Schlamm
+        META.put(GUT_STATION,         m(Zone.FORSCHUNG,  "build.gut_station"));
+        META.put(BIOGAS_PLANT,        m(Zone.FORSCHUNG,  "build.waste_plant"));
         META.put(SHRIMPBOOST_FACTORY, m(Zone.FORSCHUNG,  "build.shrimpboost"));
         META.put(BOOST_STAND,         m(Zone.EMPFANG,    "build.shrimpboost"));
         META.put(ROBOT_WORKS,         m(Zone.LOGISTIK,   "build.robotworks"));
@@ -501,12 +529,12 @@ public enum BuildingType {
 
     // ===================== Lagerkapazität =====================
 
-    /** Kapazität je Gebäude: {Wasser, Futter, Shrimps, Schalen, Boost}. null = kein Lager. */
+    /** Kapazität je Gebäude: {Wasser, Futter, Shrimps, Schalen, Boost, Abfall}. null = kein Lager. */
     private static final java.util.EnumMap<BuildingType, double[]> STORAGE = new java.util.EnumMap<>(BuildingType.class);
     static {
-        STORAGE.put(HEADQUARTERS, new double[]{ 350, 250, 120, 150,  80 });
-        STORAGE.put(STORAGE_SHED, new double[]{ 250, 180,  60, 120,  50 });
-        STORAGE.put(WAREHOUSE,    new double[]{ 900, 650, 250, 450, 250 });
+        STORAGE.put(HEADQUARTERS, new double[]{ 350, 250, 120, 150,  80,  60 });
+        STORAGE.put(STORAGE_SHED, new double[]{ 250, 180,  60, 120,  50,  40 });
+        STORAGE.put(WAREHOUSE,    new double[]{ 900, 650, 250, 450, 250, 160 });
     }
     public double[] storage() { return STORAGE.get(this); }
 
@@ -535,6 +563,8 @@ public enum BuildingType {
         FLOWS.put(BOOST_STAND,         new Flows().boostIn(5));
         FLOWS.put(ROBOT_WORKS,         new Flows().shellsIn(5).boostIn(1).robotsOut(0.25));
         FLOWS.put(KRILL_BARRACKS,      new Flows().boostIn(1).army(4));
+        FLOWS.put(GUT_STATION,         new Flows().wasteOut(5));
+        FLOWS.put(BIOGAS_PLANT,        new Flows().wasteIn(6));
     }
     private static final Flows NO_FLOWS = new Flows();
     public Flows flows() { return FLOWS.getOrDefault(this, NO_FLOWS); }

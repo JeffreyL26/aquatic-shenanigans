@@ -49,6 +49,7 @@ public final class Palette {
     public static final Color BOOST = new Color(40, 224, 220);
     public static final Color ROBOT = new Color(150, 168, 196);
     public static final Color ARMY  = new Color(140, 152, 92);
+    public static final Color WASTE = new Color(140, 122, 74);   // Klärschlamm / Darm-Abfall
 
     // Schriften
     public static final Font FONT_H1    = new Font("SansSerif", Font.BOLD, 20);

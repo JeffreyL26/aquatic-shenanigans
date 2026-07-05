@@ -376,7 +376,7 @@ public final class QuestContent {
             "Krabbo Inc. baut nebenan",
             "Chad Krabbowski eröffnet eine Mega-Shrimp-Fabrik gegenüber. Slogan: 'Billiger. Größer. "
             + "Vermutlich illegal.' Er unterbietet schon deine Preise.",
-            c("Qualitätsoffensive: in Tiers investieren. (-1000)", "Gourmet-Zucht freigeschaltet - Qualität schlägt Masse.", money(-1000), unlock("tier.GOURMET")).then("konk_angebot"),
+            c("Qualitätsoffensive: Premium-Veredelung. (-1000)", "Darmentleerungsanlage freigeschaltet - der Weg zu makellosen Gourmet-Shrimps. Qualität schlägt Masse.", money(-1000), unlock("build.gut_station")).then("konk_angebot"),
             c("Preiskrieg starten.", "Hart, aber Krabbo verliert Marktanteile.", rep(5)).then("konk_angebot"),
             c("Industriespionage. (-500)", "Mira als Maulwurf. Riskant, aber lehrreich.", money(-500)).then("konk_angebot"));
 
@@ -660,6 +660,27 @@ public final class QuestContent {
             + "bekommen. Gute Nachricht: Futter im Überfluss. Schlechte: Die Algen wollen Miete.",
             c("Überschuss-Futter verkaufen.", "Schnelles Geld, volles Lager.", money(400), feed(20)),
             c("Algen-Smoothies an Touristen.", "Hype! (Jemand wird kurz grün im Gesicht.)", money(700), rep(-2)));
+
+        // Premium-Veredelung: Sobald die Darmentleerungsanlage steht, zertifiziert Reinhild
+        // Darmstädter den Purge-Prozess (schaltet Gourmet frei) und warnt vor dem Klärschlamm.
+        auto("gourmet_darm", GameCharacter.PURIST, "Reinhild Darmstädter (mit Klemmbrett)",
+            Condition.buildCount(BuildingType.GUT_STATION, 1), 0,
+            "Reinheits-Audit: Der Darm muss leer sein",
+            "Guten Tag. Reinhild Darmstädter, Darm-Sommelière, IHK-zertifiziert. Ihre neue "
+            + "Darmentleerungsanlage ist... akzeptabel. Merke: Ein Gourmet-Shrimp mit vollem Darm ist "
+            + "eine Beleidigung für den Gaumen - erdig, sandig, ein Skandal. 24 Stunden Hälterung in "
+            + "klarem Wasser, dann - und NUR dann - dürfen Sie 'Gourmet' auf die Kiste schreiben. Aber: "
+            + "Der ausgespülte Darminhalt wird zu Klärschlamm. Der muss weg, sonst riecht Ihre Halle wie "
+            + "mein erster Ehemann.",
+            c("Reinheit über alles - und Biogas-Kläranlage bauen!", "Sie nickt anerkennend. Gourmet-Zucht "
+                + "zertifiziert, und der Schlamm wird zu Biogas vergoren. Makellos.",
+                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(7)),
+            c("Gourmet ja, Schlamm-Sorgen später.", "Sie seufzt. 'Wie Sie meinen. Aber der Schlamm wartet "
+                + "nicht.' Gourmet freigeschaltet, Biogas-Kläranlage im Baumenü.",
+                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(2)),
+            c("Muss der Darm WIRKLICH leer sein? (-0)", "Reinhild starrt Sie an, bis Sie sich schämen. "
+                + "'JA.' Gourmet freigeschaltet - sie besteht auf die Kläranlage.",
+                unlock("tier.GOURMET"), unlock("build.waste_plant"), rep(-2), money(400)));
 
         auto("presse_kritiker", GameCharacter.PRESS, "Presse (anonym)",
             Condition.all(Condition.buildCount(BuildingType.RESTAURANT, 1), Condition.rep(50)), 0,

@@ -391,6 +391,7 @@ public class OverlayHost extends JComponent {
             if (n.contains("perla"))       return "perla";
             if (n.contains("kyle"))        return "kyle";
             if (n.contains("dmitri"))      return "dmitri";
+            if (n.contains("darmstädter") || n.contains("darmstaedter") || n.contains("reinhild")) return "darmstaedter";
         }
         return q.giver != null ? q.giver.avatarKey : null;
     }

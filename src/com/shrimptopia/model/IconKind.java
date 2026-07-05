@@ -7,6 +7,8 @@ public enum IconKind {
     WATERHUB, GENLAB, DOCK, MILITARY, BLACKMARKET, VISITOR, GARDEN,
     // v3-Gebaeude/Ressourcen
     SHELL, CAN, ROBOT, SHIELD, CRATE,
+    // Darmentleerung & Abfall-Kreislauf
+    GUT, BIOGAS, WASTE,
     // reine Ressourcen-/UI-Symbole
     COIN, BOLT, DROP, LEAF, SHRIMP, PERSON, STAR,
     // Charakter-Portraits

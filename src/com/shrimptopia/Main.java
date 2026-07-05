@@ -104,6 +104,7 @@ public class Main {
                 for (String flag : new String[]{"era.HALLE", "zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
                         "build.water_hub", "build.export", "build.military", "build.genlab",
                         "build.shrimpboost", "build.robotworks", "build.barracks", "tier.WARKRILL",
+                        "build.gut_station", "build.waste_plant",
                         "tier.BIO", "tier.GOURMET", "tier.PROTEIN", "krillkill.bootcamp",
                         "mkt.radio", "mkt.social", "mkt.tube", "mkt.billboard", "mkt.tv",
                         "sts6", "shrimp_union"})
@@ -117,8 +118,9 @@ public class Main {
                     BuildingType.POWER_PLANT, BuildingType.SOLAR_ROOF, BuildingType.WATER_PLANT,
                     BuildingType.WATER_HUB, BuildingType.ALGAE_FARM, BuildingType.SHRIMP_TANK,
                     BuildingType.SHRIMP_TANK, BuildingType.HOUSING, BuildingType.SALES_OFFICE,
-                    BuildingType.SHELL_PRESS, BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS };
-                int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1},{2,1},{3,1},{4,1} };
+                    BuildingType.SHELL_PRESS, BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS,
+                    BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT };
+                int[][] pos = { {0,0},{1,0},{2,0},{3,0},{4,0},{5,0},{6,0},{0,1},{1,1},{2,1},{3,1},{4,1},{5,1},{6,1} };
                 for (int i = 0; i < prod.length; i++) gs.place(prod[i], Zone.PRODUKTION, pos[i][0], pos[i][1], false);
                 for (int i = 0; i < 30; i++) gs.tick();
                 while (gs.pollAnnouncement() != null) { }   // Meilenstein-Ansagen abräumen (stören die Snaps)
@@ -200,6 +202,12 @@ public class Main {
                 f.validate(); f.debugRefreshOverlay();
                 snap(f.getRootPane(), "shrimptopia_v3_dmitri.png");
                 f.resolveQuest(2); f.dismissOutcome();
+
+                // 5f) Reinhild Darmstädter (Darmentleerung -> Gourmet-Freischaltung, eigener Avatar)
+                f.debugForceQuest("gourmet_darm");
+                f.validate(); f.debugRefreshOverlay();
+                snap(f.getRootPane(), "shrimptopia_v3_darm.png");
+                f.resolveQuest(0); f.dismissOutcome();
 
                 f.openQuestTree();
                 f.validate();

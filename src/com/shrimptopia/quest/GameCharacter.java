@@ -16,6 +16,7 @@ public enum GameCharacter {
     KRILLKILL("General \"Krillkill\" Johnson", "Kriegsveteran a.D.", IconKind.PORTRAIT_GENERAL, new Color(150, 80, 70), "krillkill"),
     AKWANOV ("Außenminister Akwanov", "Usbekistan",     IconKind.PORTRAIT_DIPLOMAT, new Color(90, 150, 130), "ivan"),
     KYLE    ("u/KrustenKyle_87",      "Reddit-Rivale & Keller-Mogul", IconKind.PORTRAIT_MAYOR, new Color(255, 105, 50), "kyle"),
+    PURIST  ("Reinhild Darmstädter",  "Darm-Sommelière & Reinheits-Auditorin", IconKind.PORTRAIT_ADVISOR, new Color(120, 170, 120), "darmstaedter"),
     NARRATOR("ShrimpTopia",       "",                    IconKind.SHRIMP,            new Color(255, 118, 104), "shrimptopia");
 
     public final String displayName, role;

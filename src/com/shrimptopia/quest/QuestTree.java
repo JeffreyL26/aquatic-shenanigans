@@ -59,7 +59,7 @@ public final class QuestTree {
         new Line("konflikte",  "Konflikte & Kriege",       new Color(235, 90, 90),
             "conf_border", "conf_flotilla", "conf_raid", "conf_siege", "conf_war"),
         new Line("einzel",     "Einzelquests",             new Color(0, 199, 183),
-            "era_halle", "kat_blackout", "kat_algen", "presse_kritiker", "kat_moewen",
+            "era_halle", "kat_blackout", "kat_algen", "gourmet_darm", "presse_kritiker", "kat_moewen",
             "beh_steuer", "idee_spa", "geld_investor", "dmitri_zeugnis", "dmitri_kantine"),
         new Line("enden",      "Spielenden",               new Color(255, 205, 86),
             "end_imperator", "end_vertical", "end_protein", "end_union", "end_saint", "end_meme"));
@@ -80,6 +80,8 @@ public final class QuestTree {
         UNLOCK_LABEL.put("mkt.billboard",      "Marketing: Autobahn-Plakat");
         UNLOCK_LABEL.put("mkt.tv",             "Marketing: TV-Spot 'Shrimp your day!'");
         UNLOCK_LABEL.put("tier.BIO",           "Bio-Shrimp (Tier + Becken-Modus)");
+        UNLOCK_LABEL.put("build.gut_station",  "Gebäude: Darmentleerungsanlage (Voraussetzung für Gourmet)");
+        UNLOCK_LABEL.put("build.waste_plant",  "Gebäude: Biogas-Kläranlage (entsorgt Klärschlamm)");
         UNLOCK_LABEL.put("tier.GOURMET",       "Gourmet-Shrimp (Tier + Becken-Modus)");
         UNLOCK_LABEL.put("tier.PROTEIN",       "Protein-Bombe (Tier + Becken-Modus)");
         UNLOCK_LABEL.put("tier.WARKRILL",      "Kampf-Krill (Tier, Modus + Kaserne)");

@@ -64,8 +64,9 @@ public class GameState {
     private double armyStrength = 0;
     private double shells = 0, energy = 0, robots = 0;   // energy = SHRIMPBOOST
     private double totalBoostProduced = 0, totalRobotsProduced = 0;
+    private double waste = 0;   // Klärschlamm aus der Darmentleerung (muss entsorgt werden)
     private final java.util.EnumMap<BuildingType, Double> incomeByType = new java.util.EnumMap<>(BuildingType.class);
-    private double incomeLast = 0, shellsNet = 0, boostNet = 0, robotsNet = 0;
+    private double incomeLast = 0, shellsNet = 0, boostNet = 0, robotsNet = 0, wasteNet = 0;
     private final java.util.EnumSet<Edict> activeEdicts = java.util.EnumSet.noneOf(Edict.class);
 
     private final Random rng;
@@ -259,6 +260,8 @@ public class GameState {
         if (money >= 6_000)
             unlock("era.HALLE", "Die Garage hat ausgedient: Hallen-Gebäude freigeschaltet!");
         boolean halle = isUnlocked("era.HALLE");
+        if (isUnlocked("zone.FORSCHUNG") && money >= 16_000)
+            unlock("build.gut_station", "Freigeschaltet: Darmentleerungsanlage - Voraussetzung für makellose Gourmet-Shrimps (mit leerem Darm)!");
         if (isUnlocked("zone.FORSCHUNG") && money >= 18_000)
             unlock("build.shrimpboost", "Freigeschaltet: SHRIMPBOOST-Fabrik & -Stand! Aus Shrimps + Schalen presst du deinen EIGENEN Energydrink.");
         if (isUnlocked("zone.LOGISTIK") && money >= 40_000)
@@ -289,7 +292,7 @@ public class GameState {
         if (bankrupt) return;
         day++;
         double moneyBefore = money;
-        double shellsBefore = shells, boostBefore = energy, robotsBefore = robots;
+        double shellsBefore = shells, boostBefore = energy, robotsBefore = robots, wasteBefore = waste;
         incomeByType.clear();
 
         // --- Farm-Modifikatoren aus globalen Upgrades + Arbeiter-Politik ---
@@ -432,6 +435,21 @@ public class GameState {
         armyStrength += ksArmy * opsEff * ksServe;
         if (ksArmy <= 0) armyStrength = Math.max(0, armyStrength - 1);   // Verfall ohne Kaserne
 
+        // --- Premium-Veredelung: Darmentleerung erzeugt Klärschlamm, Biogas-Anlage entsorgt ihn ---
+        double wasteIn = 0, wasteDisposalCap = 0;
+        for (Building b : buildings) {
+            wasteIn += b.lastStats.wasteProduce;
+            wasteDisposalCap += b.lastStats.wasteUse;
+        }
+        wasteIn *= opsEff; wasteDisposalCap *= opsEff;
+        waste += wasteIn;
+        double wasteDisposed = Math.min(waste, wasteDisposalCap);
+        waste -= wasteDisposed;
+        double biogasRevenue = wasteDisposed * 4 * repMultLocal;   // Biogas ins Netz - kleine Vergütung
+        money += biogasRevenue;
+        if (biogasRevenue > 0) incomeByType.merge(BuildingType.BIOGAS_PLANT, biogasRevenue, Double::sum);
+        wasteNet = wasteIn - wasteDisposed;
+
         double standCap = 0;
         for (Building b : buildings) if (b.type == BuildingType.BOOST_STAND) standCap += b.lastStats.boostUse;
         standCap *= opsEff;
@@ -551,6 +569,16 @@ public class GameState {
             lastStorageWarnDay = day;
             log("Lager voll - Überschuss verfällt! Bau oder upgrade ein Lager.", LOG_WARN);
         }
+        // Abfall separat: überlaufender Klärschlamm wird "wild entsorgt" und kostet Reputation.
+        if (waste > getCapWaste()) {
+            double dumped = waste - getCapWaste();
+            waste = getCapWaste();
+            reputation = clamp(reputation - Math.min(3, dumped * 0.05), 0, 100);
+            if (day - lastWasteWarnDay >= 3) {
+                lastWasteWarnDay = day;
+                log("Abfall-Lager voll - Klärschlamm läuft über und stinkt zum Himmel! Bau eine Biogas-Kläranlage (-Reputation).", LOG_BAD);
+            }
+        }
 
         checkMilestoneUnlocks();
 
@@ -627,12 +655,14 @@ public class GameState {
         s.boostProduce = fl.boostProduce; s.boostUse = fl.boostUse;
         s.robotProduce = fl.robotProduce; s.robotUse = fl.robotUse;
         s.armyProduce = fl.armyProduce;
+        s.wasteProduce = fl.wasteProduce; s.wasteUse = fl.wasteUse;
         return s;
     }
 
     // ===================== Lagerkapazität =====================
 
     private int lastStorageWarnDay = -100;
+    private int lastWasteWarnDay = -100;
 
     /** Gesamtkapazität für Index 0=Wasser, 1=Futter, 2=Shrimps, 3=Schalen, 4=Boost. */
     private double storageCap(int idx) {
@@ -648,6 +678,7 @@ public class GameState {
     public double getCapShrimp() { return storageCap(2); }
     public double getCapShells() { return storageCap(3); }
     public double getCapBoost()  { return storageCap(4); }
+    public double getCapWaste()  { return storageCap(5); }
 
     /** Maximaler HQ-Nähe-Bonus und Reichweite (Chebyshev-Distanz in Kacheln). */
     public static final double HQ_BOOST_MAX = 0.10;
@@ -772,6 +803,8 @@ public class GameState {
     public double getShells() { return shells; }
     public double getEnergy() { return energy; }
     public double getRobots() { return robots; }
+    public double getWaste()  { return waste; }
+    public double getWasteNet() { return wasteNet; }
     public void addShells(double d) { shells = Math.max(0, shells + d); }
     public void addEnergy(double d) { energy = Math.max(0, energy + d); }
     public void addRobots(double d) { robots = Math.max(0, robots + d); }
@@ -820,6 +853,7 @@ public class GameState {
         return switch (key == null ? "" : key) {
             case "money" -> money; case "water" -> water; case "feed" -> feed;
             case "shells" -> shells; case "boost", "energy" -> energy; case "robots" -> robots;
+            case "waste" -> waste;
             case "shrimp" -> getShrimpTotal(); default -> 0;
         };
     }

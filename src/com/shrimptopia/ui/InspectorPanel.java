@@ -155,6 +155,10 @@ public class InspectorPanel extends JPanel {
                 y = row(g, y, Palette.MONEY, "Verkauf", String.format("bis %.0f/Tag", s.sellCap));
             if (s.workerProvide > 0 || s.workerNeed > 0)
                 y = row(g, y, Palette.WORKERS, "Arbeiter", flow(s.workerProvide, s.workerNeed));
+            if (s.wasteProduce > 0)
+                y = row(g, y, Palette.WASTE, "Abfall", String.format("+%.0f/Tag", s.wasteProduce));
+            if (s.wasteUse > 0)
+                y = row(g, y, Palette.WASTE, "Entsorgt", String.format("-%.0f/Tag", s.wasteUse));
             y = row(g, y, Palette.TEXT_DIM, "Kosten", String.format("-%.1f/Tag", s.upkeep));
             double hq = frame.game().hqProximityBoost(b);
             if (hq > 0)

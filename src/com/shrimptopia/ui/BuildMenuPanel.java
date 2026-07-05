@@ -31,7 +31,8 @@ public class BuildMenuPanel extends JComponent {
         new Cat("Personal & Lager", BuildingType.CAMPER, BuildingType.HOUSING,
                              BuildingType.STORAGE_SHED, BuildingType.WAREHOUSE),
         new Cat("Industrie", BuildingType.LAB, BuildingType.GENLAB, BuildingType.SHELL_PRESS,
-                             BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS, BuildingType.KRILL_BARRACKS),
+                             BuildingType.SHRIMPBOOST_FACTORY, BuildingType.ROBOT_WORKS, BuildingType.KRILL_BARRACKS,
+                             BuildingType.GUT_STATION, BuildingType.BIOGAS_PLANT),
         new Cat("Ruf & Deko", BuildingType.VISITOR_CENTER, BuildingType.ZEN_GARDEN),
     };
 
@@ -300,6 +301,8 @@ public class BuildMenuPanel extends JComponent {
             case KRILL_BARRACKS      -> "+Armee-Stärke";
             case STORAGE_SHED        -> "+Lagerkapazität";
             case WAREHOUSE           -> "viel Lagerkapazität";
+            case GUT_STATION         -> "Gourmet-Voraussetzung, +Abfall";
+            case BIOGAS_PLANT        -> "entsorgt Abfall zu Biogas";
             default           -> "";
         };
     }

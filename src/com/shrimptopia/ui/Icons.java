@@ -30,6 +30,7 @@ public final class Icons {
             case CAN    -> can(g, cx, cy, size, color);
             case ROBOT  -> robot(g, cx, cy, size, color);
             case SHIELD -> shield(g, cx, cy, size, color);
+            case WASTE  -> waste(g, cx, cy, size, color);
             default     -> { }
         }
     }
@@ -60,7 +61,72 @@ public final class Icons {
             case ROBOT       -> robot(g, cx, cy, size, new Color(150, 168, 196));
             case SHIELD      -> shield(g, cx, cy, size, new Color(140, 152, 92));
             case CRATE       -> crate(g, cx, cy, size);
+            case GUT         -> gutStation(g, cx, cy, size);
+            case BIOGAS      -> biogas(g, cx, cy, size);
+            case WASTE       -> waste(g, cx, cy, size, new Color(150, 132, 84));
             default    -> { }
+        }
+    }
+
+    /** Darmentleerungsanlage: Hälterungsbecken mit Ablassventil und "sauberer" Garnele darin. */
+    private static void gutStation(Graphics2D g, double cx, double cy, double s) {
+        double w = s * 0.72, h = s * 0.58;
+        RoundRectangle2D tankShape = new RoundRectangle2D.Double(cx - w / 2, cy - h / 2 - s * 0.06, w, h, s * 0.12, s * 0.12);
+        g.setColor(new Color(196, 230, 236));                 // klares Spülwasser
+        g.fill(tankShape);
+        g.setColor(new Color(150, 205, 214, 150));
+        g.fill(new RoundRectangle2D.Double(cx - w / 2, cy - h / 2 - s * 0.06, w, h * 0.42, s * 0.12, s * 0.12));
+        g.setColor(WHITE);
+        g.setStroke(new BasicStroke((float) (s * 0.05)));
+        g.draw(tankShape);
+        // gereinigte Garnele (sauberer Darm -> heller Streifen)
+        shrimp(g, cx, cy - s * 0.04, s * 0.34, new Color(255, 150, 130));
+        g.setColor(new Color(255, 255, 255, 220));
+        g.setStroke(new BasicStroke((float) (s * 0.03)));
+        g.draw(new Line2D.Double(cx - s * 0.12, cy - s * 0.05, cx + s * 0.1, cy - s * 0.07));
+        // Ablassventil + Tropfen (Darm-Purge)
+        g.setColor(new Color(120, 132, 140));
+        g.fill(new RoundRectangle2D.Double(cx - s * 0.05, cy + h / 2 - s * 0.06, s * 0.1, s * 0.16, 2, 2));
+        g.setColor(new Color(150, 176, 120));
+        g.fill(new Ellipse2D.Double(cx - s * 0.045, cy + h / 2 + s * 0.12, s * 0.09, s * 0.12));
+    }
+
+    /** Biogas-Kläranlage: Faulturm-Kuppel mit aufsteigenden Gasblasen. */
+    private static void biogas(Graphics2D g, double cx, double cy, double s) {
+        double r = s * 0.34;
+        double baseY = cy + s * 0.28;
+        g.setColor(new Color(120, 150, 96));
+        g.fill(new Rectangle2D.Double(cx - r, cy - s * 0.02, 2 * r, baseY - (cy - s * 0.02)));   // Zylinder
+        g.fill(new Arc2D.Double(cx - r, cy - r - s * 0.02, 2 * r, 2 * r, 0, 180, Arc2D.CHORD));   // Kuppel
+        g.setColor(darker(new Color(120, 150, 96), 0.75));
+        g.setStroke(new BasicStroke((float) (s * 0.05)));
+        g.draw(new Arc2D.Double(cx - r, cy - r - s * 0.02, 2 * r, 2 * r, 0, 180, Arc2D.OPEN));
+        g.draw(new Line2D.Double(cx - r, cy - s * 0.02, cx - r, baseY));
+        g.draw(new Line2D.Double(cx + r, cy - s * 0.02, cx + r, baseY));
+        // Gasblasen
+        g.setColor(new Color(210, 235, 190, 220));
+        g.fill(new Ellipse2D.Double(cx - s * 0.04, cy - s * 0.30, s * 0.1, s * 0.1));
+        g.fill(new Ellipse2D.Double(cx + s * 0.08, cy - s * 0.22, s * 0.07, s * 0.07));
+    }
+
+    /** Abfall/Klärschlamm: Schlammhaufen mit Gestank-Wellen. */
+    private static void waste(Graphics2D g, double cx, double cy, double s, Color c) {
+        Path2D pile = new Path2D.Double();
+        pile.moveTo(cx - s * 0.4, cy + s * 0.28);
+        pile.curveTo(cx - s * 0.34, cy - s * 0.02, cx - s * 0.1, cy - s * 0.06, cx - s * 0.02, cy + s * 0.06);
+        pile.curveTo(cx + s * 0.08, cy - s * 0.12, cx + s * 0.34, cy - s * 0.02, cx + s * 0.4, cy + s * 0.28);
+        pile.closePath();
+        g.setColor(c);
+        g.fill(pile);
+        g.setColor(darker(c, 0.7));
+        g.setStroke(new BasicStroke((float) (s * 0.045)));
+        g.draw(pile);
+        // Gestank-Wellen
+        g.setColor(new Color(150, 170, 130, 200));
+        g.setStroke(new BasicStroke((float) (s * 0.05), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        for (int i = -1; i <= 1; i++) {
+            double bx = cx + i * s * 0.2;
+            g.draw(new QuadCurve2D.Double(bx, cy - s * 0.06, bx + s * 0.06, cy - s * 0.18, bx, cy - s * 0.3));
         }
     }
 

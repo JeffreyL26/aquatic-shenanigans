@@ -11,6 +11,7 @@ public class Stats {
     public double boostProduce, boostUse;
     public double robotProduce, robotUse;
     public double armyProduce;
+    public double wasteProduce, wasteUse;
     public double sellCap;       // verkaufbare Shrimps/Tag (Märkte)
     public double upkeep;
     public double repPerTick;

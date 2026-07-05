@@ -140,6 +140,7 @@ public class TopBar extends JPanel {
             if (gs.isUnlocked("build.shrimpboost")) order.add(ResourceType.SHRIMPBOOST);
             if (gs.isUnlocked("build.robotworks")) order.add(ResourceType.ROBOTS);
             if (gs.getArmy() > 0 || gs.isUnlocked("build.barracks")) order.add(ResourceType.ARMY);
+            if (gs.getWaste() > 0 || gs.isUnlocked("build.gut_station")) order.add(ResourceType.WASTE);
             lastOrder = order;
             int n = order.size();
             int pad = 12;
@@ -230,6 +231,12 @@ public class TopBar extends JPanel {
                 case SHRIMPBOOST -> { value = fmtInt(gs.getEnergy()) + "/" + fmtInt(gs.getCapBoost()); sub = "Dosen"; }
                 case ROBOTS      -> { value = fmtInt(gs.getRobots()); sub = "je +2 Arbeiter"; }
                 case ARMY        -> { value = fmtInt(gs.getArmy()); sub = "Stärke"; }
+                case WASTE       -> {
+                    value = fmtInt(gs.getWaste()) + "/" + fmtInt(gs.getCapWaste());
+                    boolean full = gs.getWaste() >= gs.getCapWaste() - 0.5;
+                    sub = full ? "läuft über!" : "entsorgen";
+                    subColor = full ? Palette.BAD : Palette.TEXT_DIM;
+                }
                 default -> { value = ""; sub = ""; }
             }
 

@@ -105,7 +105,7 @@ public final class BuildingCatalog {
             new Mode("market", "Marktforschung", "Treibt Preise (siehe Upgrade), kostet mehr.").upkeep(1.3));
         upgrades(BuildingType.LAB,
             new Upgrade("biocert", "Bio-Zertifizierung", 800, "[KETTE] Schaltet Bio-Shrimps frei.").grants("tier.BIO"),
-            new Upgrade("gourmetcert", "Gourmet-Protokoll", 1200, "[KETTE] Schaltet Gourmet-Shrimps frei.").grants("tier.GOURMET").needs("tier.BIO"),
+            new Upgrade("gourmetcert", "Gourmet-Protokoll", 1200, "[KETTE] Schaltet die Darmentleerungsanlage frei (Voraussetzung für Gourmet-Shrimps).").grants("build.gut_station").needs("tier.BIO"),
             new Upgrade("patents", "Patentportfolio", 1400, "[FARMWEIT] +10% Verkaufspreis.")
                 .global(GlobalEffect.Type.PRICE_MULT, 1.1));
         modes(BuildingType.GENLAB,

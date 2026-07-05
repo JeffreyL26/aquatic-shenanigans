@@ -7,6 +7,7 @@ public class Flows {
     public double boostProduce, boostUse;
     public double robotProduce, robotUse;
     public double armyProduce;
+    public double wasteProduce, wasteUse;   // Darmentleerung erzeugt Abfall, Biogas-Anlage entsorgt ihn
 
     public Flows shrimp(double v) { shrimpUse = v; return this; }
     public Flows shellsOut(double v) { shellProduce = v; return this; }
@@ -15,4 +16,6 @@ public class Flows {
     public Flows boostIn(double v) { boostUse = v; return this; }
     public Flows robotsOut(double v) { robotProduce = v; return this; }
     public Flows army(double v) { armyProduce = v; return this; }
+    public Flows wasteOut(double v) { wasteProduce = v; return this; }
+    public Flows wasteIn(double v) { wasteUse = v; return this; }
 }

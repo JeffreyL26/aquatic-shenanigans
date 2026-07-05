@@ -15,7 +15,8 @@ public enum ResourceType {
     SHELLS     ("Schalen",     "SCHALEN",  Palette.SHELL, IconKind.SHELL),
     SHRIMPBOOST("SHRIMPBOOST",  "BOOST",   Palette.BOOST, IconKind.CAN),
     ROBOTS     ("Roboter",      "ROBOTER", Palette.ROBOT, IconKind.ROBOT),
-    ARMY       ("Armee-Stärke", "ARMEE",   Palette.ARMY,  IconKind.SHIELD);
+    ARMY       ("Armee-Stärke", "ARMEE",   Palette.ARMY,  IconKind.SHIELD),
+    WASTE      ("Abfall",       "ABFALL",  Palette.WASTE, IconKind.WASTE);
 
     public final String displayName;
     /** Kurzform fürs schmale Top-HUD (max. ~8 Zeichen). */

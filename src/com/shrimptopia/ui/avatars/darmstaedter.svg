@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Reinhild Darmstaedter avatar">
+  <defs>
+    <clipPath id="d-frame"><circle cx="300" cy="300" r="286"></circle></clipPath>
+    <radialGradient id="d-bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#a9d8ac"></stop><stop offset="100%" stop-color="#6ba86f"></stop>
+    </radialGradient>
+    <linearGradient id="d-hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8f8378"></stop><stop offset="100%" stop-color="#6a5f55"></stop>
+    </linearGradient>
+    <clipPath id="d-eyeL"><path d="M234 306 Q250 292 266 293 Q282 294 292 308 Q278 320 262 320 Q248 320 234 306 Z"></path></clipPath>
+    <clipPath id="d-eyeR"><path d="M308 308 Q318 294 334 293 Q350 292 366 306 Q352 320 337 320 Q322 320 308 308 Z"></path></clipPath>
+  </defs>
+
+  <circle cx="300" cy="300" r="298" fill="#0c1519"></circle>
+  <circle cx="300" cy="300" r="286" fill="url(#d-bg)"></circle>
+  <circle cx="300" cy="300" r="286" fill="#0c1519" opacity="0.10" style="mix-blend-mode:multiply"></circle>
+
+  <g clip-path="url(#d-frame)">
+    <ellipse cx="300" cy="566" rx="320" ry="130" fill="#5c9a61"></ellipse>
+
+    <!-- Kittel (Reinraum-Weiss) -->
+    <g stroke="#233028" stroke-width="7" stroke-linejoin="round">
+      <path d="M300 466 C186 466 112 516 92 600 L508 600 C488 516 414 466 300 466 Z" fill="#f2f5f1"></path>
+      <path d="M300 466 C248 466 214 486 196 520 L212 600 L300 600 Z" fill="#e2e8e0" stroke="none"></path>
+      <!-- Kragen -->
+      <path d="M262 472 Q300 508 338 472 L330 460 Q300 486 270 460 Z" fill="#d7ded8"></path>
+    </g>
+    <!-- Ausweis-Lanyard (gruen) + Auditor-Badge -->
+    <path d="M276 470 L292 556 M324 470 L308 556" stroke="#3f8f4b" stroke-width="9" fill="none"></path>
+    <rect x="284" y="552" width="40" height="30" rx="4" fill="#fbfdfb" stroke="#233028" stroke-width="5"></rect>
+    <path d="M291 560 h16 M291 568 h12" stroke="#8aa38c" stroke-width="3" stroke-linecap="round"></path>
+
+    <!-- Hals -->
+    <path d="M272 410 L272 470 Q300 490 328 470 L328 410 Z" fill="#e6c0a2" stroke="#233028" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M272 432 Q300 450 328 432 L328 410 L272 410 Z" fill="#d3a884" stroke="none"></path>
+
+    <!-- Ohren -->
+    <path d="M196 306 q-20 2 -18 24 q3 20 22 20 q9 -2 9 -13 z" fill="#e6c0a2" stroke="#233028" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M404 306 q20 2 18 24 q-3 20 -22 20 q-9 -2 -9 -13 z" fill="#e6c0a2" stroke="#233028" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- Haar-Hinterkopf + strenger Dutt -->
+    <path d="M300 152 C210 152 168 224 168 306 C168 366 180 418 200 460 L240 448 C216 400 220 330 232 288 C266 306 334 306 368 288 C380 330 384 400 360 448 L400 460 C420 418 432 366 432 306 C432 224 390 152 300 152 Z" fill="url(#d-hair)" stroke="#233028" stroke-width="7" stroke-linejoin="round"></path>
+    <circle cx="300" cy="150" r="34" fill="url(#d-hair)" stroke="#233028" stroke-width="7"></circle>
+
+    <!-- Gesicht -->
+    <path d="M300 180 C236 180 200 226 200 296 C200 340 214 380 242 404 C262 420 338 420 358 404 C386 380 400 340 400 296 C400 226 364 180 300 180 Z" fill="#f0cdad" stroke="#233028" stroke-width="7" stroke-linejoin="round"></path>
+
+    <!-- straff nach hinten gekaemmtes Haar vorne -->
+    <path d="M200 296 C200 224 238 180 300 180 C362 180 400 224 400 296 C398 258 366 244 300 244 C234 244 202 258 200 296 Z" fill="url(#d-hair)" stroke="#233028" stroke-width="7" stroke-linejoin="round"></path>
+    <path d="M300 182 C260 184 232 206 224 246" fill="none" stroke="#5b5149" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M300 182 C340 184 368 206 376 246" fill="none" stroke="#5b5149" stroke-width="5" stroke-linecap="round"></path>
+
+    <!-- Augenbrauen (streng, leicht hochgezogen) -->
+    <path d="M230 280 Q254 268 288 278" fill="none" stroke="#4a4038" stroke-width="7" stroke-linecap="round"></path>
+    <path d="M312 278 Q346 268 370 280" fill="none" stroke="#4a4038" stroke-width="7" stroke-linecap="round"></path>
+
+    <!-- Augen -->
+    <path d="M234 306 Q250 292 266 293 Q282 294 292 308 Q278 320 262 320 Q248 320 234 306 Z" fill="#fbfdfd"></path>
+    <path d="M308 308 Q318 294 334 293 Q350 292 366 306 Q352 320 337 320 Q322 320 308 308 Z" fill="#fbfdfd"></path>
+    <g clip-path="url(#d-eyeL)"><circle cx="264" cy="307" r="12" fill="#5f6f4f"></circle><circle cx="264" cy="307" r="6" fill="#141a10"></circle><circle cx="260" cy="303" r="3.5" fill="#fff"></circle></g>
+    <g clip-path="url(#d-eyeR)"><circle cx="336" cy="307" r="12" fill="#5f6f4f"></circle><circle cx="336" cy="307" r="6" fill="#141a10"></circle><circle cx="332" cy="303" r="3.5" fill="#fff"></circle></g>
+
+    <!-- Brille (Reinheits-Auditorin) -->
+    <g fill="none" stroke="#2b323c" stroke-width="7">
+      <rect x="228" y="292" width="72" height="40" rx="12"></rect>
+      <rect x="300" y="292" width="72" height="40" rx="12"></rect>
+      <path d="M300 306 h0" stroke-width="8"></path>
+      <path d="M300 308 q0 -8 0 0" ></path>
+      <path d="M228 306 q-22 -4 -34 6" stroke-width="6" stroke-linecap="round"></path>
+      <path d="M372 306 q22 -4 34 6" stroke-width="6" stroke-linecap="round"></path>
+    </g>
+    <path d="M300 300 h0" ></path>
+
+    <!-- Nase -->
+    <path d="M298 330 C293 342 287 351 294 357 Q300 362 310 355" fill="none" stroke="#d3a884" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+
+    <!-- schmaler, pruefender Mund (leicht missbilligend) -->
+    <path d="M266 380 Q300 372 334 382" fill="none" stroke="#a05656" stroke-width="8" stroke-linecap="round"></path>
+    <path d="M270 392 Q300 386 330 392" fill="none" stroke="#c98d8d" stroke-width="4" stroke-linecap="round"></path>
+
+    <!-- Klemmbrett -->
+    <g transform="rotate(-12 150 470)">
+      <rect x="96" y="392" width="120" height="150" rx="10" fill="#caa06a" stroke="#233028" stroke-width="7"></rect>
+      <rect x="112" y="410" width="88" height="116" rx="4" fill="#fbfdfb" stroke="#233028" stroke-width="4"></rect>
+      <rect x="140" y="384" width="32" height="20" rx="5" fill="#8a99a2" stroke="#233028" stroke-width="5"></rect>
+      <path d="M126 436 h60 M126 456 h60 M126 476 h44" stroke="#7fae82" stroke-width="5" stroke-linecap="round"></path>
+      <path d="M118 452 l8 8 l16 -18" fill="none" stroke="#3f8f4b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+    </g>
+
+    <!-- Sauberkeits-Funkeln -->
+    <path d="M410 250 l6 16 l16 6 l-16 6 l-6 16 l-6 -16 l-16 -6 l16 -6 z" fill="#fbfffb" opacity="0.9"></path>
+  </g>
+</svg>

@@ -35,6 +35,7 @@ build.bat
 | **Quests & Storylines** | Tropico-Stil-Popups mit Portrait & Auswahl-Buttons: 16 Quests (4 Ketten — Behörde, Tierschutz, Influencer, Konkurrenz — + 7 Einzelquests). |
 | **Zwei Charaktere** | **General „Krillkill" Johnson** (7-stufige „Operation Protein-Sturm", inkl. dunklem Geheimnis) und **Außenminister Ivan Akwanov** aus Usbekistan (8-stufige Rivalität mit Embargo, Sabotage & drei Enden). |
 | **Shrimp-Tiers** | 6 Qualitätsstufen: Standard → Bio → Gourmet → Protein-Bombe → Designer → **Kampf-Krill**. Höhere Tiers sind wertvoller, teils kontrovers (−Reputation). |
+| **Premium-Veredelung** | **Gourmet-Shrimps** gibt es nur mit leerem Darm: erst die **Darmentleerungsanlage** (Reinheits-Auditorin **Reinhild Darmstädter**) bauen — sie spült die Garnelen sauber, erzeugt dabei aber **Klärschlamm**, den eine **Biogas-Kläranlage** entsorgen muss (sonst stinkt's, −Reputation). |
 | **Märkte** | Verkaufsorte akzeptieren nur **bestimmte** Tiers: Börse (Standard/Bio), Restaurant (bis Gourmet), Export-Hafen, Militär-Depot (Krillkill), Schwarzmarkt. Falsches Tier am falschen Markt = kein Verkauf. |
 | **Inspektor** | Surviving-Mars-artiges Detail-Panel rechts: Live-Durchsatz, Status, Modus-Wahl, Upgrade-Käufe. |
 | **Modi & Upgrades** | Jedes Gebäude hat Betriebs-Modi (Trade-offs) und Upgrades — viele wirken **farmweit** (z.B. Strom-Spar, Wasser-Boost, Preis-Bonus). Dazu 4 **Arbeiter-Politiken**. |
