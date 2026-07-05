@@ -35,7 +35,11 @@ public class BuildMenuPanel extends JComponent {
         new Cat("Ruf & Deko", BuildingType.VISITOR_CENTER, BuildingType.ZEN_GARDEN),
     };
 
-    private static final int MENU_W = 336, ROW_H = 54, TAB_H = 30, HEAD_H = 34;
+    // Größeres Menü mit 2-Spalten-Raster: Gebäude einer Kategorie stehen schön nebeneinander.
+    private static final int PADDING = 10, GAP = 10;
+    private static final int GRID_COLS = 2, CARD_H = 64, CARD_W = 214;
+    private static final int MENU_W = PADDING * 2 + GRID_COLS * CARD_W + (GRID_COLS - 1) * GAP;
+    private static final int TAB_H = 32, HEAD_H = 40;
 
     private final GameFrame frame;
     private final Rectangle card = new Rectangle();
@@ -139,9 +143,27 @@ public class BuildMenuPanel extends JComponent {
         return out;
     }
 
+    /** Anzahl der Reiter-Zeilen (Reiter brechen um, wenn sie nicht in eine Zeile passen). */
+    private int tabRowCount() {
+        FontMetrics tfm = getFontMetrics(Palette.FONT_TINY);
+        int rows = 1, tx = 10;
+        for (Cat c : visibleCats) {
+            int tw = tfm.stringWidth(c.name()) + 16;
+            if (tx + tw > MENU_W - 10) { tx = 10; rows++; }
+            tx += tw + 6;
+        }
+        return rows;
+    }
+
+    /** Y-Offset (relativ zu card.y), an dem die Gebäude-Karten beginnen. */
+    private int gridTop() {
+        return HEAD_H + (tabRowCount() - 1) * (TAB_H - 6) + TAB_H;
+    }
+
     private void relayout() {
-        List<BuildingType> rows = currentRows();
-        int h = HEAD_H + TAB_H + 8 + rows.size() * ROW_H + 10;
+        int n = currentRows().size();
+        int gridRows = Math.max(1, (n + GRID_COLS - 1) / GRID_COLS);
+        int h = gridTop() + gridRows * CARD_H + (gridRows - 1) * GAP + PADDING;
         // Feste Andock-Position neben der Seitenleiste (unabhängig vom Mausklick),
         // nur nach unten begrenzt, damit hohe Kategorien nicht aus dem Fenster laufen.
         Point a = frame.buildMenuAnchor();
@@ -165,7 +187,7 @@ public class BuildMenuPanel extends JComponent {
 
         g.setFont(Palette.FONT_H2);
         g.setColor(Palette.TEXT);
-        g.drawString("Bauen: " + frame.currentZone().displayName, card.x + 14, card.y + 22);
+        g.drawString("Bauen: " + frame.currentZone().displayName, card.x + 14, card.y + 24);
 
         // Kategorie-Reiter (nur mit Inhalt in dieser Zone)
         tabRects.clear();
@@ -185,53 +207,65 @@ public class BuildMenuPanel extends JComponent {
             g.drawString(name, r.x + 8, r.y + r.height / 2 + tfm.getAscent() / 2 - 1);
             tx += tw + 6;
         }
-        int listY = ty + TAB_H;
 
-        // Gebäude-Zeilen (Optik wie im Seitenmenü)
+        // Gebäude-Karten im 2-Spalten-Raster
         rowRects.clear(); rowTypes.clear();
         double money = frame.game().getMoney();
-        for (BuildingType t : currentRows()) {
-            Rectangle r = new Rectangle(card.x + 8, listY, card.width - 16, ROW_H - 6);
+        List<BuildingType> rows = currentRows();
+        int gridX0 = card.x + PADDING, gridY0 = card.y + gridTop();
+        for (int i = 0; i < rows.size(); i++) {
+            BuildingType t = rows.get(i);
+            int col = i % GRID_COLS, gr = i / GRID_COLS;
+            int rx = gridX0 + col * (CARD_W + GAP);
+            int ry = gridY0 + gr * (CARD_H + GAP);
+            Rectangle r = new Rectangle(rx, ry, CARD_W, CARD_H);
             rowRects.add(r); rowTypes.add(t);
-            boolean unlocked = frame.game().isBuildingUnlocked(t);
-            boolean affordable = money >= t.cost;
-            boolean hover = hoverRow == rowRects.size() - 1;
-            g.setColor(hover && unlocked ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
-            g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
-            // Freischalt-Wegweiser / Tutorial: das gemeinte Gebäude leuchtet pulsierend auf.
-            if (t == frame.highlightBuild() || t == frame.tutorialBuildTarget()) {
-                float p = (float) (0.5 + 0.5 * Math.sin(glowPhase));
-                g.setColor(new Color(0, 199, 183, (int) (16 + 26 * p)));
-                g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
-                g.setColor(new Color(0, 199, 183, (int) (110 + 120 * p)));
-                g.setStroke(new BasicStroke(3f));
-                g.drawRoundRect(r.x, r.y, r.width, r.height, 10, 10);
-            }
-            g.setColor(Icons.darker(t.color, unlocked ? 0.85 : 0.5));
-            g.fillRoundRect(r.x + 6, r.y + 6, 36, 36, 8, 8);
-            Icons.building(g, t.icon, r.x + 24, r.y + 23, 26);
-            g.setFont(Palette.FONT_BOLD);
-            g.setColor(unlocked ? (affordable ? Palette.TEXT : Palette.TEXT_DIM) : Palette.TEXT_DIM);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), t.displayName, r.width - 52 - 64), r.x + 50, r.y + 20);
-            g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-            String sub = tagline(t);
-            if (!unlocked) {
-                String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(t.unlockFlag(), frame.questSystem());
-                sub = hint != null ? hint : "noch gesperrt";
-            }
-            g.drawString(TextUtil.clip(g.getFontMetrics(), sub, r.width - 52 - 56), r.x + 50, r.y + 37);
-            if (unlocked) {
-                g.setFont(Palette.FONT_BOLD);
-                String cost = String.format("%,d", t.cost);
-                int cw = g.getFontMetrics().stringWidth(cost);
-                g.setColor(affordable ? Palette.MONEY : Palette.BAD);
-                g.drawString(cost, r.x + r.width - cw - 10, r.y + 34);
-            } else {
-                Icons.padlock(g, r.x + r.width - 18, r.y + 26, 16, Palette.TEXT_DIM);
-            }
-            listY += ROW_H;
+            drawCard(g, r, t, money, hoverRow == i);
         }
         g.dispose();
+    }
+
+    /** Zeichnet eine einzelne Gebäude-Karte im Raster. */
+    private void drawCard(Graphics2D g, Rectangle r, BuildingType t, double money, boolean hover) {
+        boolean unlocked = frame.game().isBuildingUnlocked(t);
+        boolean affordable = money >= t.cost;
+        g.setColor(hover && unlocked ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
+        g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+        // Freischalt-Wegweiser / Tutorial: das gemeinte Gebäude leuchtet pulsierend auf.
+        if (t == frame.highlightBuild() || t == frame.tutorialBuildTarget()) {
+            float p = (float) (0.5 + 0.5 * Math.sin(glowPhase));
+            g.setColor(new Color(0, 199, 183, (int) (16 + 26 * p)));
+            g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+            g.setColor(new Color(0, 199, 183, (int) (110 + 120 * p)));
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+        }
+        g.setColor(Icons.darker(t.color, unlocked ? 0.85 : 0.5));
+        g.fillRoundRect(r.x + 8, r.y + 8, 40, 40, 8, 8);
+        Icons.building(g, t.icon, r.x + 28, r.y + 28, 28);
+
+        int textX = r.x + 56;
+        g.setFont(Palette.FONT_BOLD);
+        g.setColor(unlocked ? (affordable ? Palette.TEXT : Palette.TEXT_DIM) : Palette.TEXT_DIM);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), t.displayName, r.width - 56 - 10), textX, r.y + 22);
+
+        g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
+        String sub = tagline(t);
+        if (!unlocked) {
+            String hint = com.shrimptopia.quest.QuestTree.unlockHintFor(t.unlockFlag(), frame.questSystem());
+            sub = hint != null ? hint : "noch gesperrt";
+        }
+        g.drawString(TextUtil.clip(g.getFontMetrics(), sub, r.width - 56 - 10), textX, r.y + 40);
+
+        if (unlocked) {
+            g.setFont(Palette.FONT_BOLD);
+            String cost = String.format("%,d", t.cost);
+            int cw = g.getFontMetrics().stringWidth(cost);
+            g.setColor(affordable ? Palette.MONEY : Palette.BAD);
+            g.drawString(cost, r.x + r.width - cw - 10, r.y + r.height - 10);
+        } else {
+            Icons.padlock(g, r.x + r.width - 16, r.y + r.height - 16, 15, Palette.TEXT_DIM);
+        }
     }
 
     /** Kurzbeschreibung eines Gebäudes für die Menü-Zeile. */
