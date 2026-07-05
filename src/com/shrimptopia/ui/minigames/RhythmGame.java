@@ -26,6 +26,7 @@ public class RhythmGame extends Minigame {
     private int combo, bestCombo;
     private String verdict = "";
     private double verdictT;
+    private final double[] laneFlash = new double[4];   // Aufleuchten der Spur beim Tastendruck
 
     @Override protected void init() {
         duration = 22;
@@ -51,12 +52,16 @@ public class RhythmGame extends Minigame {
     @Override protected void onUpdate(double dt) {
         t += dt;
         verdictT = Math.max(0, verdictT - dt);
+        for (int i = 0; i < 4; i++) laneFlash[i] = Math.max(0, laneFlash[i] - dt * 4);
         for (Note n : notes)
             if (!n.hit && !n.missed && n.tHit < t - WINDOW) { n.missed = true; combo = 0; }
     }
 
+    @Override public Color accent() { return new Color(255, 120, 190); }
+
     @Override public void lane(int idx) {
         if (idx < 0 || idx > 3) return;
+        laneFlash[idx] = 1;
         Note best = null;
         double bestDiff = WINDOW;
         for (Note n : notes) {
@@ -82,14 +87,38 @@ public class RhythmGame extends Minigame {
     @Override public void render(Graphics2D g) {
         int laneW = w / 4;
         int hitY = h - 70;
-        // Bühne mit Scheinwerfern
+        // Bühne mit wandernden Scheinwerfern und Publikums-Silhouette
         g.setPaint(new GradientPaint(0, 0, new Color(24, 16, 34), 0, h, new Color(46, 22, 52)));
         g.fillRect(0, 0, w, h);
+        for (int i = 0; i < 2; i++) {
+            double sweep = Math.sin(t * (0.7 + i * 0.4) + i * 2) * w * 0.3 + w * (0.3 + i * 0.4);
+            java.awt.geom.Path2D beam = new java.awt.geom.Path2D.Double();
+            beam.moveTo(sweep - 14, 0);
+            beam.lineTo(sweep + 14, 0);
+            beam.lineTo(sweep + 90, h);
+            beam.lineTo(sweep - 90, h);
+            beam.closePath();
+            g.setColor(new Color(255, 240, 200, 14));
+            g.fill(beam);
+        }
         for (int l = 0; l < 4; l++) {
             g.setColor(new Color(255, 255, 255, l % 2 == 0 ? 8 : 14));
             g.fillRect(l * laneW, 0, laneW, h);
+            // Lane-Flash beim Tastendruck
+            if (laneFlash[l] > 0) {
+                Color lc = LANE_COLORS[l];
+                g.setPaint(new GradientPaint(0, hitY, new Color(lc.getRed(), lc.getGreen(), lc.getBlue(), (int) (90 * laneFlash[l])),
+                    0, hitY - 180, new Color(lc.getRed(), lc.getGreen(), lc.getBlue(), 0)));
+                g.fillRect(l * laneW, hitY - 180, laneW, 180);
+            }
             g.setColor(new Color(LANE_COLORS[l].getRed(), LANE_COLORS[l].getGreen(), LANE_COLORS[l].getBlue(), 60));
             g.drawLine(l * laneW, 0, l * laneW, h);
+        }
+        // Publikum unten (wippende Silhouetten)
+        g.setColor(new Color(10, 8, 16, 200));
+        for (int i = 0; i < w / 34 + 1; i++) {
+            int bob = (int) (Math.sin(t * 3 + i) * 3);
+            g.fillOval(i * 34, h - 26 + bob, 24, 30);
         }
         // Ziellinie + Tasten
         g.setColor(new Color(255, 255, 255, 170));

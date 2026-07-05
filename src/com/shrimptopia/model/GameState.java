@@ -43,7 +43,7 @@ public class GameState {
     // --- Marketing: aktive Streams erzeugen Nachfrage, kosten Geld pro Tag ---
     private final java.util.EnumSet<MarketingStream> activeStreams = java.util.EnumSet.noneOf(MarketingStream.class);
     /** Basis-Nachfrage ohne jedes Marketing: die Nachbarschaft. */
-    public static final double BASE_DEMAND = 6;
+    public static final double BASE_DEMAND = 5;
     private double demandLast = 0, demandUsedLast = 0, marketingCostLast = 0;
 
     // --- letzter Tick (HUD/Inspektor) ---
@@ -256,42 +256,43 @@ public class GameState {
     public String[] pollAnnouncement() { return announcements.isEmpty() ? null : announcements.remove(0); }
 
     private void checkMilestoneUnlocks() {
-        // Sicherheitsnetz: falls die Perla-Quest liegen bleibt, kommt die Halle über Vermögen.
-        if (money >= 6_000)
+        // v5-Balance: Meilensteine deutlich angehoben - Freischaltungen sollen erarbeitet
+        // werden, nicht nebenbei passieren. (Sicherheitsnetz: falls die Perla-Quest liegen
+        // bleibt, kommt die Halle weiterhin über Vermögen.)
+        if (money >= 9_000)
             unlock("era.HALLE", "Die Garage hat ausgedient: Hallen-Gebäude freigeschaltet!");
         boolean halle = isUnlocked("era.HALLE");
-        if (isUnlocked("zone.FORSCHUNG") && money >= 16_000)
+        if (isUnlocked("zone.FORSCHUNG") && money >= 26_000)
             unlock("build.gut_station", "Freigeschaltet: Darmentleerungsanlage - Voraussetzung für makellose Gourmet-Shrimps (mit leerem Darm)!");
-        if (isUnlocked("zone.FORSCHUNG") && money >= 18_000)
+        if (isUnlocked("zone.FORSCHUNG") && money >= 30_000)
             unlock("build.shrimpboost", "Freigeschaltet: SHRIMPBOOST-Fabrik & -Stand! Aus Shrimps + Schalen presst du deinen EIGENEN Energydrink.");
-        if (isUnlocked("zone.LOGISTIK") && money >= 40_000)
+        if (isUnlocked("zone.LOGISTIK") && money >= 70_000)
             unlock("build.robotworks", "Freigeschaltet: Garnelen-Roboter-Werk! Roboter zählen als +2 Arbeiter.");
         if (isUnlocked("tier.WARKRILL"))
             unlock("build.barracks", "Freigeschaltet: Krill-Kaserne - jetzt lässt sich eine Armee aufbauen.");
-        if (halle && money >= 9_000)  unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
-        if (halle && money >= 20_000)
+        if (halle && money >= 15_000) unlock("build.water_hub", "Freigeschaltet: Wasseraufbereitungs-Hub.");
+        if (halle && money >= 32_000)
             unlock("build.plankton", "Freigeschaltet: Plankton-Presse - Futterproduktion im Industrie-Maßstab.");
-        if (halle && money >= 35_000)
+        if (halle && money >= 60_000)
             unlock("build.megatank", "Freigeschaltet: Mega-Becken - Shrimp-Zucht im Schwimmbad-Format (auch als Becken-Ausbau).");
-        if (halle && money >= 55_000)
+        if (halle && money >= 95_000)
             unlock("build.geo", "Freigeschaltet: Geothermie-Bohrung - Grundlast-Strom aus 800 Metern Tiefe.");
-        // Genlabor war bisher gar nicht regulär erreichbar (Logiklücke) - jetzt per Meilenstein:
-        if (isUnlocked("zone.FORSCHUNG") && money >= 22_000)
+        if (isUnlocked("zone.FORSCHUNG") && money >= 36_000)
             unlock("build.genlab", "Freigeschaltet: Genlabor - hier entsteht später der Designer-Shrimp.");
         // Wohnheim erst, wenn der Betrieb spürbar Personal braucht (nicht direkt mit der Halle).
-        if (halle && (workersUsed >= 10 || money >= 12_000))
+        if (halle && (workersUsed >= 12 || money >= 18_000))
             unlock("build.housing", "Der Betrieb wächst: Arbeiterwohnheim freigeschaltet - Schluss mit dem Wohnwagen-Slum.");
-        if (halle && (money >= 10_000 || day >= 200))
-            unlock("zone.FORSCHUNG", "Neue Zone: Forschungsflügel (Labore). Oben die Reiter wechseln!");
-        if (halle && (reputation >= 70 || money >= 14_000))
+        if (halle && (money >= 20_000 || day >= 300))
+            unlock("zone.FORSCHUNG", "Neue Zone: Forschungsflügel (Labore). Links die Standorte wechseln!");
+        if (halle && (reputation >= 75 || money >= 26_000))
             unlock("zone.EMPFANG", "Neue Zone: Empfang & Garten (Restaurant, Besucherzentrum).");
-        if (money >= 30_000) {
+        if (money >= 55_000) {
             unlock("zone.LOGISTIK", "Neue Zone: Logistik & Export.");
             unlock("build.export", "Freigeschaltet: Export-Hafen (kauft höhere Tiers).");
         }
-        if (money >= 25_000)
-            unlock("mkt.billboard", "Die Plakatfläche an der A6 ist frei - Marketing 'Autobahn-Plakat' buchbar.");
         if (money >= 45_000)
+            unlock("mkt.billboard", "Die Plakatfläche an der A6 ist frei - Marketing 'Autobahn-Plakat' buchbar.");
+        if (money >= 85_000)
             unlock("build.blackmarket", "Ein dubioser Kontakt bietet dir einen Schwarzmarkt an...");
     }
 

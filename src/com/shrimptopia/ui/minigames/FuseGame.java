@@ -41,11 +41,14 @@ public class FuseGame extends Minigame {
                     boom[i] = 0.5;
                     score = Math.max(0, score - 1);
                     flash = 0.3;
+                    Rectangle r = cell(i);
+                    popup(r.getCenterX(), r.y - 4, "-1  KNALL!", new Color(255, 110, 100));
                 }
             }
             if (boom[i] > 0) boom[i] -= dt;
         }
         flash = Math.max(0, flash - dt);
+        updatePopups(dt);
     }
 
     private Rectangle cell(int i) {
@@ -55,19 +58,57 @@ public class FuseGame extends Minigame {
 
     @Override public void press(int x, int y) {
         for (int i = 0; i < lit.length; i++)
-            if (lit[i] > 0 && cell(i).contains(x, y)) { lit[i] = 0; score++; return; }
+            if (lit[i] > 0 && cell(i).contains(x, y)) {
+                lit[i] = 0;
+                score++;
+                Rectangle r = cell(i);
+                popup(r.getCenterX(), r.y - 4, "+1", new Color(150, 230, 130));
+                return;
+            }
     }
 
+    @Override public Color accent() { return new Color(255, 205, 86); }
+
+    private final java.util.List<double[]> sparks = new java.util.ArrayList<>();   // {x,y,vx,vy,age}
+
     @Override public void render(Graphics2D g) {
-        g.setColor(new Color(30, 32, 36));
+        g.setColor(new Color(26, 28, 32));
         g.fillRect(0, 0, w, h);
+        // Backstein-Andeutung hinter dem Kasten
+        g.setColor(new Color(44, 38, 36));
+        for (int y = 0; y < h; y += 26)
+            for (int x = (y / 26 % 2) * 26; x < w; x += 52)
+                g.drawRect(x, y, 52, 26);
         g.setColor(new Color(52, 56, 62));
         g.fillRoundRect(24, 34, w - 48, h - 58, 14, 14);
         g.setColor(new Color(90, 96, 104));
+        g.setStroke(new BasicStroke(2f));
         g.drawRoundRect(24, 34, w - 48, h - 58, 14, 14);
+        // Kabelbaum: Leitungen von jeder Sicherung zur Sammelschiene unten
+        g.setColor(new Color(70, 76, 84));
+        g.setStroke(new BasicStroke(2.4f));
+        for (int i = 0; i < lit.length; i++) {
+            Rectangle r = cell(i);
+            g.drawLine((int) r.getCenterX(), r.y + r.height, (int) r.getCenterX(), h - 34);
+        }
+        g.setColor(new Color(110, 116, 124));
+        g.fillRoundRect(34, h - 38, w - 68, 10, 5, 5);
         g.setFont(Palette.FONT_TINY);
         g.setColor(Palette.TEXT_DIM);
         g.drawString("HAUPTVERTEILER  -  NICHT IM DUNKELN ÖFFNEN", 40, 28);
+        // Funkenregen aktualisiert/gezeichnet (einfacher Partikelregen aus aktiven Sicherungen)
+        for (int i = 0; i < lit.length; i++)
+            if (lit[i] > 0 && sparks.size() < 60 && rng.nextDouble() < 0.4) {
+                Rectangle r = cell(i);
+                sparks.add(new double[]{ r.getCenterX(), r.getCenterY(), rng.nextInt(60) - 30, 40 + rng.nextInt(60), 0 });
+            }
+        for (double[] s : sparks) { s[0] += s[2] * 0.016; s[1] += s[3] * 0.016; s[4] += 0.016; }
+        sparks.removeIf(s -> s[4] > 0.6);
+        for (double[] s : sparks) {
+            int a = (int) (220 * Math.max(0, 1 - s[4] / 0.6));
+            g.setColor(new Color(255, 230, 140, a));
+            g.fillRect((int) s[0], (int) s[1], 2, 3);
+        }
 
         for (int i = 0; i < lit.length; i++) {
             Rectangle r = cell(i);
@@ -97,6 +138,7 @@ public class FuseGame extends Minigame {
                 g.drawLine(r.x + r.width - 6, r.y + 6, r.x + 6, r.y + r.height - 6);
             }
         }
+        renderPopups(g);
         if (flash > 0) {   // Kurzschluss: kurzes Dunkel-Flackern
             g.setColor(new Color(0, 0, 0, (int) (170 * flash / 0.3)));
             g.fillRect(0, 0, w, h);

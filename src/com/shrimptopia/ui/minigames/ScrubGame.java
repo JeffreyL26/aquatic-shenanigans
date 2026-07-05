@@ -17,6 +17,7 @@ public class ScrubGame extends Minigame {
     }
 
     private final List<Blob> blobs = new ArrayList<>();
+    private final List<double[]> bubbles = new ArrayList<>();   // {x, y, vy, age}
     private int mx = -100, my = -100;
     private double sweepGlow;
 
@@ -37,6 +38,9 @@ public class ScrubGame extends Minigame {
 
     @Override protected void onUpdate(double dt) {
         sweepGlow = Math.max(0, sweepGlow - dt * 3);
+        for (double[] b : bubbles) { b[1] -= b[2] * dt; b[3] += dt; }
+        bubbles.removeIf(b -> b[3] > 0.8);
+        updatePopups(dt);
         if (blobs.isEmpty()) finish();
     }
 
@@ -47,10 +51,19 @@ public class ScrubGame extends Minigame {
             Blob b = blobs.get(i);
             if (Math.hypot(x - b.x, y - b.y) < b.r + 10) {
                 b.hp -= 0.09;
-                if (b.hp <= 0) { blobs.remove(i); score++; }
+                // Seifenblasen beim Schrubben
+                if (bubbles.size() < 40)
+                    bubbles.add(new double[]{ x + rng.nextInt(25) - 12, y + rng.nextInt(17) - 8, 30 + rng.nextInt(40), 0 });
+                if (b.hp <= 0) {
+                    blobs.remove(i);
+                    score++;
+                    popup(b.x, b.y - 16, "BLITZBLANK!", new Color(150, 230, 255));
+                }
             }
         }
     }
+
+    @Override public Color accent() { return new Color(64, 170, 255); }
 
     @Override public void press(int x, int y) { drag(x, y); }
     @Override public void move(int x, int y) { mx = x; my = y; }
@@ -76,6 +89,20 @@ public class ScrubGame extends Minigame {
             g.setColor(new Color(110, 180, 90, (int) (150 * a)));
             g.fillOval((int) (b.x - b.r * 0.4), (int) (b.y - b.r * 0.45), (int) b.r, (int) (b.r * 0.7));
         }
+
+        // Seifenblasen
+        for (double[] b : bubbles) {
+            int a = (int) (170 * Math.max(0, 1 - b[3] / 0.8));
+            g.setColor(new Color(200, 235, 255, a));
+            g.drawOval((int) b[0] - 4, (int) b[1] - 4, 8, 8);
+            g.setColor(new Color(255, 255, 255, a / 2));
+            g.fillOval((int) b[0] - 2, (int) b[1] - 3, 3, 3);
+        }
+        // Fortschritt
+        g.setFont(Palette.FONT_H2);
+        g.setColor(new Color(180, 225, 255));
+        g.drawString("Geputzt: " + (int) score + " / " + (int) target, 12, 24);
+        renderPopups(g);
 
         // Schwamm am Cursor
         g.setColor(sweepGlow > 0 ? new Color(255, 220, 120) : new Color(230, 200, 110));

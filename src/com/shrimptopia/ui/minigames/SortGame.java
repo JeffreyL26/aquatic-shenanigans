@@ -52,6 +52,7 @@ public class SortGame extends Minigame {
             if (!it.dead && it.x > w + 20 && it.dirty) { it.dead = true; missed++; }
         items.removeIf(it -> (it.dead && it.deadT > 0.35) || it.x > w + 30);
         reinhildGlare = Math.max(0, reinhildGlare - dt);
+        updatePopups(dt);
     }
 
     @Override public void press(int x, int y) {
@@ -60,24 +61,41 @@ public class SortGame extends Minigame {
             if (it.dead) continue;
             if (Math.hypot(x - it.x, y - beltY(it.belt)) < 26) {
                 it.dead = true;
-                if (it.dirty) score++;
-                else { score = Math.max(0, score - 1); reinhildGlare = 0.8; }
+                if (it.dirty) { score++; popup(it.x, beltY(it.belt) - 26, "AUSSORTIERT +1", new Color(150, 230, 130)); }
+                else { score = Math.max(0, score - 1); reinhildGlare = 0.8; popup(it.x, beltY(it.belt) - 26, "-1", new Color(255, 110, 100)); }
                 return;
             }
         }
     }
 
+    @Override public Color accent() { return new Color(120, 170, 120); }
+
     @Override public void render(Graphics2D g) {
         g.setColor(new Color(36, 42, 48));
         g.fillRect(0, 0, w, h);
-        // Bänder
+        // Fliesen-Hintergrund (Reinraum)
+        g.setColor(new Color(44, 52, 58));
+        for (int x = 0; x < w; x += 40) g.drawLine(x, 0, x, h);
+        for (int y = 0; y < h; y += 40) g.drawLine(0, y, w, y);
+        // Bänder mit laufenden Rollen
+        double beltPhase = (duration - timeLeft) * 60;
         for (int b = 0; b < 3; b++) {
             int y = beltY(b);
             g.setColor(new Color(58, 64, 72));
             g.fillRoundRect(0, y - 20, w, 40, 12, 12);
             g.setColor(new Color(40, 46, 52));
-            double off = (duration - timeLeft) * 60 % 26;
+            double off = beltPhase % 26;
             for (int x = (int) -off; x < w; x += 26) g.drawLine(x, y - 20, x + 12, y + 20);
+            // Rollen unter dem Band (drehen sich)
+            for (int x = 20; x < w; x += 90) {
+                g.setColor(new Color(30, 34, 40));
+                g.fillOval(x - 7, y + 22, 14, 14);
+                g.setColor(new Color(90, 98, 108));
+                double ra = beltPhase * 0.1 + x;
+                g.drawLine((int) (x - Math.cos(ra) * 5), (int) (y + 29 - Math.sin(ra) * 5),
+                           (int) (x + Math.cos(ra) * 5), (int) (y + 29 + Math.sin(ra) * 5));
+                g.drawOval(x - 7, y + 22, 14, 14);
+            }
         }
         // Premium-Kiste rechts
         g.setColor(new Color(200, 170, 90));
@@ -106,6 +124,7 @@ public class SortGame extends Minigame {
                 g.drawLine((int) it.x - 9, y - 3, (int) it.x + 8, y - 6);
             }
         }
+        renderPopups(g);
         // Reinhild kommentiert Fehlgriffe
         if (reinhildGlare > 0) {
             g.setFont(Palette.FONT_BOLD);

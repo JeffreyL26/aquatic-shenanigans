@@ -53,6 +53,15 @@ public final class QuestArt {
             case "inf_viral"     -> playButton(g, cx, cy, s, ink, gray ? DIM : new Color(255, 92, 92));
             case "inf_sponsor"   -> Icons.resource(g, IconKind.CAN, cx, cy, s * 0.85, gray ? DIM : new Color(40, 224, 220));
             case "inf_cancel"    -> { hash(g, cx - s*0.18, cy - s*0.05, s*0.5, ink); flame(g, cx + s*0.22, cy + s*0.1, s*0.55, gray ? DIM : new Color(255, 140, 60), gray ? DIM2 : new Color(255, 205, 86)); }
+            // ---- New Krills on the Block (Boygroup) ----
+            case "boy_intro"     -> micStand(g, cx, cy, s, ink, gray ? DIM : new Color(255, 120, 190));
+            case "boy_casting"   -> castingStars(g, cx, cy, s, ink, gray ? DIM : new Color(255, 205, 86));
+            case "boy_training"  -> metronome(g, cx, cy, s, ink, sub, gray ? DIM : new Color(255, 120, 190));
+            case "boy_debut"     -> vinyl(g, cx, cy, s, ink, sub, gray ? DIM : new Color(255, 120, 190));
+            case "boy_scandal"   -> reverseNote(g, cx, cy, s, ink, sub, gray ? DIM : new Color(220, 90, 90));
+            case "boy_finale"    -> { globe(g, cx - s*0.05, cy + s*0.04, s*0.8, ink, sub); noteGlyph(g, cx + s*0.26, cy - s*0.24, s*0.42, gray ? DIM : new Color(255, 120, 190)); }
+            // ---- Premium-Veredelung ----
+            case "gourmet_darm"  -> { Icons.resource(g, IconKind.SHRIMP, cx - s*0.1, cy + s*0.05, s*0.6, gray ? DIM : new Color(255, 150, 130)); magnifier(g, cx + s*0.2, cy - s*0.14, s*0.55, ink); }
             // ---- Kyle ----
             case "kyle_intro"    -> { downvote(g, cx - s*0.1, cy, s*0.75, gray ? DIM : new Color(122, 156, 255)); bubble(g, cx + s*0.26, cy - s*0.22, s*0.5, ink, sub); }
             case "kyle_1"        -> oneStar(g, cx, cy, s, gray ? DIM : new Color(255, 205, 86), ink);
@@ -120,6 +129,95 @@ public final class QuestArt {
     }
 
     // ===================== Motive =====================
+
+    /** Mikrofonständer mit Glitzer - der Anfang der Boygroup. */
+    private static void micStand(Graphics2D g, double cx, double cy, double s, Color ink, Color accent) {
+        g.setColor(ink);
+        g.setStroke(new BasicStroke((float) (s * 0.05), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Line2D.Double(cx, cy - s * 0.08, cx, cy + s * 0.34));
+        g.draw(new Line2D.Double(cx - s * 0.18, cy + s * 0.4, cx + s * 0.18, cy + s * 0.4));
+        g.draw(new Line2D.Double(cx, cy + s * 0.34, cx - s * 0.14, cy + s * 0.4));
+        g.draw(new Line2D.Double(cx, cy + s * 0.34, cx + s * 0.14, cy + s * 0.4));
+        g.setColor(accent);
+        g.fill(new Ellipse2D.Double(cx - s * 0.14, cy - s * 0.36, s * 0.28, s * 0.28));
+        g.setColor(ink);
+        g.draw(new Ellipse2D.Double(cx - s * 0.14, cy - s * 0.36, s * 0.28, s * 0.28));
+        star5(g, cx + s * 0.3, cy - s * 0.3, s * 0.16, accent);
+    }
+
+    /** Casting: ein großer Stern, zwei Anwärter-Sterne. */
+    private static void castingStars(Graphics2D g, double cx, double cy, double s, Color ink, Color gold) {
+        star5(g, cx, cy - s * 0.06, s * 0.42, gold);
+        star5(g, cx - s * 0.3, cy + s * 0.22, s * 0.2, ink);
+        star5(g, cx + s * 0.3, cy + s * 0.22, s * 0.2, ink);
+    }
+
+    /** Metronom - Trainingsmontage im Takt. */
+    private static void metronome(Graphics2D g, double cx, double cy, double s, Color ink, Color sub, Color accent) {
+        Path2D.Double body = new Path2D.Double();
+        body.moveTo(cx - s * 0.26, cy + s * 0.34);
+        body.lineTo(cx - s * 0.1, cy - s * 0.34);
+        body.lineTo(cx + s * 0.1, cy - s * 0.34);
+        body.lineTo(cx + s * 0.26, cy + s * 0.34);
+        body.closePath();
+        g.setColor(sub);
+        g.fill(body);
+        g.setColor(ink);
+        g.setStroke(new BasicStroke((float) (s * 0.045)));
+        g.draw(body);
+        g.setColor(accent);
+        g.setStroke(new BasicStroke((float) (s * 0.055), BasicStroke.CAP_ROUND, 0));
+        g.draw(new Line2D.Double(cx, cy + s * 0.22, cx + s * 0.2, cy - s * 0.26));
+        g.fill(new Ellipse2D.Double(cx + s * 0.14, cy - s * 0.3, s * 0.12, s * 0.12));
+    }
+
+    /** Vinyl-Single mit Note - das Debüt. */
+    private static void vinyl(Graphics2D g, double cx, double cy, double s, Color ink, Color sub, Color accent) {
+        g.setColor(new Color(30, 32, 36));
+        g.fill(new Ellipse2D.Double(cx - s * 0.4, cy - s * 0.4, s * 0.8, s * 0.8));
+        g.setColor(sub);
+        g.setStroke(new BasicStroke((float) (s * 0.025)));
+        g.draw(new Ellipse2D.Double(cx - s * 0.3, cy - s * 0.3, s * 0.6, s * 0.6));
+        g.draw(new Ellipse2D.Double(cx - s * 0.22, cy - s * 0.22, s * 0.44, s * 0.44));
+        g.setColor(accent);
+        g.fill(new Ellipse2D.Double(cx - s * 0.12, cy - s * 0.12, s * 0.24, s * 0.24));
+        g.setColor(ink);
+        g.fill(new Ellipse2D.Double(cx - s * 0.03, cy - s * 0.03, s * 0.06, s * 0.06));
+        noteGlyph(g, cx + s * 0.3, cy - s * 0.28, s * 0.4, ink);
+    }
+
+    /** Rückwärts-Note mit Warn-Pfeil - der Subliminal-Skandal. */
+    private static void reverseNote(Graphics2D g, double cx, double cy, double s, Color ink, Color sub, Color warn) {
+        noteGlyph(g, cx + s * 0.06, cy - s * 0.02, s * 0.7, ink);
+        g.setColor(warn);
+        g.setStroke(new BasicStroke((float) (s * 0.06), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new Arc2D.Double(cx - s * 0.36, cy - s * 0.3, s * 0.62, s * 0.62, 40, 240, Arc2D.OPEN));
+        double ax = cx - s * 0.36 + s * 0.31 + Math.cos(Math.toRadians(280)) * s * 0.31;
+        double ay = cy - s * 0.3 + s * 0.31 + Math.sin(Math.toRadians(-280)) * s * 0.31;
+        Path2D.Double tip = new Path2D.Double();
+        tip.moveTo(ax - s * 0.1, ay - s * 0.02);
+        tip.lineTo(ax + s * 0.06, ay - s * 0.1);
+        tip.lineTo(ax + s * 0.02, ay + s * 0.1);
+        tip.closePath();
+        g.fill(tip);
+    }
+
+    /** Einzelne Achtelnote. */
+    private static void noteGlyph(Graphics2D g, double cx, double cy, double s, Color c) {
+        g.setColor(c);
+        g.setStroke(new BasicStroke((float) (s * 0.09), BasicStroke.CAP_ROUND, 0));
+        g.draw(new Line2D.Double(cx + s * 0.14, cy - s * 0.3, cx + s * 0.14, cy + s * 0.22));
+        g.draw(new QuadCurve2D.Double(cx + s * 0.14, cy - s * 0.3, cx + s * 0.34, cy - s * 0.26, cx + s * 0.3, cy - s * 0.08));
+        g.fill(new Ellipse2D.Double(cx - s * 0.04, cy + s * 0.12, s * 0.26, s * 0.2));
+    }
+
+    /** Lupe fürs Reinheits-Audit. */
+    private static void magnifier(Graphics2D g, double cx, double cy, double s, Color ink) {
+        g.setColor(ink);
+        g.setStroke(new BasicStroke((float) (s * 0.09), BasicStroke.CAP_ROUND, 0));
+        g.draw(new Ellipse2D.Double(cx - s * 0.28, cy - s * 0.28, s * 0.44, s * 0.44));
+        g.draw(new Line2D.Double(cx + s * 0.14, cy + s * 0.14, cx + s * 0.34, cy + s * 0.34));
+    }
 
     private static void garageUp(Graphics2D g, double cx, double cy, double s, Color ink, Color sub, Color accent) {
         g.setColor(ink);

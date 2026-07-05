@@ -104,12 +104,12 @@ public final class QuestTree {
     /** Freischalt-Hinweise für Meilenstein-Flags (nicht per Quest, sondern über Fortschritt). */
     private static final Map<String, String> MILESTONE_HINT = Map.of(
         "era.HALLE",          "Ab dem Hallen-Ausbau (raus aus der Garage)",
-        "build.shrimpboost",  "Ab der SHRIMPBOOST-Fabrik (Forschung, ~18.000 Geld)",
-        "build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~40.000 Geld)",
-        "build.plankton",     "Meilenstein: Hallen-Betrieb & ~20.000 Geld",
-        "build.genlab",       "Meilenstein: Forschungsflügel & ~22.000 Geld",
-        "build.megatank",     "Meilenstein: Hallen-Betrieb & ~35.000 Geld",
-        "build.geo",          "Meilenstein: Hallen-Betrieb & ~55.000 Geld");
+        "build.shrimpboost",  "Ab der SHRIMPBOOST-Fabrik (Forschung, ~30.000 Geld)",
+        "build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~70.000 Geld)",
+        "build.plankton",     "Meilenstein: Hallen-Betrieb & ~32.000 Geld",
+        "build.genlab",       "Meilenstein: Forschungsflügel & ~36.000 Geld",
+        "build.megatank",     "Meilenstein: Hallen-Betrieb & ~60.000 Geld",
+        "build.geo",          "Meilenstein: Hallen-Betrieb & ~95.000 Geld");
 
     public static String unlockLabel(String key) { return UNLOCK_LABEL.get(key); }
     public static Set<String> knownUnlockKeys() { return UNLOCK_LABEL.keySet(); }

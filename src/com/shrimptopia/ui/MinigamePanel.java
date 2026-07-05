@@ -162,24 +162,35 @@ public class MinigamePanel extends JComponent {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         layoutArena();
 
-        // Abdunkeln + Bühne
-        g.setColor(new Color(6, 10, 14, 200));
+        Color accent = game != null ? game.accent() : Palette.ACCENT;
+
+        // Abdunkeln mit Vignette + Bühne
+        g.setColor(new Color(4, 8, 12, 215));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setPaint(new RadialGradientPaint(
+            new java.awt.geom.Point2D.Double(getWidth() / 2.0, getHeight() / 2.0), Math.max(400, getWidth() * 0.6f),
+            new float[]{0f, 1f}, new Color[]{ new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 16), new Color(0, 0, 0, 0) }));
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        // Kopfzeile
+        // Karte mit Schatten + Akzentrahmen
         int hx = arena.x, hy = arena.y - HEAD_H;
+        g.setColor(new Color(0, 0, 0, 120));
+        g.fillRoundRect(hx - 8, hy - 6, arena.width + 24, arena.height + HEAD_H + 24, 16, 16);
         g.setColor(Palette.PANEL);
         g.fillRoundRect(hx - 12, hy - 12, arena.width + 24, arena.height + HEAD_H + 24, 16, 16);
-        g.setColor(Palette.ACCENT);
-        g.setStroke(new BasicStroke(2f));
+        g.setColor(accent);
+        g.setStroke(new BasicStroke(2.2f));
         g.drawRoundRect(hx - 12, hy - 12, arena.width + 24, arena.height + HEAD_H + 24, 16, 16);
 
+        // Kopfzeile: Akzentbalken links + Titel
+        g.setColor(accent);
+        g.fillRoundRect(hx - 2, hy + 6, 5, 34, 3, 3);
         g.setFont(Palette.FONT_H1);
         g.setColor(Palette.TEXT);
-        g.drawString(game != null ? game.title() : "", hx + 4, hy + 26);
+        g.drawString(game != null ? game.title() : "", hx + 12, hy + 26);
         g.setFont(Palette.FONT_SMALL);
         g.setColor(Palette.TEXT_DIM);
-        g.drawString(game != null ? game.subtitle() : "", hx + 4, hy + 43);
+        g.drawString(game != null ? game.subtitle() : "", hx + 12, hy + 43);
 
         if (phase == Phase.PLAY && game != null) {
             // Punkte + Zeitbalken rechts oben
@@ -192,13 +203,20 @@ public class MinigamePanel extends JComponent {
             int tbw = 160, tbx = hx + arena.width - tbw - 4, tby = hy + 32;
             g.setColor(Palette.PANEL_LIGHT);
             g.fillRoundRect(tbx, tby, tbw, 10, 5, 5);
-            g.setColor(tf < 0.25 ? Palette.BAD : Palette.ACCENT);
+            g.setColor(tf < 0.25 ? Palette.BAD : accent);
             g.fillRoundRect(tbx, tby, (int) (tbw * tf), 10, 5, 5);
+            g.setColor(new Color(255, 255, 255, 60));
+            g.drawRoundRect(tbx, tby, tbw, 10, 5, 5);
         }
         if (stake > 1.2) {
             g.setFont(Palette.FONT_TINY);
             g.setColor(Palette.ACCENT2);
-            g.drawString("EINSATZ x" + String.format("%.1f", stake), hx + 4, hy + 55);
+            String st = "EINSATZ x" + String.format("%.1f", stake);
+            int stw = g.getFontMetrics().stringWidth(st);
+            g.setColor(new Color(255, 159, 67, 30));
+            g.fillRoundRect(hx + 12, hy + 47, stw + 12, 14, 7, 7);
+            g.setColor(Palette.ACCENT2);
+            g.drawString(st, hx + 18, hy + 58);
         }
 
         // Arena (das Spiel selbst erst ab Start - im Intro ist es noch nicht initialisiert)
@@ -222,60 +240,111 @@ public class MinigamePanel extends JComponent {
     }
 
     private void drawIntro(Graphics2D g) {
-        g.setColor(new Color(10, 14, 18, 215));
+        Color accent = game.accent();
+        g.setColor(new Color(10, 14, 18, 220));
         g.fillRect(arena.x, arena.y, arena.width, arena.height);
         int cx = arena.x + arena.width / 2;
-        int y = arena.y + arena.height / 2 - 60;
-        g.setFont(Palette.FONT_H1);
-        g.setColor(Palette.ACCENT);
-        String t = "MINIGAME: " + game.title();
-        g.drawString(t, cx - g.getFontMetrics().stringWidth(t) / 2, y);
-        y += 30;
+        int y = arena.y + arena.height / 2 - 96;
+
+        g.setFont(Palette.FONT_H1.deriveFont(24f));
+        g.setColor(accent);
+        String t = game.title().toUpperCase();
+        int tw = g.getFontMetrics().stringWidth(t);
+        g.drawString(t, cx - tw / 2, y);
+        g.setStroke(new BasicStroke(2f));
+        g.drawLine(cx - tw / 2, y + 8, cx + tw / 2, y + 8);
+        y += 40;
+
         g.setFont(Palette.FONT_BODY);
-        g.setColor(Palette.TEXT);
         for (String line : game.howTo()) {
-            g.drawString(line, cx - g.getFontMetrics().stringWidth(line) / 2, y);
-            y += 22;
+            int lw = g.getFontMetrics().stringWidth(line);
+            g.setColor(accent);
+            g.fillRoundRect(cx - lw / 2 - 16, y - 9, 8, 8, 3, 3);
+            g.setColor(Palette.TEXT);
+            g.drawString(line, cx - lw / 2, y);
+            y += 24;
         }
-        y += 16;
+        y += 10;
+        // Belohnungs-Vorschau (max. Werte inkl. Einsatz)
+        g.setFont(Palette.FONT_SMALL);
+        g.setColor(Palette.TEXT_DIM);
+        StringBuilder rw = new StringBuilder("Belohnung bis zu:  ");
+        if (entry.money() > 0) rw.append(String.format("%,d", Math.round(entry.money() * stake))).append(" Geld   ");
+        if (entry.rep() > 0) rw.append("+").append(Math.round(entry.rep() * stake)).append(" Ruf   ");
+        if (entry.shrimp() > 0) rw.append("+").append(Math.round(entry.shrimp() * stake)).append(" Shrimps");
+        g.drawString(rw.toString().trim(), cx - g.getFontMetrics().stringWidth(rw.toString().trim()) / 2, y);
+        y += 34;
+
+        // Start-"Button"
         g.setFont(Palette.FONT_H2);
-        g.setColor(Palette.MONEY);
-        String s = ">> KLICK oder LEERTASTE zum Start <<";
-        g.drawString(s, cx - g.getFontMetrics().stringWidth(s) / 2, y);
+        String s = "KLICK ODER LEERTASTE  -  START";
+        int sw = g.getFontMetrics().stringWidth(s);
+        g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 40));
+        g.fillRoundRect(cx - sw / 2 - 18, y - 20, sw + 36, 32, 10, 10);
+        g.setColor(accent);
+        g.drawRoundRect(cx - sw / 2 - 18, y - 20, sw + 36, 32, 10, 10);
+        g.drawString(s, cx - sw / 2, y + 2);
         g.setFont(Palette.FONT_TINY);
         g.setColor(Palette.TEXT_DIM);
-        String esc = "(ESC bricht ab)";
-        g.drawString(esc, cx - g.getFontMetrics().stringWidth(esc) / 2, y + 20);
+        String esc = "ESC bricht ab";
+        g.drawString(esc, cx - g.getFontMetrics().stringWidth(esc) / 2, y + 30);
     }
 
     private void drawDone(Graphics2D g) {
-        g.setColor(new Color(10, 14, 18, 215));
+        Color accent = game.accent();
+        g.setColor(new Color(10, 14, 18, 225));
         g.fillRect(arena.x, arena.y, arena.width, arena.height);
         int cx = arena.x + arena.width / 2;
-        int y = arena.y + arena.height / 2 - 80;
 
+        // Ergebnis-Karte
+        int cw = Math.min(420, arena.width - 60);
+        int chh = 210 + resultLines.size() * 24;
+        int cyTop = arena.y + (arena.height - chh) / 2;
+        g.setColor(new Color(0, 0, 0, 110));
+        g.fillRoundRect(cx - cw / 2 + 4, cyTop + 5, cw, chh, 16, 16);
+        g.setColor(Palette.PANEL_LIGHT);
+        g.fillRoundRect(cx - cw / 2, cyTop, cw, chh, 16, 16);
+        g.setColor(accent);
+        g.setStroke(new BasicStroke(2f));
+        g.drawRoundRect(cx - cw / 2, cyTop, cw, chh, 16, 16);
+
+        int y = cyTop + 56;
         int stars = rating >= 0.85 ? 3 : rating >= 0.55 ? 2 : rating >= 0.25 ? 1 : 0;
         for (int i = 0; i < 3; i++) {
-            Icons.resource(g, com.shrimptopia.model.IconKind.STAR, cx - 50 + i * 50, y, 40,
-                i < stars ? Palette.MONEY : new Color(70, 80, 88));
+            boolean lit = i < stars;
+            if (lit) {   // Glow hinter dem Stern
+                g.setColor(new Color(255, 205, 86, 45));
+                g.fillOval(cx - 60 + i * 56 - 26, y - 26, 52, 52);
+            }
+            Icons.resource(g, com.shrimptopia.model.IconKind.STAR, cx - 60 + i * 56, y, lit ? 44 : 36,
+                lit ? Palette.MONEY : new Color(64, 74, 82));
         }
-        y += 44;
+        y += 46;
         g.setFont(Palette.FONT_H1);
         g.setColor(Palette.TEXT);
-        String res = game.scoreLabel() + "  (" + Math.round(rating * 100) + "%)";
+        String res = game.scoreLabel() + "   (" + Math.round(rating * 100) + "%)";
         g.drawString(res, cx - g.getFontMetrics().stringWidth(res) / 2, y);
-        y += 34;
+        y += 18;
+        g.setColor(new Color(255, 255, 255, 30));
+        g.drawLine(cx - cw / 2 + 24, y, cx + cw / 2 - 24, y);
+        y += 26;
         g.setFont(Palette.FONT_H2);
-        g.setColor(Palette.GOOD);
         for (String line : resultLines) {
+            g.setColor(Palette.GOOD);
+            Icons.resource(g, com.shrimptopia.model.IconKind.COIN, cx - g.getFontMetrics().stringWidth(line) / 2 - 18, y - 5, 14,
+                line.startsWith("Geld") ? Palette.MONEY : line.startsWith("Rep") ? Palette.REP : Palette.SHRIMP);
             g.drawString(line, cx - g.getFontMetrics().stringWidth(line) / 2, y);
             y += 24;
         }
         y += 14;
         g.setFont(Palette.FONT_H2);
-        g.setColor(Palette.MONEY);
-        String s = ">> KLICK zum Weiterspielen <<";
-        g.drawString(s, cx - g.getFontMetrics().stringWidth(s) / 2, y);
+        String s = "WEITER  (Klick)";
+        int sw = g.getFontMetrics().stringWidth(s);
+        g.setColor(new Color(accent.getRed(), accent.getGreen(), accent.getBlue(), 40));
+        g.fillRoundRect(cx - sw / 2 - 16, y - 18, sw + 32, 28, 9, 9);
+        g.setColor(accent);
+        g.drawRoundRect(cx - sw / 2 - 16, y - 18, sw + 32, 28, 9, 9);
+        g.drawString(s, cx - sw / 2, y + 1);
     }
 
     // Debug-Hooks für den GUI-Test

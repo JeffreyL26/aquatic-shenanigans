@@ -39,7 +39,7 @@ public final class QuestContent {
     // ===================== AUFSTIEG - Raus aus der Garage =====================
     private static void garage() {
         auto("era_halle", GameCharacter.ADVISOR, "Dr. Perla (mit Zollstock)",
-            Condition.all(Condition.money(3200), Condition.shrimpProduced(80)), 1,
+            Condition.all(Condition.money(4500), Condition.shrimpProduced(160)), 1,
             "Die Garage platzt aus allen Nähten",
             "Boss, Aquarium Nummer drei steht auf der Waschmaschine und der Generator teilt sich die "
             + "Steckdose mit dem Kühlschrank. Ich habe nachgemessen: Wir sind offiziell zu groß für die "

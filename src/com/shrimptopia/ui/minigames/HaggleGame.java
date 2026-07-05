@@ -56,15 +56,47 @@ public class HaggleGame extends Minigame {
 
     @Override public void press(int x, int y) { lock(); }
     @Override public void lane(int idx) { if (idx == -1) lock(); }
+    @Override public Color accent() { return new Color(255, 205, 86); }
 
     @Override public void render(Graphics2D g) {
         g.setColor(new Color(30, 36, 42));
         g.fillRect(0, 0, w, h);
-        // Verhandlungstisch
+        // Verhandlungstisch mit Geldstapeln (wachsen mit dem Score)
         g.setColor(new Color(88, 62, 40));
         g.fillRect(0, h - 90, w, 90);
         g.setColor(new Color(60, 42, 28));
         g.drawLine(0, h - 90, w, h - 90);
+        int stacks = (int) score;
+        for (int i = 0; i < stacks; i++) {
+            int sx2 = 30 + (i % 8) * 34, sy2 = h - 46 - (i / 8) * 14;
+            g.setColor(new Color(255, 205, 86));
+            g.fillRoundRect(sx2, sy2, 26, 10, 4, 4);
+            g.setColor(new Color(180, 140, 40));
+            g.drawRoundRect(sx2, sy2, 26, 10, 4, 4);
+        }
+        // Der Verhandlungspartner: Gesicht reagiert auf die letzte Runde
+        int fx = w - 90, fy = h - 150;
+        g.setColor(new Color(224, 186, 148));
+        g.fillOval(fx - 34, fy - 34, 68, 68);
+        g.setColor(new Color(60, 46, 34));
+        g.drawOval(fx - 34, fy - 34, 68, 68);
+        g.fillOval(fx - 16, fy - 12, 8, 8);
+        g.fillOval(fx + 8, fy - 12, 8, 8);
+        boolean happyForUs = round > 0 && results[Math.max(0, round - 1)] >= 2;   // guter Deal für UNS -> er leidet
+        g.setStroke(new BasicStroke(2.6f, BasicStroke.CAP_ROUND, 0));
+        if (pauseT > 0 && happyForUs)
+            g.draw(new java.awt.geom.QuadCurve2D.Double(fx - 14, fy + 18, fx, fy + 8, fx + 14, fy + 18));   // Frust
+        else if (pauseT > 0)
+            g.draw(new java.awt.geom.QuadCurve2D.Double(fx - 14, fy + 10, fx, fy + 20, fx + 14, fy + 10));  // Er grinst
+        else
+            g.draw(new java.awt.geom.Line2D.Double(fx - 12, fy + 14, fx + 12, fy + 14));                     // Pokerface
+        // Anzugkragen
+        g.setColor(new Color(40, 46, 56));
+        g.fillRect(fx - 40, fy + 32, 80, 60);
+        g.setColor(new Color(255, 255, 255));
+        java.awt.geom.Path2D collar = new java.awt.geom.Path2D.Double();
+        collar.moveTo(fx - 12, fy + 32); collar.lineTo(fx, fy + 48); collar.lineTo(fx + 12, fy + 32);
+        g.fill(collar);
 
         int barW = (int) (w * 0.72), barH = 34;
         int bx = (w - barW) / 2, by = h / 2 - 60;

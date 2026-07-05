@@ -56,4 +56,28 @@ public abstract class Minigame {
     public abstract String subtitle();
     /** Kurze Anleitung für den Intro-Bildschirm (eine Mechanik-Zeile pro Eintrag). */
     public abstract String[] howTo();
+    /** Signaturfarbe des Spiels (Rahmen, Titel, HUD im Panel). */
+    public java.awt.Color accent() { return new java.awt.Color(0, 199, 183); }
+
+    // ---------- schwebende Punkte-Popups (+1 / -2 ...), von allen Spielen nutzbar ----------
+    protected static final class Popup {
+        public double x, y, age; public String text; public java.awt.Color color;
+        Popup(double x, double y, String text, java.awt.Color color) { this.x = x; this.y = y; this.text = text; this.color = color; }
+    }
+    protected final java.util.List<Popup> popups = new java.util.ArrayList<>();
+    protected void popup(double x, double y, String text, java.awt.Color color) { popups.add(new Popup(x, y, text, color)); }
+    protected void updatePopups(double dt) {
+        for (Popup p : popups) { p.age += dt; p.y -= 34 * dt; }
+        popups.removeIf(p -> p.age > 0.9);
+    }
+    protected void renderPopups(java.awt.Graphics2D g) {
+        g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16));
+        for (Popup p : popups) {
+            int a = (int) (255 * Math.max(0, 1 - p.age / 0.9));
+            g.setColor(new java.awt.Color(0, 0, 0, a / 2));
+            g.drawString(p.text, (int) p.x + 1, (int) p.y + 1);
+            g.setColor(new java.awt.Color(p.color.getRed(), p.color.getGreen(), p.color.getBlue(), a));
+            g.drawString(p.text, (int) p.x, (int) p.y);
+        }
+    }
 }

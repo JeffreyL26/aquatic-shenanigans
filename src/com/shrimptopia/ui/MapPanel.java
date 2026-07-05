@@ -222,9 +222,9 @@ public class MapPanel extends JPanel implements Scrollable {
     }
     private static Color alpha(Color c, int a) { return new Color(c.getRed(), c.getGreen(), c.getBlue(), a); }
 
-    /** Boden-Farbpaar je Zone/Ära. Die Garage ist warm & dunkel, die Halle kühl & aufgeräumt. */
+    /** Boden-Farbpaar je Zone/Ära. Die Garage: roher, gegossener Beton (kaum Karo-Muster). */
     private static Color[] floorColors(Zone zone, boolean garage) {
-        if (garage) return new Color[]{ new Color(54, 48, 43), new Color(48, 43, 39) };
+        if (garage) return new Color[]{ new Color(70, 66, 60), new Color(67, 63, 57) };
         return new Color[]{ zone.floorA, zone.floorB };
     }
 
@@ -309,34 +309,96 @@ public class MapPanel extends JPanel implements Scrollable {
         g.setClip(oldClip);
     }
 
-    /** Garage: fleckiger Ölboden, Kritzel-Markierungen, warmes Funzellicht - provisorisch & eng. */
+    /**
+     * Garage v2: roher Betonboden mit Dehnungsfugen und Rissen, Werkbank + Pegboard an der
+     * Nordwand, Fensterlicht von links oben, Kistenstapel, Kabelstrang und Ölflecken -
+     * eine echte Hobby-Werkstatt statt Schachbrett.
+     */
     private void decorGarage(Graphics2D g, int gx, int gy, int gw, int gh) {
-        // warmes Funzellicht oben in der Mitte
-        g.setPaint(new RadialGradientPaint(new java.awt.geom.Point2D.Double(gx + gw * 0.5, gy + gh * 0.18),
-            gw * 0.5f, new float[]{0f, 1f}, new Color[]{new Color(255, 210, 130, 34), new Color(255, 210, 130, 0)}));
-        g.fillRect(gx, gy, gw, gh);
-        // Ölflecken
-        for (int i = 0; i < 5; i++) {
-            double ox = gx + (Math.abs(Math.sin(i * 21.1)) * (gw - 120)) + 40;
-            double oy = gy + (Math.abs(Math.cos(i * 13.7)) * (gh - 120)) + 50;
-            double rw = 40 + (i % 3) * 22, rh = rw * 0.6;
-            g.setColor(new Color(12, 12, 14, 60));
+        // Dehnungsfugen im Beton (alle 3 Kacheln, deutlich kräftiger als das Kachelraster)
+        g.setColor(new Color(40, 37, 33, 190));
+        g.setStroke(new BasicStroke(3f));
+        for (int c = 3; c < GameState.COLS; c += 3) g.drawLine(gx + c * 64, gy, gx + c * 64, gy + gh);
+        for (int r = 3; r < GameState.ROWS; r += 3) g.drawLine(gx, gy + r * 64, gx + gw, gy + r * 64);
+        // Risse (deterministisch)
+        g.setColor(new Color(38, 35, 31, 150));
+        g.setStroke(new BasicStroke(1.4f));
+        g.draw(new java.awt.geom.Path2D.Double() {{
+            moveTo(gx + gw * 0.18, gy + gh * 0.62); lineTo(gx + gw * 0.24, gy + gh * 0.7);
+            lineTo(gx + gw * 0.22, gy + gh * 0.78); lineTo(gx + gw * 0.3, gy + gh * 0.86);
+        }});
+        g.draw(new java.awt.geom.Path2D.Double() {{
+            moveTo(gx + gw * 0.7, gy + gh * 0.2); lineTo(gx + gw * 0.76, gy + gh * 0.3);
+            lineTo(gx + gw * 0.73, gy + gh * 0.38);
+        }});
+
+        // Werkbank-Zeile an der Nordwand: Platte, Pegboard-Punkte, Werkzeug-Silhouetten
+        int benchH = 26;
+        g.setColor(new Color(96, 74, 50));
+        g.fillRect(gx, gy, gw, benchH);
+        g.setColor(new Color(70, 54, 36));
+        g.drawLine(gx, gy + benchH, gx + gw, gy + benchH);
+        g.setColor(new Color(120, 96, 66));
+        for (int x = gx + 20; x < gx + gw - 10; x += 42) g.drawLine(x, gy + 3, x, gy + benchH - 3);
+        // Pegboard-Punkte + Werkzeuge
+        g.setColor(new Color(50, 40, 28));
+        for (int x = gx + 10; x < gx + gw - 8; x += 14) g.fillOval(x, gy + 5, 3, 3);
+        g.setColor(new Color(200, 200, 205, 170));
+        g.setStroke(new BasicStroke(2.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.drawLine(gx + 46, gy + 9, gx + 46, gy + 21);   // Schraubenzieher
+        g.drawLine(gx + 43, gy + 9, gx + 49, gy + 9);
+        g.drawOval(gx + gw / 2 - 5, gy + 8, 10, 10);      // Rolle Klebeband
+        g.drawLine(gx + gw - 70, gy + 8, gx + gw - 60, gy + 20);   // Schraubschlüssel
+        g.drawOval(gx + gw - 74, gy + 5, 7, 7);
+
+        // Fensterlicht: schräger Lichtkegel von links oben über den Boden
+        java.awt.geom.Path2D beam = new java.awt.geom.Path2D.Double();
+        beam.moveTo(gx + gw * 0.06, gy + benchH);
+        beam.lineTo(gx + gw * 0.3, gy + benchH);
+        beam.lineTo(gx + gw * 0.52, gy + gh);
+        beam.lineTo(gx + gw * 0.16, gy + gh);
+        beam.closePath();
+        g.setPaint(new GradientPaint(gx, gy, new Color(255, 226, 160, 42), gx + gw * 0.45f, gy + gh, new Color(255, 226, 160, 4)));
+        g.fill(beam);
+
+        // Ölflecken (weniger, aber satter)
+        for (int i = 0; i < 3; i++) {
+            double ox = gx + gw * (0.32 + i * 0.24);
+            double oy = gy + gh * (0.42 + (i % 2) * 0.3);
+            double rw = 46 + i * 14, rh = rw * 0.55;
+            g.setColor(new Color(14, 13, 15, 70));
             g.fill(new Ellipse2D.Double(ox - rw / 2, oy - rh / 2, rw, rh));
-            g.setColor(new Color(8, 8, 10, 45));
-            g.fill(new Ellipse2D.Double(ox - rw / 4, oy - rh / 4, rw * 0.5, rh * 0.5));
+            g.setColor(new Color(30, 30, 40, 60));
+            g.fill(new Ellipse2D.Double(ox - rw * 0.28, oy - rh * 0.24, rw * 0.5, rh * 0.5));
         }
-        // krakelige Kreide-/Parkmarkierung
-        g.setColor(new Color(210, 200, 170, 40));
-        g.setStroke(new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(new java.awt.geom.Line2D.Double(gx + 30, gy + gh - 40, gx + 150, gy + gh - 70));
-        g.draw(new java.awt.geom.Line2D.Double(gx + gw - 60, gy + 40, gx + gw - 140, gy + 90));
-        // Reifenspuren
-        g.setColor(new Color(20, 18, 20, 50));
-        g.setStroke(new BasicStroke(5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.draw(new java.awt.geom.QuadCurve2D.Double(gx + 60, gy + gh, gx + gw * 0.4, gy + gh * 0.55, gx + gw * 0.7, gy + 30));
-        // dunkle Ecken-Vignette (enge, dunkle Garage)
+
+        // Kistenstapel unten rechts + Ersatzreifen
+        int bx = gx + gw - 86, by = gy + gh - 62;
+        g.setColor(new Color(150, 116, 74));
+        g.fillRect(bx, by + 18, 40, 30);
+        g.fillRect(bx + 8, by - 8, 34, 26);
+        g.setColor(new Color(96, 72, 44));
+        g.drawRect(bx, by + 18, 40, 30);
+        g.drawRect(bx + 8, by - 8, 34, 26);
+        g.drawLine(bx, by + 33, bx + 40, by + 33);
+        g.setColor(new Color(26, 26, 28));
+        g.fillOval(bx - 34, by + 16, 34, 34);
+        g.setColor(new Color(70, 70, 74));
+        g.drawOval(bx - 26, by + 24, 18, 18);
+
+        // Kabelstrang von der Westwand zur Mitte (Mehrfachsteckdose)
+        g.setColor(new Color(30, 30, 34, 200));
+        g.setStroke(new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(new java.awt.geom.CubicCurve2D.Double(gx, gy + gh * 0.55, gx + gw * 0.12, gy + gh * 0.62,
+            gx + gw * 0.2, gy + gh * 0.48, gx + gw * 0.3, gy + gh * 0.58));
+        g.setColor(new Color(230, 230, 235));
+        g.fillRoundRect((int) (gx + gw * 0.3), (int) (gy + gh * 0.575), 26, 10, 3, 3);
+        g.setColor(new Color(40, 40, 44));
+        g.drawRoundRect((int) (gx + gw * 0.3), (int) (gy + gh * 0.575), 26, 10, 3, 3);
+
+        // dunkle Ecken-Vignette (enge Garage)
         g.setPaint(new RadialGradientPaint(new java.awt.geom.Point2D.Double(gx + gw / 2.0, gy + gh / 2.0),
-            Math.max(gw, gh) * 0.62f, new float[]{0.55f, 1f}, new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 0, 90)}));
+            Math.max(gw, gh) * 0.62f, new float[]{0.55f, 1f}, new Color[]{new Color(0, 0, 0, 0), new Color(0, 0, 0, 96)}));
         g.fillRect(gx, gy, gw, gh);
     }
 

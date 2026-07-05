@@ -141,7 +141,9 @@ public class GameFrame extends JFrame {
         updateOverlays();
     }
 
-    private int delayForSpeed(int s) { return switch (s) { case 3 -> 220; case 2 -> 450; default -> 900; }; }
+    // v5: kürzere Tage - das Spiel tickt spürbar flotter, während die (angehobenen)
+    // Meilensteine dafür sorgen, dass Fortschritt trotzdem erarbeitet werden muss.
+    private int delayForSpeed(int s) { return switch (s) { case 3 -> 190; case 2 -> 380; default -> 750; }; }
 
     public void refreshAll() {
         topBar.refresh();

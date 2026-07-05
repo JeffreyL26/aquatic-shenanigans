@@ -17,8 +17,8 @@ public class EventSystem {
     private final List<GameEvent> catalog = new ArrayList<>();
     private final Random rng;
     private int lastEventDay = -100;
-    private static final int MIN_GAP = 6;          // Tage Mindestabstand
-    private static final double CHANCE = 0.14;     // Wahrscheinlichkeit pro Tick (nach Cooldown)
+    private static final int MIN_GAP = 5;          // Tage Mindestabstand
+    private static final double CHANCE = 0.17;     // Wahrscheinlichkeit pro Tick (nach Cooldown)
 
     public EventSystem(Random rng) {
         this.rng = rng;
