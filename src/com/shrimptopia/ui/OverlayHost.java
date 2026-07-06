@@ -5,6 +5,8 @@ import com.shrimptopia.quest.GameCharacter;
 import com.shrimptopia.quest.Quest;
 import com.shrimptopia.tutorial.TutorialStep;
 import javax.swing.*;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -16,6 +18,8 @@ import java.util.List;
 /**
  * Glass-Pane-Overlay: zeigt entweder einen Tutorial-Schritt (mit Spotlight) ODER ein
  * Quest-Popup im Tropico-Stil (Portrait, Text, Auswahl-Buttons). Blockt Eingaben darunter.
+ * Der Fließtext läuft über eine CSS-gestylte HTML-Ansicht (echter Absatzsatz, Kursiv-Zitate,
+ * Zeilenhöhe) statt über manuelles zeilenweises drawString.
  */
 public class OverlayHost extends JComponent {
 
@@ -36,8 +40,11 @@ public class OverlayHost extends JComponent {
     private List<String> annHintLines = new ArrayList<>();
 
     private Rectangle card = new Rectangle();
-    private List<String> bodyLines = new ArrayList<>();
     private final List<AbstractButton> buttons = new ArrayList<>();
+
+    // CSS-gestylter Fließtext (ersetzt das frühere zeilenweise drawString): echte
+    // Zeilenhöhe, Absatzabstand, Kursiv-Zitate - via HTMLEditorKit + eigenem Stylesheet.
+    private final JEditorPane bodyPane = new JEditorPane();
 
     public OverlayHost(GameFrame frame) {
         this.frame = frame;
@@ -45,6 +52,25 @@ public class OverlayHost extends JComponent {
         setLayout(null);
         // verschluckt Klicks, damit das Spiel darunter nicht reagiert
         addMouseListener(new java.awt.event.MouseAdapter() {});
+
+        HTMLEditorKit kit = new HTMLEditorKit();
+        StyleSheet css = kit.getStyleSheet();
+        css.addRule("body { margin:0; padding:0; color:#e9f1f5; font-family:sans-serif; font-size:13px; }");
+        css.addRule("p { margin:0 0 9px 0; line-height:148%; }");
+        css.addRule("p.last { margin-bottom:0; }");
+        css.addRule(".echo { color:#96a6b0; font-style:italic; font-size:12px; }");
+        css.addRule(".hint { color:#00c7b7; }");
+        bodyPane.setEditorKit(kit);
+        bodyPane.setEditable(false);
+        bodyPane.setFocusable(false);
+        bodyPane.setOpaque(false);
+        bodyPane.setBorder(null);
+        bodyPane.setDragEnabled(false);
+        add(bodyPane);
+    }
+
+    private static String esc(String s) {
+        return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     public Mode mode() { return mode; }
@@ -123,7 +149,8 @@ public class OverlayHost extends JComponent {
 
     public void hideOverlay() {
         mode = Mode.NONE; quest = null; step = null; outcome = null;
-        removeAll(); buttons.clear();
+        clearButtons();
+        bodyPane.setVisible(false);
         setVisible(false); repaint();
     }
 
@@ -164,16 +191,18 @@ public class OverlayHost extends JComponent {
     private void relayout() {
         int W = getWidth(), H = getHeight();
         if (W == 0 || H == 0) return;
-        Font bodyFont = Palette.FONT_BODY;
-        FontMetrics fm = getFontMetrics(bodyFont);
+        FontMetrics fm = getFontMetrics(Palette.FONT_SMALL);
 
         if (mode == Mode.TUTORIAL && step != null) {
             int cw = Math.min(640, W - 80);
-            bodyLines = wrap(step.text, fm, cw - 130);
+            int textW = cw - 130;
+            int textH = measureBody("<p class='last'>" + esc(step.text) + "</p>", textW);
             // Kartenhöhe an den Text anpassen, sonst läuft er in die Buttons
-            int ch = Math.max(168, 86 + bodyLines.size() * 20 + 52);
+            int ch = Math.max(168, 86 + textH + 52);
             int cx = (W - cw) / 2, cy = H - ch - 36;
             card.setBounds(cx, cy, cw, ch);
+            bodyPane.setBounds(cx + 104, cy + 78, textW, textH);
+            bodyPane.setVisible(true);
             // Buttons unten rechts / links
             int by = cy + ch - 44;
             int x = cx + cw - 12;
@@ -191,15 +220,17 @@ public class OverlayHost extends JComponent {
             }
         } else if (mode == Mode.POPUP && quest != null) {
             int cw = Math.min(660, W - 120);
+            int textW = cw - 48;
             // Fliesstext volle Breite UNTER Portrait/Titel (kein Overlap mehr)
-            bodyLines = wrap(quest.body, fm, cw - 48);
+            int textH = measureBody("<p class='last'>" + esc(quest.body) + "</p>", textW);
             int headerH = 108;
-            int textH = bodyLines.size() * 20 + 12;
             int btnH = Math.max(1, buttons.size()) * 46 + 8;
-            int ch = headerH + textH + btnH + 16;
+            int ch = headerH + textH + 12 + btnH + 16;
             int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
             card.setBounds(cx, cy, cw, ch);
-            int by = cy + headerH + textH;
+            bodyPane.setBounds(cx + 24, cy + headerH, textW, textH);
+            bodyPane.setVisible(true);
+            int by = cy + headerH + textH + 12;
             for (AbstractButton b : buttons) {
                 b.setBounds(cx + 20, by, cw - 40, 40);
                 by += 46;
@@ -208,23 +239,29 @@ public class OverlayHost extends JComponent {
             int cw = Math.min(620, W - 120);
             String res = outcome.choice != null && outcome.choice.resultText != null && !outcome.choice.resultText.isEmpty()
                 ? outcome.choice.resultText : "So sei es.";
-            bodyLines = wrap(res, fm, cw - 48);
-            int headerH = 108, chosenH = 20;
-            int textH = bodyLines.size() * 20 + 8;
+            int textW = cw - 48;
+            int textH = measureBody("<p class='echo'>Deine Wahl: „" + esc(outcome.choice.text) + "“</p>"
+                + "<p class='last'>" + esc(res) + "</p>", textW);
+            int headerH = 108;
             int fxH = outcome.lines.isEmpty() ? 0 : outcome.lines.size() * 20 + 12;
-            int ch = headerH + chosenH + textH + fxH + 48 + 14;
+            int ch = headerH + textH + 8 + fxH + 48 + 14;
             int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
             card.setBounds(cx, cy, cw, ch);
+            bodyPane.setBounds(cx + 24, cy + headerH, textW, textH);
+            bodyPane.setVisible(true);
             buttons.get(0).setBounds(cx + 20, cy + ch - 52, cw - 40, 40);
         } else if (mode == Mode.ANNOUNCE) {
             int cw = Math.min(600, W - 120);
-            bodyLines = wrap(annBody == null ? "" : annBody, fm, cw - 48);
-            annHintLines = annHint == null ? new ArrayList<>() : wrap(annHint, fm, cw - 48);
+            int textW = cw - 48;
+            int textH = measureBody("<p class='last'>" + esc(annBody) + "</p>", textW);
+            annHintLines = annHint == null ? new ArrayList<>() : wrap(annHint, fm, textW);
             int headerH = 108;
-            int textH = bodyLines.size() * 20 + 8 + annHintLines.size() * 18 + (annHintLines.isEmpty() ? 0 : 8);
-            int ch = headerH + textH + 48 + 14;
+            int hintH = annHintLines.size() * 18 + (annHintLines.isEmpty() ? 0 : 8);
+            int ch = headerH + textH + 8 + hintH + 48 + 14;
             int cx = (W - cw) / 2, cy = Math.max(40, (H - ch) / 2);
             card.setBounds(cx, cy, cw, ch);
+            bodyPane.setBounds(cx + 24, cy + headerH, textW, textH);
+            bodyPane.setVisible(true);
             int by = cy + ch - 52;
             if (buttons.size() <= 1) {
                 buttons.get(0).setBounds(cx + 20, by, cw - 40, 40);
@@ -233,7 +270,15 @@ public class OverlayHost extends JComponent {
                 buttons.get(0).setBounds(cx + 20, by, half, 40);
                 buttons.get(1).setBounds(cx + 20 + half + gap, by, total - half, 40);
             }
+        } else {
+            bodyPane.setVisible(false);
         }
+    }
+
+    private int measureBody(String html, int w) {
+        bodyPane.setText("<html><body>" + html + "</body></html>");
+        bodyPane.setSize(Math.max(10, w), 4000);
+        return bodyPane.getPreferredSize().height;
     }
 
     @Override protected void paintComponent(Graphics g0) {
@@ -258,13 +303,13 @@ public class OverlayHost extends JComponent {
 
         if (mode == Mode.NONE) { g.dispose(); return; }
 
-        // Karte (Spielende-Popups golden hervorgehoben)
+        // Karte (Spielende-Popups golden hervorgehoben): Verlauf + Schatten + Glanzstreifen
+        // statt einer flachen Volltonfläche - gibt der Karte spürbare Tiefe.
         boolean isEnding = mode == Mode.POPUP && quest != null && quest.ending;
-        g.setColor(Palette.PANEL);
-        g.fill(new RoundRectangle2D.Double(card.x, card.y, card.width, card.height, 16, 16));
-        g.setColor(isEnding ? Palette.MONEY : Palette.ACCENT);
-        g.setStroke(new BasicStroke(isEnding ? 3f : 2f));
-        g.draw(new RoundRectangle2D.Double(card.x, card.y, card.width, card.height, 16, 16));
+        Color borderCol = isEnding ? Palette.MONEY : Palette.ACCENT;
+        Fx.card(g, card.x, card.y, card.width, card.height, 18,
+            Palette.PANEL_TOP, Palette.PANEL_BOTTOM, borderCol, isEnding ? 3f : 2f);
+        Fx.topSheen(g, card.x, card.y, card.width, 18);
         if (isEnding) {
             g.setFont(Palette.FONT_TINY); g.setColor(Palette.MONEY);
             g.drawString(">>> SPIELENDE ERREICHT <<<", card.x + 104, card.y + 14);
@@ -278,6 +323,8 @@ public class OverlayHost extends JComponent {
         double px = card.x + 54, py = card.y + 54;
         String avatarKey = questCard ? avatarKeyFor(quest) : GameCharacter.ADVISOR.avatarKey;
         BufferedImage avatar = SvgAvatar.get(avatarKey, 152);
+        g.setColor(new Color(0, 0, 0, 70));
+        g.fill(new Ellipse2D.Double(px - 39, py - 36, 80, 80));
         if (avatar != null) {
             Ellipse2D ring = new Ellipse2D.Double(px - 38, py - 38, 76, 76);
             g.setColor(Palette.PANEL_LIGHT);
@@ -321,19 +368,10 @@ public class OverlayHost extends JComponent {
             g.drawString("Tutorial " + (stepIdx + 1) + "/" + stepTotal, tx, card.y + 66);
         }
 
-        // Fließtext
-        int yy = card.y + (mode == Mode.TUTORIAL ? 86 : 112);
+        // Fließtext: rendert sich selbst (bodyPane, CSS-gestylt) - hier folgen nur noch
+        // die Elemente, die darunter anschließen (Effekt-Zeilen, Freischalt-Hinweis).
         int bx = card.x + (mode == Mode.TUTORIAL ? 104 : 24);
-        if (mode == Mode.OUTCOME && outcome != null) {
-            // Echo der gewählten Option
-            g.setFont(Palette.FONT_SMALL);
-            g.setColor(Palette.TEXT_DIM);
-            g.drawString(TextUtil.clip(g.getFontMetrics(), "Deine Wahl: \"" + outcome.choice.text + "\"", card.width - 48), bx, yy);
-            yy += 20;
-        }
-        g.setFont(Palette.FONT_BODY);
-        g.setColor(Palette.TEXT);
-        for (String line : bodyLines) { g.drawString(line, bx, yy); yy += 20; }
+        int yy = bodyPane.getY() + bodyPane.getHeight() + 14;
 
         if (mode == Mode.OUTCOME && outcome != null && !outcome.lines.isEmpty()) {
             yy += 8;

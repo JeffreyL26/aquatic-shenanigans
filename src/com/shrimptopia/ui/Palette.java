@@ -17,6 +17,15 @@ public final class Palette {
     public static final Color PANEL_LIGHT = new Color(36, 47, 56);
     public static final Color PANEL_HOVER = new Color(48, 62, 72);
 
+    // v7: Verlaufs-Zwillinge derselben Panele - etwas heller oben, dunkler unten für
+    // spürbare Tiefe statt flacher Volltonflächen (siehe Fx.card).
+    public static final Color PANEL_TOP        = new Color(38, 49, 58);
+    public static final Color PANEL_BOTTOM     = new Color(20, 27, 33);
+    public static final Color PANEL_LIGHT_TOP  = new Color(50, 64, 75);
+    public static final Color PANEL_LIGHT_BOTTOM = new Color(31, 41, 49);
+    public static final Color CARD_BORDER      = new Color(66, 80, 90);
+    public static final Color CARD_BORDER_HOT  = new Color(0, 219, 201);
+
     // Karten-Boden (zwei abwechselnde Kacheln)
     public static final Color FLOOR_A = new Color(44, 56, 64);
     public static final Color FLOOR_B = new Color(40, 51, 59);

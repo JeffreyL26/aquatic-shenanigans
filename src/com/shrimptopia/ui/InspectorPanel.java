@@ -129,11 +129,12 @@ public class InspectorPanel extends JPanel {
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             Building b = building; if (b == null) { g.dispose(); return; }
             BuildingType t = b.type; Stats s = b.lastStats;
-            g.setColor(Palette.PANEL_LIGHT);
+            g.setPaint(new GradientPaint(0, 0, Palette.PANEL_LIGHT_TOP, 0, getHeight(), Palette.PANEL_LIGHT_BOTTOM));
             g.fillRect(0, 0, getWidth(), getHeight());
-            // Icon
-            g.setColor(Icons.darker(t.color, 0.85));
-            g.fillRoundRect(12, 12, 50, 50, 10, 10);
+            g.setPaint(null);
+            // Icon: Verlauf + Glanzpunkt statt Flachfarbe
+            Fx.vGradient(g, 12, 12, 50, 50, 10, Icons.brighter(t.color, 1.05), Icons.darker(t.color, 0.78));
+            Fx.topSheen(g, 12, 12, 50, 10);
             Icons.building(g, t.icon, 37, 36, 38);
             // Name + Status
             int headW = getWidth() - 72 - 12;
@@ -209,8 +210,8 @@ public class InspectorPanel extends JPanel {
             boolean sel = building != null && building.mode == index;
             boolean lock = locked();
             int w = getWidth();
-            g.setColor(sel ? new Color(0, 90, 84) : hover && !lock ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
-            g.fillRoundRect(12, 4, w - 24, 42, 9, 9);
+            Color base = sel ? new Color(0, 90, 84) : hover && !lock ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT;
+            Fx.vGradient(g, 12, 4, w - 24, 42, 9, Icons.brighter(base, 1.15), Icons.darker(base, 0.85));
             if (sel) { g.setColor(Palette.ACCENT); g.setStroke(new BasicStroke(2f)); g.drawRoundRect(13, 5, w - 26, 40, 9, 9); }
             g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
             g.drawString(TextUtil.clip(g.getFontMetrics(), m.name + (lock ? "  (gesperrt)" : ""), w - 48), 24, 22);
@@ -255,8 +256,8 @@ public class InspectorPanel extends JPanel {
             boolean own = owned(), lock = locked();
             boolean afford = frame.game().getMoney() >= u.cost;
             int w = getWidth();
-            g.setColor(own ? new Color(30, 70, 50) : hover && !lock ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
-            g.fillRoundRect(12, 4, w - 24, 42, 9, 9);
+            Color base = own ? new Color(30, 70, 50) : hover && !lock ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT;
+            Fx.vGradient(g, 12, 4, w - 24, 42, 9, Icons.brighter(base, 1.15), Icons.darker(base, 0.85));
             g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
             g.drawString(TextUtil.clip(g.getFontMetrics(), u.name, w - 100), 24, 22);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
@@ -283,8 +284,7 @@ public class InspectorPanel extends JPanel {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             int w = getWidth();
-            g.setColor(new Color(60, 40, 40));
-            g.fillRoundRect(12, 8, w - 24, 70, 10, 10);
+            Fx.vGradient(g, 12, 8, w - 24, 70, 10, new Color(72, 48, 48), new Color(50, 33, 33));
             Icons.portrait(g, com.shrimptopia.model.IconKind.PORTRAIT_DIPLOMAT, 40, 42, 50, new Color(90, 150, 130));
             g.setFont(Palette.FONT_BOLD); g.setColor(Palette.TEXT);
             g.drawString("Rivalität: Akwanov", 74, 30);

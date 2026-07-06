@@ -28,7 +28,7 @@ public class SideBar extends JPanel {
     public SideBar(GameFrame frame) {
         this.frame = frame;
         setLayout(null);
-        setBackground(Palette.PANEL);
+        setOpaque(false);
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Palette.BG_DARK));
         setPreferredSize(new Dimension(WIDTH, 200));
 
@@ -72,8 +72,10 @@ public class SideBar extends JPanel {
     }
 
     @Override protected void paintComponent(Graphics g0) {
-        super.paintComponent(g0);
         Graphics2D g = (Graphics2D) g0.create();
+        g.setPaint(new GradientPaint(0, 0, Palette.PANEL_TOP, 0, getHeight(), Palette.PANEL_BOTTOM));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setPaint(null);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setFont(Palette.FONT_TINY);
         g.setColor(Palette.TEXT_DIM);
@@ -119,9 +121,12 @@ public class SideBar extends JPanel {
             };
             Color accent = kind == Kind.DEMOLISH ? Palette.BAD : Palette.ACCENT;
 
-            g.setColor(selected ? new Color(0, 90, 84) : (hover && enabled ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT));
-            if (selected && kind == Kind.DEMOLISH) g.setColor(new Color(96, 34, 34));
-            g.fillRoundRect(0, 0, w - 1, h - 1, 8, 8);
+            Color top, bot;
+            if (selected && kind == Kind.DEMOLISH) { top = new Color(112, 40, 40); bot = new Color(80, 28, 28); }
+            else if (selected)                     { top = new Color(0, 108, 100); bot = new Color(0, 72, 66); }
+            else if (hover && enabled)              { top = Palette.PANEL_LIGHT_TOP; bot = Palette.PANEL_LIGHT_BOTTOM; }
+            else                                     { top = Palette.PANEL_TOP; bot = Palette.PANEL_BOTTOM; }
+            Fx.vGradient(g, 0, 0, w - 1, h - 1, 8, top, bot);
             if (selected) {
                 g.setColor(accent);
                 g.setStroke(new BasicStroke(2f));

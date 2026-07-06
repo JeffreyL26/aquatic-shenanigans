@@ -200,8 +200,10 @@ public class MapPanel extends JPanel implements Scrollable {
         int bx = (getWidth() - bw) / 2, by = originY + 8;
         Composite old = g.getComposite();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.max(0, Math.min(1, alpha))));
-        g.setColor(new Color(16, 22, 27, 225));
-        g.fillRoundRect(bx, by, bw, bh, 14, 14);
+        g.setColor(new Color(0, 0, 0, 70));
+        g.fillRoundRect(bx, by + 2, bw, bh, 14, 14);
+        Fx.vGradient(g, bx, by, bw, bh, 14, new Color(30, 39, 46, 235), new Color(12, 17, 21, 235));
+        Fx.topSheen(g, bx, by, bw, 14);
         g.setColor(edge);
         g.setStroke(new BasicStroke(2f));
         g.drawRoundRect(bx, by, bw, bh, 14, 14);

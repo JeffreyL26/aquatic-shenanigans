@@ -17,7 +17,7 @@ public class TopBar extends JPanel {
     public TopBar(GameFrame frame) {
         this.frame = frame;
         setLayout(new BorderLayout());
-        setBackground(Palette.PANEL);
+        setOpaque(false);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Palette.BG_DARK));
         setPreferredSize(new Dimension(100, 80));
 
@@ -57,6 +57,13 @@ public class TopBar extends JPanel {
         controls.add(neu);
 
         add(controls, BorderLayout.EAST);
+    }
+
+    @Override protected void paintComponent(Graphics g0) {
+        Graphics2D g = (Graphics2D) g0.create();
+        g.setPaint(new GradientPaint(0, 0, Palette.PANEL_TOP, 0, getHeight(), Palette.PANEL_BOTTOM));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.dispose();
     }
 
     public void setPausedVisual(boolean paused) {
@@ -159,6 +166,9 @@ public class TopBar extends JPanel {
         }
 
         private void drawSlot(Graphics2D g, GameState gs, ResourceType r, double x, double w) {
+            // Dezente Pille hinter jedem Slot - etwas Tiefe statt reiner Trennlinien.
+            Fx.vGradient(g, x + 3, 7, w - 6, getHeight() - 14, 11,
+                new Color(255, 255, 255, 7), new Color(0, 0, 0, 12));
             // Kritische Versorgung (Strom/Wasser/Futter): rot hinterlegen und hektisch blinken.
             // Je länger der Mangel ignoriert wird, desto schneller/greller das Blinken (Konsequenzen
             // eskalieren im Modell zusätzlich: mehr Sterben, ab ~1 Woche Ruf-Verlust).
