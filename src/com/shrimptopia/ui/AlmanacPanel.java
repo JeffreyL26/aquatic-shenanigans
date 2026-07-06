@@ -106,9 +106,11 @@ public class AlmanacPanel extends JComponent {
         aa(g);
         g.setColor(new Color(8, 12, 16, 175));
         g.fillRect(0, 0, getWidth(), getHeight());
-        Fx.card(g, card.x, card.y, card.width, card.height, 16,
-            Palette.PANEL_TOP, Palette.PANEL_BOTTOM, Palette.ACCENT, 2f);
-        Fx.topSheen(g, card.x, card.y, card.width, 16);
+        g.setColor(Palette.PANEL);
+        g.fill(new RoundRectangle2D.Double(card.x, card.y, card.width, card.height, 16, 16));
+        g.setColor(Palette.ACCENT);
+        g.setStroke(new BasicStroke(2f));
+        g.draw(new RoundRectangle2D.Double(card.x, card.y, card.width, card.height, 16, 16));
         g.setFont(Palette.FONT_H1);
         g.setColor(Palette.TEXT);
         g.drawString("Almanach", card.x + 20, card.y + 34);
@@ -301,9 +303,8 @@ public class AlmanacPanel extends JComponent {
             boolean locked = s.requiresFlag != null && !gs.isUnlocked(s.requiresFlag);
             Rectangle rr = new Rectangle(x, yy, w, rowH - 4);
             mktRects.add(rr); mktAt.add(s);
-            Fx.vGradient(g, rr.x, rr.y, rr.width, rr.height, 8,
-                on ? new Color(0, 108, 100) : Palette.PANEL_LIGHT_TOP,
-                on ? new Color(0, 72, 66)   : Palette.PANEL_LIGHT_BOTTOM);
+            g.setColor(on ? new Color(0, 90, 84) : Palette.PANEL_LIGHT);
+            g.fillRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8);
             if (on) { g.setColor(Palette.ACCENT); g.setStroke(new BasicStroke(1.5f)); g.drawRoundRect(rr.x, rr.y, rr.width, rr.height, 8, 8); }
             g.setFont(Palette.FONT_BOLD); g.setColor(locked ? Palette.TEXT_DIM : Palette.TEXT);
             g.drawString(s.displayName + (locked ? "  (gesperrt)" : ""), rr.x + 12, rr.y + 16);
@@ -380,9 +381,8 @@ public class AlmanacPanel extends JComponent {
     private void drawPolicyTile(Graphics2D g, GameState gs, WorkerPolicy p, Rectangle r) {
         boolean cur = gs.getWorkerPolicy() == p;
         boolean locked = p.requiresFlag != null && !gs.isUnlocked(p.requiresFlag);
-        Fx.vGradient(g, r.x, r.y, r.width, r.height, 10,
-            cur ? new Color(0, 108, 100) : locked ? new Color(32, 40, 47) : Palette.PANEL_LIGHT_TOP,
-            cur ? new Color(0, 72, 66)   : locked ? new Color(22, 28, 33) : Palette.PANEL_LIGHT_BOTTOM);
+        g.setColor(cur ? new Color(0, 90, 84) : locked ? new Color(28, 35, 41) : Palette.PANEL_LIGHT);
+        g.fill(new RoundRectangle2D.Double(r.x, r.y, r.width, r.height, 10, 10));
         g.setColor(cur ? Palette.ACCENT : locked ? new Color(64, 76, 84) : new Color(110, 124, 132));
         g.setStroke(new BasicStroke(cur ? 2f : 1.3f));
         g.draw(new RoundRectangle2D.Double(r.x, r.y, r.width, r.height, 10, 10));
@@ -415,9 +415,8 @@ public class AlmanacPanel extends JComponent {
         boolean on = gs.isEdictActive(e);
         boolean locked = e.requiresFlag != null && !gs.isUnlocked(e.requiresFlag);
         // Papier + Doppelrahmen wie eine Urkunde
-        Fx.vGradient(g, r.x, r.y, r.width, r.height, 10,
-            on ? new Color(22, 88, 80) : locked ? new Color(32, 40, 47) : new Color(52, 61, 68),
-            on ? new Color(14, 58, 53) : locked ? new Color(22, 28, 33) : new Color(36, 43, 48));
+        g.setColor(on ? new Color(18, 72, 66) : locked ? new Color(28, 35, 41) : new Color(44, 52, 58));
+        g.fill(new RoundRectangle2D.Double(r.x, r.y, r.width, r.height, 10, 10));
         Color frameCol = on ? Palette.ACCENT : locked ? new Color(64, 76, 84) : new Color(110, 124, 132);
         g.setColor(frameCol);
         g.setStroke(new BasicStroke(on ? 2f : 1.3f));

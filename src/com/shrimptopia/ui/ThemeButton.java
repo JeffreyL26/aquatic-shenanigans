@@ -50,24 +50,16 @@ public final class ThemeButton {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         ButtonModel m = b.getModel();
         int w = b.getWidth(), h = b.getHeight();
-        boolean pressed = m.isPressed(), hover = m.isRollover();
 
-        // Dezenter Schatten unterm Button, außer im gedrückten Zustand (wirkt dann "eingedrückt").
-        if (!pressed) {
-            g.setColor(new Color(0, 0, 0, 55));
-            g.fillRoundRect(0, 3, w - 1, h - 2, 10, 10);
-        }
-        Color top, bottom;
-        if (selected)      { top = Icons.brighter(accent, 1.12); bottom = Icons.darker(accent, 0.88); }
-        else if (pressed)  { top = Icons.darker(base, 0.82); bottom = Icons.darker(base, 0.7); }
-        else if (hover)    { top = Icons.brighter(Palette.PANEL_HOVER, 1.08); bottom = Palette.PANEL_HOVER; }
-        else               { top = Icons.brighter(base, 1.06); bottom = Icons.darker(base, 0.92); }
-        int yOff = pressed ? 2 : 1;
-        Fx.vGradient(g, 0, yOff, w - 1, h - 2, 10, top, bottom);
-        if (selected || hover) {
-            g.setColor(selected ? Icons.brighter(accent, 1.2) : Fx.alpha(Palette.ACCENT, 90));
-            g.setStroke(new BasicStroke(selected ? 1.5f : 1.1f));
-            g.drawRoundRect(0, yOff, w - 2, h - 2 - (yOff - 1), 10, 10);
+        Color bg = selected ? accent
+                 : m.isPressed() ? Icons.darker(base, 0.8)
+                 : m.isRollover() ? Palette.PANEL_HOVER : base;
+        g.setColor(bg);
+        g.fillRoundRect(0, 1, w - 1, h - 2, 10, 10);
+        if (selected) {
+            g.setColor(Icons.brighter(accent, 1.15));
+            g.setStroke(new BasicStroke(1.5f));
+            g.drawRoundRect(0, 1, w - 2, h - 3, 10, 10);
         }
 
         g.setColor(selected ? Palette.BG_DARK : Palette.TEXT);
@@ -75,7 +67,7 @@ public final class ThemeButton {
         g.setFont(b.getFont());
         String text = TextUtil.clip(fm, b.getText(), w - 12);
         int tw = fm.stringWidth(text);
-        g.drawString(text, Math.max(6, (w - tw) / 2), yOff - 1 + (h + fm.getAscent() - fm.getDescent()) / 2);
+        g.drawString(text, Math.max(6, (w - tw) / 2), (h + fm.getAscent() - fm.getDescent()) / 2);
         g.dispose();
     }
 }

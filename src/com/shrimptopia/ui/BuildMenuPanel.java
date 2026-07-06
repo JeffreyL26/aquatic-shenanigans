@@ -182,10 +182,14 @@ public class BuildMenuPanel extends JComponent {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         relayout();
 
-        // Panel: Verlauf + Schatten + Glanzstreifen statt Flachfarbe
-        Fx.card(g, card.x, card.y, card.width, card.height, 14,
-            Palette.PANEL_TOP, Palette.PANEL_BOTTOM, Palette.ACCENT, 1.8f);
-        Fx.topSheen(g, card.x, card.y, card.width, 14);
+        // Panel mit Schatten
+        g.setColor(new Color(0, 0, 0, 90));
+        g.fillRoundRect(card.x + 3, card.y + 5, card.width, card.height, 14, 14);
+        g.setColor(Palette.PANEL);
+        g.fillRoundRect(card.x, card.y, card.width, card.height, 14, 14);
+        g.setColor(Palette.ACCENT);
+        g.setStroke(new BasicStroke(1.8f));
+        g.drawRoundRect(card.x, card.y, card.width, card.height, 14, 14);
 
         // Kopfzeile
         g.setFont(Palette.FONT_H2);
@@ -241,10 +245,9 @@ public class BuildMenuPanel extends JComponent {
             tabRects.add(r);
             boolean sel = i == catIdx;
             boolean hov = i == hoverTab;
-            Color top = sel ? new Color(0, 108, 100) : hov ? Palette.PANEL_LIGHT_TOP : Palette.PANEL_TOP;
-            Color bot = sel ? new Color(0, 72, 66)  : hov ? Palette.PANEL_LIGHT_BOTTOM : Palette.PANEL_BOTTOM;
-            Fx.vGradient(g, r.x, r.y, r.width, r.height, 10, top, bot);
-            g.setColor(sel ? Palette.ACCENT : Palette.CARD_BORDER);
+            g.setColor(sel ? new Color(0, 90, 84) : hov ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
+            g.fillRoundRect(r.x, r.y, r.width, r.height, 10, 10);
+            g.setColor(sel ? Palette.ACCENT : new Color(70, 84, 92));
             g.setStroke(new BasicStroke(sel ? 2f : 1.2f));
             g.drawRoundRect(r.x, r.y, r.width, r.height, 10, 10);
             Icons.resource(g, c.icon(), r.getCenterX(), r.getCenterY() - 3, 24, sel ? c.color() : Icons.darker(c.color(), 0.7));
@@ -266,12 +269,9 @@ public class BuildMenuPanel extends JComponent {
         boolean affordable = money >= t.cost;
         boolean glow = t == frame.highlightBuild() || t == frame.tutorialBuildTarget();
 
-        Color top = hover && unlocked ? Palette.PANEL_LIGHT_TOP : Palette.PANEL_TOP;
-        Color bot = hover && unlocked ? Palette.PANEL_LIGHT_BOTTOM : Palette.PANEL_BOTTOM;
-        Fx.shadow(g, r.x, r.y, r.width, r.height, 12, 4);
-        Fx.vGradient(g, r.x, r.y, r.width, r.height, 12, top, bot);
-        Fx.topSheen(g, r.x, r.y, r.width, 12);
-        g.setColor(hover && unlocked ? Palette.ACCENT : Palette.CARD_BORDER);
+        g.setColor(hover && unlocked ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
+        g.fillRoundRect(r.x, r.y, r.width, r.height, 12, 12);
+        g.setColor(hover && unlocked ? Palette.ACCENT : new Color(58, 70, 78));
         g.setStroke(new BasicStroke(hover && unlocked ? 1.8f : 1.1f));
         g.drawRoundRect(r.x, r.y, r.width, r.height, 12, 12);
         if (glow) {
@@ -281,12 +281,11 @@ public class BuildMenuPanel extends JComponent {
             g.drawRoundRect(r.x, r.y, r.width, r.height, 12, 12);
         }
 
-        // Symbolkachel (mittig oben): eigener Verlauf + Glanzpunkt für einen leichten 3D-Eindruck
+        // Symbolkachel (mittig oben)
         int isz = 56;
         int ix = r.x + (r.width - isz) / 2, iy = r.y + 10;
-        Fx.vGradient(g, ix, iy, isz, isz, 12, Icons.brighter(t.color, unlocked ? 1.08 : 0.65),
-            Icons.darker(t.color, unlocked ? 0.82 : 0.42));
-        Fx.topSheen(g, ix, iy, isz, 12);
+        g.setColor(Icons.darker(t.color, unlocked ? 0.9 : 0.5));
+        g.fillRoundRect(ix, iy, isz, isz, 12, 12);
         g.setColor(unlocked ? Icons.brighter(t.color, 1.05) : Icons.darker(t.color, 0.6));
         g.setStroke(new BasicStroke(1.2f));
         g.drawRoundRect(ix, iy, isz, isz, 12, 12);
