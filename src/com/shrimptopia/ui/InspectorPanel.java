@@ -153,7 +153,7 @@ public class InspectorPanel extends JPanel {
                 y = row(g, y, Palette.SHRIMP, "Shrimps", String.format("+%.1f %s", s.shrimpProduce, s.tier.shortName));
             if (t.isMarket())
                 y = row(g, y, Palette.MONEY, "Verkauf", String.format("bis %.0f/Tag", s.sellCap));
-            if (s.workerProvide > 0 || s.workerNeed > 0)
+            if ((s.workerProvide > 0 || s.workerNeed > 0) && frame.game().isUnlocked("era.HOF"))
                 y = row(g, y, Palette.WORKERS, "Arbeiter", flow(s.workerProvide, s.workerNeed));
             if (s.wasteProduce > 0)
                 y = row(g, y, Palette.WASTE, "Abfall", String.format("+%.0f/Tag", s.wasteProduce));

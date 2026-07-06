@@ -12,15 +12,15 @@ public enum BuildingType {
 
     HEADQUARTERS(
         "Hauptquartier", 0,
-        /*workerProvide*/ 8, /*workerNeed*/ 0,
+        /*workerProvide*/ 3, /*workerNeed*/ 0,
         /*powerProduce*/ 0,  /*powerUse*/ 2,
         /*waterProduce*/ 0,  /*waterUse*/ 0,
         /*feedProduce*/ 0,   /*feedUse*/ 0,
         /*shrimpProduce*/ 0, /*shrimpSell*/ 0, /*sellPrice*/ 0,
         /*repProduce*/ 0,    /*upkeep*/ 0,
         IconKind.HQ, new Color(126, 137, 152),
-        "Die Garage, in der alles begann - jetzt mit Schreibtisch. Stellt 8 motivierte (na ja) "
-        + "Verwaltungs-Arbeiter. Lebt von Kaffee und Quartalszahlen."),
+        "Die Garage, in der alles begann - jetzt mit Schreibtisch. Stellt 3 Arbeitskräfte: "
+        + "dich, Mira und Dr. Perla. Lebt von Kaffee und Quartalszahlen."),
 
     // ===================== Garagen-Stufe (Start-Tier, ausbaubar) =====================
 
@@ -86,20 +86,56 @@ public enum BuildingType {
 
     YARD_SALE(
         "Klapptisch-Verkauf", 100,
-        0, 1,
+        0, 0,
         0, 1,
         0, 0,
         0, 0,
-        0, 3, 22,
+        0, 2, 22,
         0, 1,
         IconKind.SALES, new Color(170, 146, 70),
         "Klapptisch, Kühlbox, handgemaltes Schild: 'SHRIMPS (ECHT)'. Verkauft bis zu "
-        + "3 Standard-Shrimps/Tag an Spaziergänger - mehr Nachfrage bringt nur Marketing."),
+        + "2 Standard-Shrimps/Tag an Spaziergänger - mehr Nachfrage bringt nur Marketing."),
+
+    MARKET_STALL(
+        "Wochenmarkt-Stand", 320,
+        0, 1,
+        0, 1,
+        0, 0,
+        0, 0,
+        0, 5, 22,
+        0, 2,
+        IconKind.SALES, new Color(184, 152, 76),
+        "Fester Stand auf dem Wochenmarkt: Markise, Eiswanne, Stammkundschaft. Verkauft bis zu "
+        + "5 Shrimps/Tag - wenn die Nachfrage mitspielt. Der Käsehändler nebenan grüßt inzwischen."),
+
+    FARM_SHOP(
+        "Hofladen", 750,
+        0, 1,
+        0, 2,
+        0, 0,
+        0, 0,
+        0, 9, 22,
+        0, 3.5,
+        IconKind.SALES, new Color(160, 140, 88),
+        "Eigener Laden am Hof: Kühltheke, Kasse, Klingel an der Tür. Bis zu 9 Shrimps/Tag "
+        + "zum vollen Preis - aber nur, wenn dein Ruf die Leute auch herlockt."),
+
+    DELIVERY_SERVICE(
+        "Kühl-Lieferdienst", 1500,
+        0, 2,
+        0, 4,
+        0, 0,
+        0, 0,
+        0, 15, 22,
+        0, 6,
+        IconKind.SALES, new Color(150, 150, 96),
+        "Zwei Kühl-Transporter und eine Telefonzentrale (Mira, zweites Handy). Beliefert "
+        + "Gastronomie und Feinkost im Umkreis: bis zu 15 Shrimps/Tag, auch Gourmet-Ware."),
 
     POWER_PLANT(
         "Schalentier-Kraftwerk", 600,
         0, 1,
-        45, 0,
+        56, 0,
         0, 0,
         0, 0,
         0, 0, 0,
@@ -158,7 +194,7 @@ public enum BuildingType {
 
     HOUSING(
         "Arbeiter-Wohnheim", 300,
-        6, 0,
+        8, 0,
         0, 4,
         0, 0,
         0, 0,
@@ -169,16 +205,16 @@ public enum BuildingType {
         + "WLAN, das nur an guten Tagen funktioniert."),
 
     SALES_OFFICE(
-        "Shrimp-Börse", 700,
-        0, 2,
-        0, 5,
+        "Shrimp-Börse", 2800,
+        0, 3,
+        0, 6,
         0, 0,
         0, 0,
-        0, 7, 22,
-        0, 5,
+        0, 24, 22,
+        0, 10,
         IconKind.SALES, new Color(196, 164, 62),
-        "Verkauft bis zu 7 Shrimps/Tag an den Weltmarkt. Der Preis steigt mit "
-        + "deiner Reputation. 'Buy low, fry high.'"),
+        "Das Endziel jedes Klapptischs: bis zu 24 Shrimps/Tag an den Weltmarkt, mit "
+        + "Preisaufschlag. Der Kurs steigt mit deiner Reputation. 'Buy low, fry high.'"),
 
     LAB(
         "Forschungslabor", 1100,
@@ -187,7 +223,7 @@ public enum BuildingType {
         0, 0,
         0, 0,
         0, 0, 0,
-        0.05, 7,
+        0.03, 7,
         IconKind.LAB, new Color(150, 92, 172),
         "Optimiert Genetik, Geschmack und Glanz deiner Shrimps. Jedes Labor hebt "
         + "den Verkaufspreis dauerhaft um +12% und poliert die Reputation."),
@@ -199,7 +235,7 @@ public enum BuildingType {
         0, 0,
         0, 0,
         0, 3, 0,
-        0.15, 6,
+        0.08, 6,
         IconKind.FOOD, new Color(202, 110, 132),
         "Serviert deine Shrimps zum Premium-Preis direkt am Tisch und "
         + "macht die Stadt verrückt nach dir. Nimmt Standard-, Bio- und Gourmet-Shrimps."),
@@ -255,7 +291,7 @@ public enum BuildingType {
         "Besucherzentrum", 1000,
         0, 2, 0, 6,
         0, 0, 0, 0,
-        0, 0, 0, 0.25, 5,
+        0, 0, 0, 0.12, 5,
         IconKind.VISITOR, new Color(210, 150, 70),
         "Führungen, Shrimp-Streichelbecken, Souvenir-Shop. Tourismus pur: "
         + "hebt deine Reputation kräftig."),
@@ -264,7 +300,7 @@ public enum BuildingType {
         "Zen-Algengarten", 500,
         0, 0, 0, 1,
         0, 0, 0, 0,
-        0, 0, 0, 0.12, 1,
+        0, 0, 0, 0.06, 1,
         IconKind.GARDEN, new Color(90, 160, 90),
         "Ein begrünter Ruheort mit plätschernden Algenbecken. Gut fürs Image, "
         + "gut für die Mitarbeiterseele."),
@@ -294,7 +330,7 @@ public enum BuildingType {
         "SHRIMPBOOST-Stand", 1300,
         0, 2, 0, 5,
         0, 0, 0, 0,
-        0, 0, 0, 0.05, 7,
+        0, 0, 0, 0.03, 7,
         IconKind.CAN, new Color(255, 90, 180),
         "Verkauft SHRIMPBOOST-Dosen zum Premium-Preis (~90 Geld/Dose). Influencer lieben "
         + "den Stand; sogar die Konkurrenz steht heimlich in der Schlange."),
@@ -332,7 +368,7 @@ public enum BuildingType {
         "Windrad überm Dach", 700,
         0, 0, 22, 0,
         0, 0, 0, 0,
-        0, 0, 0, 0.02, 1.2,
+        0, 0, 0, 0.01, 1.2,
         IconKind.WIND, new Color(140, 170, 200),
         "Ein gebrauchtes Kleinwindrad vom Energiepark-Flohmarkt. +22 Strom, keine Abgase, "
         + "und es wedelt beruhigend. Die Möwen nutzen es als Karussell."),
@@ -386,7 +422,7 @@ public enum BuildingType {
         "Riff-Kuppel", 3800,
         0, 2, 0, 12,
         0, 10, 0, 5,
-        3.2, 0, 0, 0.05, 8,
+        3.2, 0, 0, 0.03, 8,
         IconKind.DOME, new Color(90, 180, 190),
         "Glaskuppel mit lebendem Korallenriff: hier reifen ausschließlich Gourmet-Shrimps in "
         + "Spitzenqualität (+3,2/Tag). Besucher drücken sich die Nase platt (+Reputation)."),
@@ -413,7 +449,7 @@ public enum BuildingType {
         "Greg-Denkmal", 620,
         0, 0, 0, 0,
         0, 0, 0, 0,
-        0, 0, 0, 0.15, 0.5,
+        0, 0, 0, 0.08, 0.5,
         IconKind.STATUE, new Color(210, 180, 100),
         "Das Denkmal des krummen Kerlchens: Greg in Gold, Blick in die Ferne, eine Antenne "
         + "im Wind. General Krillkill salutiert jedes Mal. Besucher lieben es (+Reputation)."),
@@ -422,7 +458,7 @@ public enum BuildingType {
         "Garnelen-Fontäne", 380,
         0, 0, 0, 1,
         0, 1, 0, 0,
-        0, 0, 0, 0.08, 0.8,
+        0, 0, 0, 0.04, 0.8,
         IconKind.FOUNTAIN, new Color(100, 170, 210),
         "Ein Springbrunnen in Garnelenform, der Wasser aus den Fühlern sprüht. Deko pur, "
         + "etwas Wasserverbrauch, stetig +Reputation. Nachts beleuchtet: Kitsch-Level Endboss."),
@@ -431,7 +467,7 @@ public enum BuildingType {
         "Streichelbecken", 520,
         0, 1, 0, 1,
         0, 2, 0, 0.5,
-        0, 0, 0, 0.12, 1.5,
+        0, 0, 0, 0.06, 1.5,
         IconKind.TANK, new Color(220, 140, 170),
         "Flaches Becken mit besonders geduldigen Garnelen. Kinder streicheln, Eltern fotografieren, "
         + "alle sind gerührt (+Reputation). Die Garnelen führen Buch über Übergriffe."),
@@ -440,7 +476,7 @@ public enum BuildingType {
         "Show-Bühne", 1500,
         0, 2, 0, 6,
         0, 0, 0, 0,
-        0, 0, 0, 0.2, 7,
+        0, 0, 0, 0.1, 7,
         IconKind.MUSIC, new Color(230, 110, 180),
         "Bühne, Nebelmaschine, fünf Mikrofone über einem Aquarium: Heimspielstätte der Boygroup "
         + "NEW KRILLS ON THE BLOCK. Konzerte polieren den Ruf - und zwischen den Refrains "
@@ -542,6 +578,9 @@ public enum BuildingType {
             case ALGAE_BUCKET  -> "Algen-Eimer";
             case CAMPER        -> "Wohnwagen";
             case YARD_SALE     -> "Klapptisch";
+            case MARKET_STALL  -> "Marktstand";
+            case FARM_SHOP     -> "Hofladen";
+            case DELIVERY_SERVICE -> "Lieferdienst";
             case POWER_PLANT  -> "Kraftwerk";
             case SOLAR_ROOF   -> "Solar";
             case WATER_PLANT  -> "Wasser";
@@ -592,6 +631,7 @@ public enum BuildingType {
             POWER_PLANT, SOLAR_ROOF, WIND_TURBINE, GEO_PLANT,
             WATER_PLANT, WATER_HUB, ALGAE_FARM, PLANKTON_PRESS,
             SHRIMP_TANK, HATCHERY, MEGA_TANK, REEF_DOME,
+            MARKET_STALL, FARM_SHOP, DELIVERY_SERVICE,
             HOUSING, CANTEEN, WAREHOUSE, COLD_STORE, SALES_OFFICE, LAB, GENLAB, RESTAURANT,
             EXPORT_DOCK, MILITARY_DEPOT, BLACK_MARKET,
             VISITOR_CENTER, ZEN_GARDEN, MASCOT_STATUE, FOUNTAIN, PETTING_POOL, BOYBAND_STAGE,
@@ -627,37 +667,50 @@ public enum BuildingType {
     static {
         META.put(HEADQUARTERS,  m(Zone.PRODUKTION, null));
 
-        // Garagen-Stufe: sofort baubar, ausbaubar zur Hallen-Stufe (era.HALLE)
+        // Garagen-Stufe: sofort baubar, ausbaubar über Hof- (era.HOF) zur Hallen-Stufe (era.HALLE).
+        // In der Garage gibt es KEINE Arbeiter-Mechanik - die beginnt mit dem Hof.
         Meta gTank = up(m(Zone.PRODUKTION, null), SHRIMP_TANK); gTank.producesTier = ShrimpTier.STANDARD;
         META.put(GARAGE_TANK, gTank);
         META.put(OLD_GENERATOR, up(m(Zone.PRODUKTION, null), POWER_PLANT));
         META.put(RAIN_BARREL,   up(m(Zone.PRODUKTION, null), WATER_PLANT));
         META.put(ALGAE_BUCKET,  up(m(Zone.PRODUKTION, null), ALGAE_FARM));
-        META.put(CAMPER,        up(m(Zone.PRODUKTION, null), HOUSING));
-        META.put(YARD_SALE,     up(market(Zone.PRODUKTION, null, 0.85, ShrimpTier.STANDARD), SALES_OFFICE));
+        META.put(YARD_SALE,     up(market(Zone.PRODUKTION, null, 0.75, ShrimpTier.STANDARD), MARKET_STALL));
 
-        // Hallen-Stufe: erst nach dem Garagen-Ausbau (Quest "era.HALLE")
-        META.put(POWER_PLANT,   m(Zone.PRODUKTION, "era.HALLE"));
-        META.put(SOLAR_ROOF,    m(Zone.PRODUKTION, "era.HALLE"));
-        META.put(WATER_PLANT,   m(Zone.PRODUKTION, "era.HALLE"));
-        META.put(ALGAE_FARM,    m(Zone.PRODUKTION, "era.HALLE"));
+        // Hof-Stufe (era.HOF): mehr Platz, echte Becken - und die ersten Angestellten.
+        META.put(CAMPER,        up(m(Zone.PRODUKTION, "era.HOF"), HOUSING));
+        META.put(WATER_PLANT,   m(Zone.PRODUKTION, "era.HOF"));
+        META.put(ALGAE_FARM,    m(Zone.PRODUKTION, "era.HOF"));
+        META.put(MARKET_STALL,  up(market(Zone.PRODUKTION, "era.HOF", 0.9, ShrimpTier.STANDARD, ShrimpTier.BIO), FARM_SHOP));
+        META.put(FARM_SHOP,     up(market(Zone.PRODUKTION, "build.hofladen", 1.0, ShrimpTier.STANDARD, ShrimpTier.BIO), DELIVERY_SERVICE));
+
+        // Kraftwerk & Solar gehören ZUM Hof-Ausbau: WATER_PLANT/ALGAE_FARM/SHRIMP_TANK
+        // vervielfachen den Strombedarf gegenüber der Garage - ohne eine der beiden
+        // Stromquellen hier bricht die Hof-Wirtschaft im Dunkeln zusammen.
+        META.put(POWER_PLANT,   m(Zone.PRODUKTION, "era.HOF"));
+        META.put(SOLAR_ROOF,    m(Zone.PRODUKTION, "era.HOF"));
+
+        // Hallen-Stufe: erst nach dem Hof-Ausbau (Quest "era.HALLE")
+        META.put(DELIVERY_SERVICE, up(market(Zone.PRODUKTION, "era.HALLE", 1.05,
+            ShrimpTier.STANDARD, ShrimpTier.BIO, ShrimpTier.GOURMET), SALES_OFFICE));
         // Wohnheim erst, wenn der Betrieb wirklich Personal braucht (Meilenstein-Flag) -
         // direkt zur Hallen-Miete ein ganzes Wohnheim wäre unlogisch schnell skaliert.
-        META.put(HOUSING,       m(Zone.PRODUKTION, "build.housing"));
+        // Wohnheim hängt direkt an era.HOF: der Wohnwagen (dessen Ausbauziel) wird beim
+        // Hof-Antritt sofort gebraucht - ein zusätzlicher Meilenstein wäre nur eine Falle.
+        META.put(HOUSING,       m(Zone.PRODUKTION, "era.HOF"));
         META.put(LAB,           m(Zone.FORSCHUNG,  "zone.FORSCHUNG"));
 
-        // Becken-Kette im Tropico-Stil: Garagen-Aquarium -> Shrimp-Becken -> Mega-Becken
-        Meta tank = up(m(Zone.PRODUKTION, "era.HALLE"), MEGA_TANK); tank.producesTier = ShrimpTier.STANDARD;
+        // Becken-Kette im Tropico-Stil: Garagen-Aquarium -> Shrimp-Becken (Hof) -> Mega-Becken
+        Meta tank = up(m(Zone.PRODUKTION, "era.HOF"), MEGA_TANK); tank.producesTier = ShrimpTier.STANDARD;
         META.put(SHRIMP_TANK, tank);
 
         // v4: Kategorie-Ausbau
         META.put(SHRIMP_WHEEL,   m(Zone.PRODUKTION, null));                 // Garagen-Strom, Stufe 2
         Meta kiddie = up(m(Zone.PRODUKTION, null), SHRIMP_TANK); kiddie.producesTier = ShrimpTier.STANDARD;
         META.put(KIDDIE_POOL,    kiddie);                                    // Garagen-Zucht, billig
-        META.put(WIND_TURBINE,   m(Zone.PRODUKTION, "era.HALLE"));
+        META.put(WIND_TURBINE,   m(Zone.PRODUKTION, "era.HOF"));
         META.put(GEO_PLANT,      m(Zone.PRODUKTION, "build.geo"));
         META.put(PLANKTON_PRESS, m(Zone.PRODUKTION, "build.plankton"));
-        Meta hatch = m(Zone.PRODUKTION, "era.HALLE"); hatch.producesTier = ShrimpTier.STANDARD;
+        Meta hatch = m(Zone.PRODUKTION, "era.HOF"); hatch.producesTier = ShrimpTier.STANDARD;
         META.put(HATCHERY,       hatch);
         Meta mega = m(Zone.PRODUKTION, "build.megatank"); mega.producesTier = ShrimpTier.STANDARD;
         META.put(MEGA_TANK,      mega);
@@ -670,7 +723,7 @@ public enum BuildingType {
         META.put(PETTING_POOL,   m(Zone.EMPFANG,    "zone.EMPFANG"));
         META.put(BOYBAND_STAGE,  m(Zone.EMPFANG,    "build.stage"));         // via Siggi-Scampi-Quest
 
-        META.put(SALES_OFFICE,   market(Zone.PRODUKTION, "era.HALLE",     1.0, ShrimpTier.STANDARD, ShrimpTier.BIO));
+        META.put(SALES_OFFICE,   market(Zone.PRODUKTION, "build.boerse",  1.15, ShrimpTier.STANDARD, ShrimpTier.BIO));
         META.put(RESTAURANT,     market(Zone.EMPFANG,    "zone.EMPFANG",  1.7, ShrimpTier.STANDARD, ShrimpTier.BIO, ShrimpTier.GOURMET));
         META.put(EXPORT_DOCK,    market(Zone.LOGISTIK,   "build.export",  1.3, ShrimpTier.BIO, ShrimpTier.GOURMET, ShrimpTier.GENTECH));
         META.put(MILITARY_DEPOT, market(Zone.LOGISTIK,   "build.military",1.5, ShrimpTier.PROTEIN, ShrimpTier.WARKRILL));

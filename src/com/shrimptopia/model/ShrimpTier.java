@@ -8,9 +8,11 @@ import java.awt.Color;
  * Reihenfolge = Qualität (STANDARD am niedrigsten).
  */
 public enum ShrimpTier {
+    // v6-Balance: positive Verkaufs-Reputation halbiert - Ruf soll über strategische
+    // Entscheidungen wachsen, nicht nebenbei über die Kasse. Negative bleiben bissig.
     STANDARD ("Wald-und-Wiesen-Shrimp", 15,  0.00, new Color(255, 150, 130), "STD"),
-    BIO      ("Bio-Shrimp",             27,  0.04, new Color(150, 210, 120), "BIO"),
-    GOURMET  ("Gourmet-Shrimp",         46,  0.06, new Color(255, 198, 110), "GOU"),
+    BIO      ("Bio-Shrimp",             27,  0.02, new Color(150, 210, 120), "BIO"),
+    GOURMET  ("Gourmet-Shrimp",         46,  0.03, new Color(255, 198, 110), "GOU"),
     PROTEIN  ("Protein-Bombe",          72, -0.03, new Color(232, 120,  88), "PRO"),
     GENTECH  ("Designer-Shrimp",       112, -0.07, new Color(190, 120, 230), "GEN"),
     WARKRILL ("Kampf-Krill",           185, -0.12, new Color(220,  70,  70), "WAR");

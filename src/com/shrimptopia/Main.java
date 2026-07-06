@@ -33,12 +33,12 @@ public class Main {
         SwingUtilities.invokeLater(() -> new GameFrame().setVisible(true));
     }
 
-    /** Simuliert Garagen-Start, Hallen-Ausbau und Marketing - rein in der Konsole. */
+    /** Simuliert Garagen-Start, Hof- und Hallen-Ausbau samt Marketing - rein in der Konsole. */
     private static void selfTest() {
-        System.out.println("== ShrimpTopia Selbsttest (Garagen-Start) ==");
+        System.out.println("== ShrimpTopia Selbsttest (Garage -> Hof -> Halle) ==");
         GameState gs = new GameState(new Random(42));
 
-        // Phase 1: Garagen-Wirtschaft (Start-Tier)
+        // Phase 1: Garagen-Wirtschaft (Start-Tier, keine Arbeiter, nur Nachbarschafts-Nachfrage)
         gs.place(BuildingType.OLD_GENERATOR, 0, 0, true);
         gs.place(BuildingType.RAIN_BARREL,   1, 0, true);
         gs.place(BuildingType.RAIN_BARREL,   2, 0, true);
@@ -47,37 +47,65 @@ public class Main {
         gs.place(BuildingType.GARAGE_TANK,   5, 0, true);
         gs.place(BuildingType.GARAGE_TANK,   6, 0, true);
         gs.place(BuildingType.YARD_SALE,     0, 1, true);
+        gs.toggleStream(MarketingStream.FLYER);
         double start = gs.getMoney();
         System.out.printf("Startkapital nach Garagen-Bau: %.0f Geld, %d Gebäude%n", start, gs.buildingCount());
-        System.out.println("Tag |   Geld | Wasser | Futter | Shrimp | Nachfrage | verkauft");
+        System.out.println("Tag |   Geld | Wasser | Futter | Shrimp | Bekannt | Nachfrage | verkauft");
 
         boolean ok = true;
-        for (int i = 1; i <= 100 && ok; i++) {
+        for (int i = 1; i <= 120 && ok; i++) {
             gs.tick();
-            if (i % 20 == 0 || i == 1)
-                System.out.printf("%3d | %6.0f | %6.0f | %6.0f | %6.1f | %9.1f | %8.1f%n",
-                    gs.getDay(), gs.getMoney(), gs.getWater(), gs.getFeed(), gs.getShrimp(),
-                    gs.getDemandLast(), gs.getShrimpSoldLast());
+            if (i % 30 == 0 || i == 1) tableRow(gs);
             ok = finite(gs);
         }
         if (gs.getMoney() <= start) { ok = false; System.out.println("WARN: Garagen-Wirtschaft wächst nicht."); }
 
-        // Phase 2: Halle freischalten, Garagen-Technik ausbauen, Marketing buchen
-        gs.unlock("era.HALLE", null);
-        gs.addMoney(4000);
-        gs.toggleStream(MarketingStream.FLYER);
+        // Phase 2: Hof pachten, Garagen-Technik ausbauen, zweiten Marketing-Kanal buchen
+        gs.unlock("era.HOF", null);
+        gs.unlock("mkt.radio", null);
+        gs.addMoney(2500);
+        gs.toggleStream(MarketingStream.RADIO);
+        gs.place(BuildingType.CAMPER, 7, 0, true);
         int upgraded = 0;
         for (Building b : new java.util.ArrayList<>(gs.buildings()))
             if (b.type.upgradesTo() != null && gs.upgradeBuilding(b) != null) upgraded++;
         double p2 = gs.getMoney();
-        System.out.println("Phase 2: Halle frei, " + upgraded + " Gebäude ausgebaut, Marketing 'Flugblätter' aktiv.");
-        for (int i = 1; i <= 100 && ok; i++) { gs.tick(); ok = finite(gs); }
+        System.out.println("Phase 2: Hof frei, " + upgraded + " Gebäude ausgebaut (u.a. Klapptisch -> Marktstand), Radio aktiv.");
+        for (int i = 1; i <= 120 && ok; i++) {
+            gs.tick();
+            if (i % 40 == 0) tableRow(gs);
+            ok = finite(gs);
+        }
+        if (gs.getMoney() <= p2) { ok = false; System.out.println("WARN: Hof-Wirtschaft wächst nicht."); }
+
+        // Phase 3: Halle mieten, Verkaufsleiter weiter ausbauen, Marketing verbreitern
+        gs.unlock("era.HALLE", null);
+        gs.unlock("build.hofladen", null);
+        gs.unlock("mkt.social", null);
+        gs.addMoney(6000);
+        gs.toggleStream(MarketingStream.SOCIAL);
+        for (Building b : new java.util.ArrayList<>(gs.buildings()))
+            if (b.type.upgradesTo() != null && gs.upgradeBuilding(b) != null) upgraded++;
+        double p3 = gs.getMoney();
+        System.out.println("Phase 3: Halle frei, insgesamt " + upgraded + " Ausbauten, Social Media aktiv.");
+        for (int i = 1; i <= 120 && ok; i++) {
+            gs.tick();
+            if (i % 40 == 0) tableRow(gs);
+            ok = finite(gs);
+        }
 
         System.out.println("----");
-        System.out.printf("Ende: %.0f Geld (Phase-2-Start %.0f), Nachfrage %.1f, verkauft %.1f/Tag, pleite: %s%n",
-            gs.getMoney(), p2, gs.getDemandLast(), gs.getShrimpSoldLast(), gs.isBankrupt());
-        if (gs.getMoney() <= p2) { ok = false; System.out.println("WARN: Hallen-Wirtschaft wächst nicht."); }
+        System.out.printf("Ende: %.0f Geld (Phase-3-Start %.0f), Bekanntheit %.0f, Nachfrage %.1f, verkauft %.1f/Tag, pleite: %s%n",
+            gs.getMoney(), p3, gs.getAwareness(), gs.getDemandLast(), gs.getShrimpSoldLast(), gs.isBankrupt());
+        if (gs.getMoney() <= p3) { ok = false; System.out.println("WARN: Hallen-Wirtschaft wächst nicht."); }
+        if (gs.getAwareness() <= 5) { ok = false; System.out.println("WARN: Bekanntheit baut sich nicht auf."); }
         System.out.println(ok ? "SELFTEST OK" : "SELFTEST FAIL");
+    }
+
+    private static void tableRow(GameState gs) {
+        System.out.printf("%3d | %6.0f | %6.0f | %6.0f | %6.1f | %7.1f | %9.1f | %8.1f%n",
+            gs.getDay(), gs.getMoney(), gs.getWater(), gs.getFeed(), gs.getShrimp(),
+            gs.getAwareness(), gs.getDemandLast(), gs.getShrimpSoldLast());
     }
 
     private static boolean finite(GameState gs) {
@@ -126,7 +154,8 @@ public class Main {
                 f.closeAlmanac();
 
                 // Freischaltungen, damit Zonen/Tiers in der UI sichtbar sind
-                for (String flag : new String[]{"era.HALLE", "zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
+                for (String flag : new String[]{"era.HOF", "era.HALLE", "zone.FORSCHUNG", "zone.EMPFANG", "zone.LOGISTIK",
+                        "build.hofladen", "build.boerse",
                         "build.water_hub", "build.export", "build.military", "build.genlab",
                         "build.shrimpboost", "build.robotworks", "build.barracks", "tier.WARKRILL",
                         "build.gut_station", "build.waste_plant",

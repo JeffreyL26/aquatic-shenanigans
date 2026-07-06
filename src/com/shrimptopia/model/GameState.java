@@ -33,17 +33,23 @@ public class GameState {
     private double money = 2_500;
     private double water = 80;
     private double feed = 60;
-    private double reputation = 60;
+    // v6: Start-Reputation gesenkt - Ruf will über Entscheidungen ERARBEITET werden.
+    private double reputation = 40;
     private final EnumMap<ShrimpTier, Double> shrimpStock = new EnumMap<>(ShrimpTier.class);
 
     // --- Freischaltungen / Politik ---
     private final Set<String> unlocked = new HashSet<>();
     private WorkerPolicy workerPolicy = WorkerPolicy.REGULAR;
 
-    // --- Marketing: aktive Streams erzeugen Nachfrage, kosten Geld pro Tag ---
+    // --- Marketing: aktive Streams bauen BEKANNTHEIT auf, die (mit Reputation) Nachfrage macht ---
     private final java.util.EnumSet<MarketingStream> activeStreams = java.util.EnumSet.noneOf(MarketingStream.class);
     /** Basis-Nachfrage ohne jedes Marketing: die Nachbarschaft. */
-    public static final double BASE_DEMAND = 5;
+    public static final double BASE_DEMAND = 2;
+    /** Nachfrage pro Punkt Bekanntheit (vor Reputations-Faktor). */
+    public static final double DEMAND_PER_AWARENESS = 0.5;
+    /** Bekanntheit 0..100: wächst durch Marketing (je Kanal bis zu seiner Sättigungsgrenze),
+     *  zerfällt langsam ohne Werbung. */
+    private double awareness = 0;
     private double demandLast = 0, demandUsedLast = 0, marketingCostLast = 0;
 
     // --- letzter Tick (HUD/Inspektor) ---
@@ -208,8 +214,8 @@ public class GameState {
             return false;
         }
         activeStreams.add(s);
-        log("Marketing gebucht: " + s.displayName + " (-" + Math.round(s.costPerDay) + "/Tag, +"
-            + Math.round(s.demand) + " Nachfrage)", LOG_GOOD);
+        log("Marketing gebucht: " + s.displayName + " (-" + Math.round(s.costPerDay)
+            + "/Tag, Bekanntheit bis ~" + Math.round(s.capFor(reputation)) + ")", LOG_GOOD);
         return true;
     }
 
@@ -218,8 +224,11 @@ public class GameState {
     /** Davon durch Verkäufe genutzt. */
     public double getDemandUsedLast() { return demandUsedLast; }
     public double getMarketingCostLast() { return marketingCostLast; }
-    /** Reputations-Faktor auf die Nachfrage (0.7 .. 1.3). */
-    public double demandRepFactor() { return 0.7 + (reputation / 100.0) * 0.6; }
+    /** Bekanntheit 0..100 (Marketing-Aufbau, natürlicher Zerfall). */
+    public double getAwareness() { return awareness; }
+    public void addAwareness(double d) { awareness = clamp(awareness + d, 0, 100); }
+    /** Reputations-Faktor auf die Nachfrage (0.5 .. 1.4) - Ruf entscheidet, ob Bekanntheit KAUFT. */
+    public double demandRepFactor() { return 0.5 + (reputation / 100.0) * 0.9; }
 
     public WorkerPolicy getWorkerPolicy() { return workerPolicy; }
     public boolean setWorkerPolicy(WorkerPolicy p) {
@@ -256,12 +265,21 @@ public class GameState {
     public String[] pollAnnouncement() { return announcements.isEmpty() ? null : announcements.remove(0); }
 
     private void checkMilestoneUnlocks() {
-        // v5-Balance: Meilensteine deutlich angehoben - Freischaltungen sollen erarbeitet
-        // werden, nicht nebenbei passieren. (Sicherheitsnetz: falls die Perla-Quest liegen
-        // bleibt, kommt die Halle weiterhin über Vermögen.)
-        if (money >= 9_000)
-            unlock("era.HALLE", "Die Garage hat ausgedient: Hallen-Gebäude freigeschaltet!");
+        // v6-Balance: Garage -> Hof -> Halle sind ECHTE Stufen. Die Quests von Dr. Perla
+        // sind der Hauptweg; die Vermögens-Schwellen hier sind nur ein Sicherheitsnetz,
+        // falls eine Quest liegen bleibt - bewusst so hoch, dass sie selten greifen.
+        if (money >= 8_000)
+            unlock("era.HOF", "Genug gespart: Der Hof hinterm Haus ist gepachtet - Hof-Gebäude freigeschaltet!");
+        boolean hof = isUnlocked("era.HOF");
+        if (hof && money >= 30_000)
+            unlock("era.HALLE", "Der Hof hat ausgedient: Hallen-Gebäude freigeschaltet!");
         boolean halle = isUnlocked("era.HALLE");
+        // Verkaufsleiter: Hofladen braucht Ruf (die Leute kommen nur zu wem, den sie mögen),
+        // die Börse braucht nachgewiesene Verkaufs-Historie UND Kapital.
+        if (hof && reputation >= 55)
+            unlock("build.hofladen", "Dein Ruf spricht sich rum: Hofladen freigeschaltet (Ausbau des Marktstands)!");
+        if (halle && totalSold >= 1_200 && money >= 25_000)
+            unlock("build.boerse", "Die Börse nimmt dich ernst: Shrimp-Börse freigeschaltet (Ausbau des Lieferdiensts)!");
         if (isUnlocked("zone.FORSCHUNG") && money >= 26_000)
             unlock("build.gut_station", "Freigeschaltet: Darmentleerungsanlage - Voraussetzung für makellose Gourmet-Shrimps (mit leerem Darm)!");
         if (isUnlocked("zone.FORSCHUNG") && money >= 30_000)
@@ -279,12 +297,9 @@ public class GameState {
             unlock("build.geo", "Freigeschaltet: Geothermie-Bohrung - Grundlast-Strom aus 800 Metern Tiefe.");
         if (isUnlocked("zone.FORSCHUNG") && money >= 36_000)
             unlock("build.genlab", "Freigeschaltet: Genlabor - hier entsteht später der Designer-Shrimp.");
-        // Wohnheim erst, wenn der Betrieb spürbar Personal braucht (nicht direkt mit der Halle).
-        if (halle && (workersUsed >= 12 || money >= 18_000))
-            unlock("build.housing", "Der Betrieb wächst: Arbeiterwohnheim freigeschaltet - Schluss mit dem Wohnwagen-Slum.");
         if (halle && (money >= 20_000 || day >= 300))
             unlock("zone.FORSCHUNG", "Neue Zone: Forschungsflügel (Labore). Links die Standorte wechseln!");
-        if (halle && (reputation >= 75 || money >= 26_000))
+        if (halle && (reputation >= 60 || money >= 26_000))
             unlock("zone.EMPFANG", "Neue Zone: Empfang & Garten (Restaurant, Besucherzentrum).");
         if (money >= 55_000) {
             unlock("zone.LOGISTIK", "Neue Zone: Logistik & Export.");
@@ -499,20 +514,20 @@ public class GameState {
         double priceGlobal = (1 + labBonus) * repMult * fm.priceMult * tariff;
         double bestPrice = 0;
 
-        // --- Marketing: Streams erzeugen Nachfrage und kosten Geld ---
-        double demandBase = BASE_DEMAND;
+        // --- Marketing: Streams bauen Bekanntheit auf (je Kanal nur bis zu seiner
+        //     Sättigungsgrenze, mit abnehmendem Ertrag nahe der Grenze), Bekanntheit
+        //     zerfällt langsam ohne Werbung. Nachfrage = f(Bekanntheit, Reputation). ---
+        awareness = Math.max(0, awareness - (0.1 + awareness * 0.01));   // Zerfall: Ruhm ist flüchtig
         double mktCost = 0;
         for (MarketingStream s : activeStreams) {
-            double d = s.demand;
-            // Subliminal-Pop wirkt unterschwellig: je berühmter die Farm, desto mehr Hörer
-            // summen unbewusst "kauf Shrimps" - Nachfrage skaliert mit der Reputation.
-            if (s == MarketingStream.BOYBAND) d += reputation * 0.15;
-            demandBase += d;
+            double cap = s.capFor(reputation);
+            if (awareness < cap) awareness += s.awarenessPerDay * (cap - awareness) / cap;
             mktCost += s.costPerDay;
         }
+        awareness = clamp(awareness, 0, 100);
         money -= mktCost;
         marketingCostLast = mktCost;
-        double demandLeft = demandBase * demandRepFactor();
+        double demandLeft = (BASE_DEMAND + awareness * DEMAND_PER_AWARENESS) * demandRepFactor();
         demandLast = demandLeft;
 
         // --- Märkte: verkaufen akzeptierte Tiers (wertvollste zuerst), begrenzt durch Nachfrage.
@@ -550,9 +565,11 @@ public class GameState {
         demandUsedLast = demandLast - demandLeft;
 
         // --- Reputation aus Gebäuden (Modi, Restaurant, Besucher, Solar, Kraftwerk ...) ---
+        // v6: schwächerer Sog zur Mitte (40) - hoher Ruf erodiert langsam, niedriger
+        // erholt sich nur zäh. Große Sprünge kommen aus Quests & Entscheidungen.
         for (Building b : buildings) reputation += b.lastStats.repPerTick;
         reputation += fm.repPerTick;
-        reputation += (50 - reputation) * 0.01;
+        reputation += (40 - reputation) * 0.006;
         reputation = clamp(reputation, 0, 100);
 
         // --- Betriebskosten ---
@@ -649,7 +666,7 @@ public class GameState {
         s.workerProvide = t.workerProvide; s.workerNeed = t.workerNeed;
         s.tier = t.producesTier() != null ? t.producesTier() : ShrimpTier.STANDARD;
         double rep = t.repProduce;
-        if (t == BuildingType.SOLAR_ROOF) rep += 0.03;
+        if (t == BuildingType.SOLAR_ROOF) rep += 0.015;
         if (t == BuildingType.POWER_PLANT) rep -= 0.05;
         if (t == BuildingType.OLD_GENERATOR) rep -= 0.02;
 
@@ -868,10 +885,10 @@ public class GameState {
         if (workerPolicy != WorkerPolicy.REGULAR) out.add("Arbeiter-Politik: " + workerPolicy.displayName);
         if (exportTariff > 0) out.add("Akwanov-Embargo: -" + (int) (exportTariff * 100) + "% Verkaufspreis");
         if (!activeStreams.isEmpty()) {
-            double d = 0, c = 0;
-            for (MarketingStream s : activeStreams) { d += s.demand; c += s.costPerDay; }
-            out.add("Marketing: " + activeStreams.size() + " Stream(s), +" + Math.round(d)
-                + " Nachfrage, -" + Math.round(c) + " Geld/Tag");
+            double c = 0;
+            for (MarketingStream s : activeStreams) c += s.costPerDay;
+            out.add("Marketing: " + activeStreams.size() + " Stream(s), Bekanntheit "
+                + Math.round(awareness) + "/100, -" + Math.round(c) + " Geld/Tag");
         }
         return out;
     }

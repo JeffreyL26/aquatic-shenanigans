@@ -21,7 +21,7 @@ public final class TutorialContent {
             Advance.ACK));
 
         s.add(new TutorialStep(Region.TOPBAR,
-            "Da oben siehst du alles, was zählt: Geld, Strom, Wasser, Futter, Shrimps, Arbeiter und "
+            "Da oben siehst du alles, was zählt: Geld, Strom, Wasser, Futter, Shrimps und "
             + "Reputation. Der Pulsschlag der Garage - geht hier was auf Rot, ist Greg sauer. (Greg ist "
             + "meine emotionale Support-Garnele im Wasserglas. Frag nicht.)",
             Advance.ACK));
@@ -35,8 +35,8 @@ public final class TutorialContent {
         s.add(new TutorialStep(Region.MAP,
             "Gebaut wird über das BAUMENÜ: Öffne es mit dem BAUEN-Knopf links in der Seitenleiste - "
             + "oder per Rechtsklick irgendwo auf die Karte. Gebäude auswählen, dann mit Klick auf ein "
-            + "freies Feld platzieren. Wir starten mit Flohmarkt-Technik; die großen Hallen-Gebäude "
-            + "sind noch gesperrt, bis wir aus der Garage rauswachsen. Jede Garagen-Anlage lässt sich "
+            + "freies Feld platzieren. Wir starten mit Flohmarkt-Technik; erst der HOF, später die "
+            + "HALLE schalten die größeren Gebäude frei. Jede Garagen-Anlage lässt sich "
             + "später an gleicher Stelle UPGRADEN.",
             Advance.ACK));
 
@@ -78,7 +78,7 @@ public final class TutorialContent {
 
         s.add(new TutorialStep(Region.INSPECTOR,
             "Im Inspektor gibst du Gebäuden MODI, kaufst UPGRADES - und wertest Garagen-Technik zur "
-            + "Hallen-Stufe auf, sobald sie freigeschaltet ist: gleiche Stelle, größeres Gebäude. "
+            + "nächsten Stufe auf, sobald sie freigeschaltet ist: gleiche Stelle, größeres Gebäude. "
             + "Übrigens: Gebäude nahe am HQ arbeiten einen Tick fleißiger - der Bonus schwindet mit "
             + "der Entfernung, schaden tut Abstand aber nie.",
             Advance.ACK));
@@ -92,8 +92,9 @@ public final class TutorialContent {
 
         s.add(new TutorialStep(Region.ALMANAC,
             "Und das ist die harte Wahrheit des Handels: NACHFRAGE. Ohne Werbung kauft nur die "
-            + "Nachbarschaft (~6 Shrimps/Tag). Hier im Marketing-Tab buchst du Streams - sie kosten "
-            + "täglich Geld, bringen aber Kundschaft. Mira hat da später noch Ideen.",
+            + "Nachbarschaft (~2 Shrimps/Tag). Werbung baut BEKANNTHEIT auf - aber jeder Kanal trägt "
+            + "nur bis zu seiner Grenze: Flugblätter machen dich im Viertel berühmt, nicht im Land. "
+            + "Und ohne Werbung bröckelt der Ruhm wieder. Mira hat da später noch Ideen.",
             Advance.ACK).tab(5));
 
         s.add(new TutorialStep(Region.ZONE_TABS,

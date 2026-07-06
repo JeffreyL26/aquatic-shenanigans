@@ -183,7 +183,8 @@ public class AlmanacPanel extends JComponent {
         y = resRow(g, ResourceType.WATER, "Wasser", n(gs.getWater()) + " / " + n(gs.getCapWater()), signed(gs.getWaterNet()), x, y, w, true);
         y = resRow(g, ResourceType.FEED, "Futter", n(gs.getFeed()) + " / " + n(gs.getCapFeed()), signed(gs.getFeedNet()), x, y, w, true);
         y = resRow(g, ResourceType.SHRIMP, "Shrimps (gesamt)", n(gs.getShrimp()) + " / " + n(gs.getCapShrimp()), signed(gs.getShrimpNet()), x, y, w, true);
-        y = resRow(g, ResourceType.WORKERS, "Arbeiter", gs.getWorkersAvail() + " frei", "Bedarf " + gs.getWorkersUsed(), x, y, w, true);
+        y = resRow(g, ResourceType.WORKERS, "Arbeiter", gs.getWorkersAvail() + " frei", "Bedarf " + gs.getWorkersUsed(), x, y, w,
+            gs.isUnlocked("era.HOF"));
         y = resRow(g, ResourceType.REPUTATION, "Reputation", n(gs.getReputation()) + "/100", "", x, y, w, true);
         // Spätspiel-Ressourcen: erst sichtbar, wenn freigeschaltet - vorher nur "???"
         y = resRow(g, ResourceType.SHELLS, "Schalen", n(gs.getShells()) + " / " + n(gs.getCapShells()), signed(gs.getShellsNet()), x, y, w,
@@ -279,14 +280,19 @@ public class AlmanacPanel extends JComponent {
     // ---------------- Marketing (Nachfrage & Streams) ----------------
     private void drawMarketing(Graphics2D g, GameState gs, int x, int y, int w, int bottom) {
         mktRects.clear(); mktAt.clear();
-        double used = gs.getDemandUsedLast(), dem = gs.getDemandLast();
+        double used = gs.getDemandUsedLast(), dem = gs.getDemandLast(), aw = gs.getAwareness();
         g.setFont(Palette.FONT_H1); g.setColor(Palette.ACCENT2);
         g.drawString(Math.round(dem) + " Nachfrage / Tag", x, y);
+        g.setFont(Palette.FONT_BOLD); g.setColor(Palette.ACCENT);
+        String awTxt = "Bekanntheit " + Math.round(aw) + "/100";
+        g.drawString(awTxt, x + w - g.getFontMetrics().stringWidth(awTxt) - 4, y);
         g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
-        g.drawString(TextUtil.clip(g.getFontMetrics(), "Basis " + Math.round(GameState.BASE_DEMAND) + " (Nachbarschaft) + Streams, x"
-            + String.format("%.2f", gs.demandRepFactor()) + " Reputations-Faktor   -   gestern verkauft: "
-            + Math.round(used) + "   -   Marketing-Kosten: " + Math.round(gs.getMarketingCostLast()) + "/Tag", w), x, y + 18);
-        g.drawString(TextUtil.clip(g.getFontMetrics(), "Verbraucher-Märkte (Klapptisch, Börse, Restaurant, Export) verkaufen nur, was nachgefragt wird."
+        g.drawString(TextUtil.clip(g.getFontMetrics(), "= (Basis " + Math.round(GameState.BASE_DEMAND) + " + Bekanntheit x "
+            + String.format("%.1f", GameState.DEMAND_PER_AWARENESS) + ") x " + String.format("%.2f", gs.demandRepFactor())
+            + " Ruf-Faktor   -   gestern verkauft: " + Math.round(used)
+            + "   -   Marketing-Kosten: " + Math.round(gs.getMarketingCostLast()) + "/Tag", w), x, y + 18);
+        g.drawString(TextUtil.clip(g.getFontMetrics(), "Jeder Kanal trägt die Bekanntheit nur bis zu seiner GRENZE - und ohne Werbung bröckelt sie."
+            + " Verbraucher-Märkte (Klapptisch bis Börse, Restaurant, Export) verkaufen nur, was nachgefragt wird;"
             + " Militär & Schwarzmarkt laufen über Verträge.", w), x, y + 34);
 
         int yy = y + 54;
@@ -310,7 +316,8 @@ public class AlmanacPanel extends JComponent {
             }
             g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 250), rr.x + 12, rr.y + 32);
             g.setFont(Palette.FONT_BOLD);
-            String eco = "+" + Math.round(s.demand) + " Nachfrage   -" + Math.round(s.costPerDay) + " Kosten/Tag";
+            String eco = "Bekanntheit bis ~" + Math.round(s.capFor(gs.getReputation()))
+                + "   -" + Math.round(s.costPerDay) + " Kosten/Tag";
             g.setColor(locked ? Palette.TEXT_DIM : Palette.MONEY);
             g.drawString(eco, rr.x + w - g.getFontMetrics().stringWidth(eco) - 60, rr.y + 16);
             g.setColor(on ? Palette.GOOD : Palette.TEXT_DIM);
@@ -334,18 +341,26 @@ public class AlmanacPanel extends JComponent {
             + "   -   Gebäude " + n(gs.buildingCount()) + "   -   Armee-Stärke " + n(gs.getArmy()), w), x, y);
         int yy = y + 26;
 
-        // Arbeiter-Politik (betriebsweite Linie) - eine Reihe wählbarer Kacheln
-        head(g, x, yy, "Arbeiter-Politik - Klick wählt die betriebsweite Linie"); yy += 12;
-        WorkerPolicy[] pols = WorkerPolicy.values();
-        int pgap = 8;
-        int pw = (w - (pols.length - 1) * pgap) / pols.length;
-        int ph = 58;
-        for (int i = 0; i < pols.length; i++) {
-            Rectangle rr = new Rectangle(x + i * (pw + pgap), yy, pw, ph);
-            policyRects.add(rr); policyAt.add(pols[i]);
-            drawPolicyTile(g, gs, pols[i], rr);
+        // Arbeiter-Politik (betriebsweite Linie) - erst ab dem Hof, vorher gibt es
+        // schlicht keine Belegschaft, über die man Politik machen könnte.
+        if (gs.isUnlocked("era.HOF")) {
+            head(g, x, yy, "Arbeiter-Politik - Klick wählt die betriebsweite Linie"); yy += 12;
+            WorkerPolicy[] pols = WorkerPolicy.values();
+            int pgap = 8;
+            int pw = (w - (pols.length - 1) * pgap) / pols.length;
+            int ph = 58;
+            for (int i = 0; i < pols.length; i++) {
+                Rectangle rr = new Rectangle(x + i * (pw + pgap), yy, pw, ph);
+                policyRects.add(rr); policyAt.add(pols[i]);
+                drawPolicyTile(g, gs, pols[i], rr);
+            }
+            yy += ph + 16;
+        } else {
+            head(g, x, yy, "Arbeiter-Politik"); yy += 12;
+            g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
+            g.drawString("Noch keine Belegschaft - Arbeiter gibt es erst mit dem Hof-Ausbau.", x, yy + 14);
+            yy += 34;
         }
-        yy += ph + 16;
 
         head(g, x, yy, "Edikte - Klick erlässt/hebt auf; Edikte derselben Gruppe schließen sich aus"); yy += 12;
         Edict[] all = Edict.values();

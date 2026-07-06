@@ -34,7 +34,8 @@ public class BuildMenuPanel extends JComponent {
                 BuildingType.KIDDIE_POOL, BuildingType.GARAGE_TANK, BuildingType.SHRIMP_TANK,
                 BuildingType.HATCHERY, BuildingType.MEGA_TANK, BuildingType.REEF_DOME),
         new Cat("Verkauf",    IconKind.COIN,   Palette.MONEY,
-                BuildingType.YARD_SALE, BuildingType.SALES_OFFICE, BuildingType.RESTAURANT,
+                BuildingType.YARD_SALE, BuildingType.MARKET_STALL, BuildingType.FARM_SHOP,
+                BuildingType.DELIVERY_SERVICE, BuildingType.SALES_OFFICE, BuildingType.RESTAURANT,
                 BuildingType.EXPORT_DOCK, BuildingType.MILITARY_DEPOT, BuildingType.BLACK_MARKET,
                 BuildingType.BOOST_STAND),
         new Cat("Personal & Lager", IconKind.PERSON, Palette.WORKERS,
@@ -360,7 +361,10 @@ public class BuildMenuPanel extends JComponent {
             case ALGAE_BUCKET  -> "+2,5 Futter";
             case GARAGE_TANK   -> "+1,2 Shrimp/Tag";
             case CAMPER        -> "+3 Arbeiter";
-            case YARD_SALE     -> "verkauft 3 Standard/Tag";
+            case YARD_SALE     -> "verkauft 2 Standard/Tag";
+            case MARKET_STALL  -> "verkauft 5/Tag (Std/Bio)";
+            case FARM_SHOP     -> "verkauft 9/Tag, voller Preis";
+            case DELIVERY_SERVICE -> "verkauft 15/Tag, auch Gourmet";
             case POWER_PLANT  -> "+45 Strom";
             case SOLAR_ROOF   -> "+28 Strom, sauber";
             case WATER_PLANT  -> "+14 Wasser, -8 Strom";
@@ -368,7 +372,7 @@ public class BuildMenuPanel extends JComponent {
             case ALGAE_FARM   -> "+9 Futter, -6 Strom";
             case SHRIMP_TANK  -> "+5 Shrimp/Tag";
             case HOUSING      -> "+6 Arbeiter";
-            case SALES_OFFICE -> "verkauft Standard/Bio";
+            case SALES_OFFICE -> "verkauft 24/Tag, +15% Preis";
             case LAB          -> "+12% Preis, Forschung";
             case GENLAB       -> "Designer-Shrimps";
             case RESTAURANT   -> "Premium-Verkauf, +Ruf";

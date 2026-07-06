@@ -129,8 +129,8 @@ public class EventSystem {
     /** Pro Tick aufgerufen: feuert evtl. ein passendes Zufallsereignis. */
     public void maybeTrigger(GameState gs) {
         // Garagen-Phase bleibt ereignisfrei: Kein Werkstor, keine Halle 3, keine Presse -
-        // Zufallsereignisse starten erst mit dem Hallen-Ausbau.
-        if (!gs.isUnlocked("era.HALLE")) return;
+        // Zufallsereignisse starten erst mit dem Hof-Ausbau (dem Ausstieg aus der Garage).
+        if (!gs.isUnlocked("era.HOF")) return;
         if (gs.getDay() - lastEventDay < MIN_GAP) return;
         if (rng.nextDouble() > CHANCE) return;
 

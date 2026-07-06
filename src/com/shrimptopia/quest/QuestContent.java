@@ -36,20 +36,54 @@ public final class QuestContent {
         attachObjectives();
     }
 
-    // ===================== AUFSTIEG - Raus aus der Garage =====================
+    // ===================== AUFSTIEG - Garage -> Hof -> Halle =====================
     private static void garage() {
-        auto("era_halle", GameCharacter.ADVISOR, "Dr. Perla (mit Zollstock)",
-            Condition.all(Condition.money(4500), Condition.shrimpProduced(160)), 1,
+        // Stufe 1: der Hof. Bewusst NUR der Hof - die Halle kommt später als eigene
+        // Entscheidung, wenn man sie sich wirklich erarbeitet hat.
+        auto("era_hof", GameCharacter.ADVISOR, "Dr. Perla (mit Zollstock)",
+            Condition.all(Condition.money(2600), Condition.shrimpProduced(120)), 1,
             "Die Garage platzt aus allen Nähten",
             "Boss, Aquarium Nummer drei steht auf der Waschmaschine und der Generator teilt sich die "
             + "Steckdose mit dem Kühlschrank. Ich habe nachgemessen: Wir sind offiziell zu groß für die "
-            + "Garage. Nebenan steht eine Industriehalle leer - der Vermieter stellt keine Fragen, "
-            + "solange wir keine stellen.",
-            c("Die Halle mieten! (-1500)", "Hallen-Gebäude freigeschaltet! Garagen-Technik lässt sich "
-                + "jetzt im Inspektor an Ort und Stelle UPGRADEN.", money(-1500), unlock("era.HALLE"), rep(4),
+            + "Garage. Der Nachbar würde uns seinen HOF hinterm Haus verpachten - Platz für echte "
+            + "Becken, einen Marktstand und den Wohnwagen. Von der Industriehalle träumen wir später.",
+            c("Den Hof pachten! (-600)", "Hof-Gebäude freigeschaltet! Garagen-Technik lässt sich "
+                + "jetzt im Inspektor an Ort und Stelle UPGRADEN.", money(-600), unlock("era.HOF"), rep(2),
                 minigame("scrub", 1)),
-            c("Erstmal nur den Hof dazu pachten. (-600)", "Etwas beengt, aber es läuft: Hallen-Gebäude "
-                + "freigeschaltet - Upgrade im Inspektor.", money(-600), unlock("era.HALLE"), minigame("scrub", 1)));
+            c("Noch nicht - erst sparen.", "Dr. Perla notiert das wortlos in ihrem Klemmbrett. Das "
+                + "Angebot bleibt stehen.").then("era_hof_again"));
+
+        chain("era_hof_again", GameCharacter.ADVISOR, "Dr. Perla (mit Klemmbrett)", 1,
+            "Der Zollstock war wieder da",
+            "Die Waschmaschine trägt jetzt ZWEI Aquarien, und Greg hat im Kühlschrank ein Revier "
+            + "markiert. Das Konto sieht besser aus - der Hof des Nachbarn ist immer noch zu haben.",
+            c("Jetzt den Hof pachten! (-600)", "Hof-Gebäude freigeschaltet! Upgrade der Garagen-Technik "
+                + "im Inspektor.", money(-600), unlock("era.HOF"), rep(2), minigame("scrub", 1)),
+            c("Die Garage ist Kult.", "Dr. Perla atmet sehr langsam aus. Sehr, sehr langsam.", rep(-2)));
+        obj("era_hof_again", Condition.money(2000), "Spar Geld für die Hof-Pacht (~600)");
+
+        // Stufe 2: die Halle. Teuer, mit Voraussetzungen - wer hier ankommt, hat sich
+        // durch Hof-Wirtschaft und Verkaufsleiter gearbeitet.
+        auto("era_halle", GameCharacter.ADVISOR, "Dr. Perla (mit Bauplan)",
+            Condition.all(Condition.unlock("era.HOF"), Condition.money(9000), Condition.sold(600)), 1,
+            "Die Industriehalle nebenan",
+            "Boss, der Hof läuft - aber ich habe nachgemessen (natürlich habe ich das): Für Kraftwerk, "
+            + "Mega-Becken und echte Industrie brauchen wir DIE HALLE. Der Vermieter stellt keine "
+            + "Fragen, solange wir keine stellen. Die Miete ist allerdings ... industriell.",
+            c("Die Halle mieten! (-3500)", "Hallen-Gebäude freigeschaltet! Hof-Technik lässt sich im "
+                + "Inspektor weiter ausbauen.", money(-3500), unlock("era.HALLE"), rep(4), minigame("scrub", 2)),
+            c("Der Hof reicht uns noch.", "Dr. Perla rollt den Bauplan wieder ein. 'Ich hebe ihn auf. "
+                + "Ich hebe ihn DIREKT hier auf.'").then("era_halle_again"));
+
+        chain("era_halle_again", GameCharacter.ADVISOR, "Dr. Perla (Bauplan bereits entrollt)", 1,
+            "Der Bauplan lag nie weg",
+            "Sie sagt nichts. Sie zeigt nur auf den Kontostand, dann auf die Halle, dann auf den "
+            + "Bauplan. In dieser Reihenfolge. Zweimal.",
+            c("Na gut. Die Halle! (-3500)", "Hallen-Gebäude freigeschaltet! Ausbau im Inspektor.",
+                money(-3500), unlock("era.HALLE"), rep(4), minigame("scrub", 2)),
+            c("Hof-Romantik ist unbezahlbar.", "Dr. Perla beginnt, demonstrativ in der Hofeinfahrt zu "
+                + "vermessen. Täglich."));
+        obj("era_halle_again", Condition.money(14000), "Spar für die Hallen-Miete (~3.500)");
     }
 
     // ===================== MARKETING-OFFENSIVE (Mira) =====================

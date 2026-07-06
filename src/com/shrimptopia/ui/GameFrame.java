@@ -316,8 +316,8 @@ public class GameFrame extends JFrame {
             try { setZone(Zone.valueOf(flag.substring(5))); } catch (IllegalArgumentException ignored) {}
             return;
         }
-        // build.* und era.HALLE: erstes baubares Gebäude mit diesem Flag suchen, in die passende
-        // Zone wechseln und das Baumenü mit aufleuchtendem Eintrag öffnen.
+        // build.* und era.HOF/era.HALLE: erstes baubares Gebäude mit diesem Flag suchen, in die
+        // passende Zone wechseln und das Baumenü mit aufleuchtendem Eintrag öffnen.
         BuildingType t = null;
         for (BuildingType bt : BuildingType.buildable())
             if (flag.equals(bt.unlockFlag())) { t = bt; break; }

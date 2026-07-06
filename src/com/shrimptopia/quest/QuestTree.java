@@ -61,7 +61,8 @@ public final class QuestTree {
         new Line("konflikte",  "Konflikte & Kriege",       new Color(235, 90, 90),
             "conf_border", "conf_flotilla", "conf_raid", "conf_siege", "conf_war"),
         new Line("einzel",     "Einzelquests",             new Color(0, 199, 183),
-            "era_halle", "kat_blackout", "kat_algen", "gourmet_darm", "presse_kritiker", "kat_moewen",
+            "era_hof", "era_hof_again", "era_halle", "era_halle_again",
+            "kat_blackout", "kat_algen", "gourmet_darm", "presse_kritiker", "kat_moewen",
             "beh_steuer", "idee_spa", "geld_investor", "dmitri_zeugnis", "dmitri_kantine"),
         new Line("enden",      "Spielenden",               new Color(255, 205, 86),
             "end_imperator", "end_vertical", "end_protein", "end_union", "end_saint", "end_meme"));
@@ -75,7 +76,8 @@ public final class QuestTree {
     /** Anzeigename für Unlock-Keys, die per Quest freigeschaltet werden. */
     private static final Map<String, String> UNLOCK_LABEL = new LinkedHashMap<>();
     static {
-        UNLOCK_LABEL.put("era.HALLE",          "Hallen-Upgrade: große Gebäude (Kraftwerk, Becken, Börse ...)");
+        UNLOCK_LABEL.put("era.HOF",            "Hof-Ausbau: Wohnwagen, echte Becken, Marktstand ...");
+        UNLOCK_LABEL.put("era.HALLE",          "Hallen-Upgrade: große Gebäude (Kraftwerk, Solar, Lieferdienst ...)");
         UNLOCK_LABEL.put("mkt.radio",          "Marketing: Lokalradio-Spot");
         UNLOCK_LABEL.put("mkt.social",         "Marketing: Social-Media-Kanal");
         UNLOCK_LABEL.put("mkt.tube",           "Marketing: ShrimpTube-Kanal");
@@ -102,14 +104,17 @@ public final class QuestTree {
         "worker.bootcamp", "krillkill.bootcamp");
 
     /** Freischalt-Hinweise für Meilenstein-Flags (nicht per Quest, sondern über Fortschritt). */
-    private static final Map<String, String> MILESTONE_HINT = Map.of(
-        "era.HALLE",          "Ab dem Hallen-Ausbau (raus aus der Garage)",
-        "build.shrimpboost",  "Ab der SHRIMPBOOST-Fabrik (Forschung, ~30.000 Geld)",
-        "build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~70.000 Geld)",
-        "build.plankton",     "Meilenstein: Hallen-Betrieb & ~32.000 Geld",
-        "build.genlab",       "Meilenstein: Forschungsflügel & ~36.000 Geld",
-        "build.megatank",     "Meilenstein: Hallen-Betrieb & ~60.000 Geld",
-        "build.geo",          "Meilenstein: Hallen-Betrieb & ~95.000 Geld");
+    private static final Map<String, String> MILESTONE_HINT = Map.ofEntries(
+        Map.entry("era.HOF",            "Ab dem Hof-Ausbau (Quest von Dr. Perla, raus aus der Garage)"),
+        Map.entry("era.HALLE",          "Ab dem Hallen-Ausbau (Quest von Dr. Perla, nach dem Hof)"),
+        Map.entry("build.hofladen",     "Meilenstein: Hof-Betrieb & Reputation 55+"),
+        Map.entry("build.boerse",       "Meilenstein: Hallen-Betrieb, 1.200 verkaufte Shrimps & ~25.000 Geld"),
+        Map.entry("build.shrimpboost",  "Ab der SHRIMPBOOST-Fabrik (Forschung, ~30.000 Geld)"),
+        Map.entry("build.robotworks",   "Ab dem Garnelen-Roboter-Werk (Logistik, ~70.000 Geld)"),
+        Map.entry("build.plankton",     "Meilenstein: Hallen-Betrieb & ~32.000 Geld"),
+        Map.entry("build.genlab",       "Meilenstein: Forschungsflügel & ~36.000 Geld"),
+        Map.entry("build.megatank",     "Meilenstein: Hallen-Betrieb & ~60.000 Geld"),
+        Map.entry("build.geo",          "Meilenstein: Hallen-Betrieb & ~95.000 Geld"));
 
     public static String unlockLabel(String key) { return UNLOCK_LABEL.get(key); }
     public static Set<String> knownUnlockKeys() { return UNLOCK_LABEL.keySet(); }

@@ -113,7 +113,8 @@ public class OverlayHost extends JComponent {
     private static String hintFor(String flag) {
         if (flag == null) return null;
         if (flag.startsWith("zone.")) return "Neue Karte! Links in der Seitenleiste unter STANDORTE wechseln.";
-        if (flag.equals("era.HALLE")) return "Neue Gebäude im Baumenü links - Garagen-Technik lässt sich im Inspektor UPGRADEN.";
+        if (flag.equals("era.HOF"))   return "Neue Gebäude im Baumenü links - Garagen-Technik lässt sich im Inspektor UPGRADEN. Ab jetzt zählen ARBEITER!";
+        if (flag.equals("era.HALLE")) return "Neue Gebäude im Baumenü links - Hof-Technik lässt sich im Inspektor weiter UPGRADEN.";
         if (flag.startsWith("mkt."))  return "Buchbar im Almanach unter MARKETING.";
         if (flag.startsWith("build.")) return "Neues Gebäude im Baumenü (in der passenden Zone).";
         if (flag.startsWith("tier.")) return "Neuer Zucht-Modus: Becken anklicken → Inspektor.";

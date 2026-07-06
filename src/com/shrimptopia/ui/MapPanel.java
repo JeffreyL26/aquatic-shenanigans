@@ -565,9 +565,11 @@ public class MapPanel extends JPanel implements Scrollable {
         }
     }
 
-    /** Karten-Schild oben links: Zonenname bzw. GARAGE, damit sofort klar ist, wo man ist. */
+    /** Karten-Schild oben links: Zonenname bzw. GARAGE/HOF, damit sofort klar ist, wo man ist. */
     private void drawZoneNameplate(Graphics2D g, Zone zone, boolean garage, Color accent) {
-        String name = garage ? "GARAGE" : zone.displayName.toUpperCase();
+        String name = garage
+            ? (frame.game().isUnlocked("era.HOF") ? "GARAGE & HOF" : "GARAGE")
+            : zone.displayName.toUpperCase();
         g.setFont(Palette.FONT_BOLD);
         FontMetrics fm = g.getFontMetrics();
         int tw = fm.stringWidth(name);

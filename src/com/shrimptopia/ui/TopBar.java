@@ -135,7 +135,9 @@ public class TopBar extends JPanel {
 
             java.util.List<ResourceType> order = new java.util.ArrayList<>(java.util.List.of(
                 ResourceType.MONEY, ResourceType.POWER, ResourceType.WATER,
-                ResourceType.FEED, ResourceType.SHRIMP, ResourceType.WORKERS, ResourceType.REPUTATION));
+                ResourceType.FEED, ResourceType.SHRIMP, ResourceType.REPUTATION));
+            // Arbeiter gibt es erst ab dem Hof - in der Garage schuftet nur die Familie.
+            if (gs.isUnlocked("era.HOF")) order.add(5, ResourceType.WORKERS);
             if (gs.getShells() > 0) order.add(ResourceType.SHELLS);
             if (gs.isUnlocked("build.shrimpboost")) order.add(ResourceType.SHRIMPBOOST);
             if (gs.isUnlocked("build.robotworks")) order.add(ResourceType.ROBOTS);
