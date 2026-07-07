@@ -379,8 +379,8 @@ public class BuildMenuPanel extends JComponent {
             case EXPORT_DOCK  -> "Export höherer Tiers";
             case MILITARY_DEPOT -> "kauft Protein/Kampf";
             case BLACK_MARKET -> "Top-Tiers, -Ruf";
-            case VISITOR_CENTER -> "viel Reputation";
-            case ZEN_GARDEN   -> "+Reputation, Deko";
+            case VISITOR_CENTER -> "viel Reputation, +3 Ambiente";
+            case ZEN_GARDEN   -> "+Reputation, +5 Ambiente";
             case SHELL_PRESS         -> "+6 Schalen/Tag";
             case SHRIMPBOOST_FACTORY -> "Shrimp+Schalen zu Boost";
             case BOOST_STAND         -> "verkauft Boost ~90/Dose";
@@ -400,10 +400,10 @@ public class BuildMenuPanel extends JComponent {
             case REEF_DOME           -> "+3,2 GOURMET/Tag";
             case CANTEEN             -> "+4 Arbeiter, +Ruf";
             case COLD_STORE          -> "Lager für Shrimps & Futter";
-            case MASCOT_STATUE       -> "+Reputation (Greg!)";
-            case FOUNTAIN            -> "+Reputation, Deko";
-            case PETTING_POOL        -> "+Reputation, Familien";
-            case BOYBAND_STAGE       -> "Boygroup-Heimspielstätte, +Ruf";
+            case MASCOT_STATUE       -> "+Reputation, +6 Ambiente (Greg!)";
+            case FOUNTAIN            -> "+Reputation, +4 Ambiente";
+            case PETTING_POOL        -> "+Reputation, +4 Ambiente";
+            case BOYBAND_STAGE       -> "Boygroup-Bühne, +Ruf, +6 Ambiente";
             default           -> "";
         };
     }

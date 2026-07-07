@@ -122,7 +122,7 @@ public class InspectorPanel extends JPanel {
 
     // ---------------- Header mit Live-Werten ----------------
     private class Header extends JComponent {
-        Header() { setAlignmentX(LEFT_ALIGNMENT); setMaximumSize(new Dimension(Integer.MAX_VALUE, 236)); setPreferredSize(new Dimension(290, 236)); }
+        Header() { setAlignmentX(LEFT_ALIGNMENT); setMaximumSize(new Dimension(Integer.MAX_VALUE, 254)); setPreferredSize(new Dimension(290, 254)); }
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -159,6 +159,12 @@ public class InspectorPanel extends JPanel {
                 y = row(g, y, Palette.WASTE, "Abfall", String.format("+%.0f/Tag", s.wasteProduce));
             if (s.wasteUse > 0)
                 y = row(g, y, Palette.WASTE, "Entsorgt", String.format("-%.0f/Tag", s.wasteUse));
+            if (s.decoProduce != 0)
+                y = row(g, y, Palette.DECO, "Ambiente", String.format("%+.0f", s.decoProduce));
+            if (t.storage() != null) {
+                double sm = frame.game().storageMultOf(b);
+                y = row(g, y, Palette.SHELL, "Lager", sm > 1.001 ? String.format("+%d%% Kapazität", Math.round((sm - 1) * 100)) : "Basis");
+            }
             y = row(g, y, Palette.TEXT_DIM, "Kosten", String.format("-%.1f/Tag", s.upkeep));
             double hq = frame.game().hqProximityBoost(b);
             if (hq > 0)
@@ -241,23 +247,26 @@ public class InspectorPanel extends JPanel {
                 @Override public void mouseEntered(MouseEvent e) { hover = true; repaint(); }
                 @Override public void mouseExited(MouseEvent e) { hover = false; repaint(); }
                 @Override public void mousePressed(MouseEvent e) {
-                    if (owned() || locked()) return;
+                    if (owned() || locked() || blockedReason() != null) return;
                     if (frame.game().buyUpgrade(building, u)) { rebuild(); frame.refreshAll(); }
                 }
             });
         }
         boolean owned() { return building != null && building.upgrades.contains(u.id); }
         boolean locked() { return u.requiresFlag != null && !frame.game().isUnlocked(u.requiresFlag); }
+        /** "farmweit aktiv" / "schon freigeschaltet" - Upgrade ist anderswo bereits wirksam. */
+        String blockedReason() { return building == null ? null : frame.game().upgradeUnavailableReason(building, u); }
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             boolean own = owned(), lock = locked();
+            String blocked = blockedReason();
             boolean afford = frame.game().getMoney() >= u.cost;
             int w = getWidth();
-            g.setColor(own ? new Color(30, 70, 50) : hover && !lock ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
+            g.setColor(own ? new Color(30, 70, 50) : hover && !lock && blocked == null ? Palette.PANEL_HOVER : Palette.PANEL_LIGHT);
             g.fillRoundRect(12, 4, w - 24, 42, 9, 9);
-            g.setFont(Palette.FONT_BOLD); g.setColor(lock ? Palette.TEXT_DIM : Palette.TEXT);
+            g.setFont(Palette.FONT_BOLD); g.setColor(lock || blocked != null ? Palette.TEXT_DIM : Palette.TEXT);
             g.drawString(TextUtil.clip(g.getFontMetrics(), u.name, w - 100), 24, 22);
             g.setFont(Palette.FONT_SMALL); g.setColor(Palette.TEXT_DIM);
             String sub = u.desc;
@@ -267,8 +276,8 @@ public class InspectorPanel extends JPanel {
             }
             g.drawString(TextUtil.clip(g.getFontMetrics(), sub, w - 90), 24, 38);
             g.setFont(Palette.FONT_BOLD);
-            String tag = own ? "gekauft" : lock ? "gesperrt" : String.valueOf(u.cost);
-            g.setColor(own ? Palette.GOOD : lock ? Palette.TEXT_DIM : afford ? Palette.MONEY : Palette.BAD);
+            String tag = own ? "gekauft" : blocked != null ? blocked : lock ? "gesperrt" : String.valueOf(u.cost);
+            g.setColor(own ? Palette.GOOD : blocked != null ? Palette.ACCENT2 : lock ? Palette.TEXT_DIM : afford ? Palette.MONEY : Palette.BAD);
             int tw = g.getFontMetrics().stringWidth(tag);
             g.drawString(tag, w - tw - 22, 22);
             g.dispose();

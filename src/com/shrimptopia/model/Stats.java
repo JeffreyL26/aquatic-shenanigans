@@ -15,6 +15,8 @@ public class Stats {
     public double sellCap;       // verkaufbare Shrimps/Tag (Märkte)
     public double upkeep;
     public double repPerTick;
+    public double decoProduce;   // Ambiente-Beitrag (positiv = schön, negativ = Schandfleck)
+    public double priceMult = 1; // effektiver Preisfaktor dieses Markts (Basis x Modus x Upgrades)
     public int workerProvide, workerNeed;
     public ShrimpTier tier = ShrimpTier.STANDARD;  // welches Tier ein Becken produziert
 }

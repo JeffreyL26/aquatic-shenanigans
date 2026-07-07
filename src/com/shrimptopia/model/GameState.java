@@ -63,6 +63,7 @@ public class GameState {
     private int negativeStreak = 0;
     private double totalShrimpProduced = 0;   // kumuliert (für Charakter-Trigger)
     private double exportTariff = 0;          // Akwanov-Embargo: 0..0.6 Preisabschlag auf Märkte
+    private double decoScore = 0;             // Ambiente: Summe aller Deko-Beiträge (-20..60)
 
     // v3: zusaetzliche Bestaende & Tracking
     private final java.util.EnumMap<ShrimpTier, Double> producedByTier = new java.util.EnumMap<>(ShrimpTier.class);
@@ -176,12 +177,46 @@ public class GameState {
             log("Upgrade '" + u.name + "' ist noch gesperrt.", LOG_WARN);
             return false;
         }
+        // Farmweite Upgrades gibt es genau EINMAL - egal auf wie vielen Gebäuden
+        // desselben Typs sie angeboten werden (sonst würde der Effekt stacken).
+        Building owner = globalUpgradeOwner(u);
+        if (owner != null && owner != b) {
+            log("'" + u.name + "' wirkt bereits farmweit (gekauft am " + owner.type.shortName() + ").", LOG_WARN);
+            return false;
+        }
+        // Reine Freischalt-Upgrades sind nach der Freischaltung wirkungslos -
+        // Doppelkauf (z.B. Bio-Zertifikat im Labor UND auf der Algenfarm) verhindern.
+        if (u.grantsFlag != null && isUnlocked(u.grantsFlag) && !u.hasLocalEffect() && u.global == null) {
+            log("'" + u.name + "': das ist bereits freigeschaltet.", LOG_WARN);
+            return false;
+        }
         if (money < u.cost) { log("Zu wenig Geld für Upgrade '" + u.name + "'.", LOG_WARN); return false; }
         money -= u.cost;
         b.upgrades.add(u.id);
         if (u.grantsFlag != null) unlock(u.grantsFlag, null);
         log("Upgrade gekauft: " + u.name + " (" + b.type.shortName() + ").", LOG_GOOD);
         return true;
+    }
+
+    /** Gebäude, das dieses farmweite Upgrade schon besitzt - oder null (auch bei lokalen Upgrades). */
+    public Building globalUpgradeOwner(Upgrade u) {
+        if (u.global == null) return null;
+        for (Building x : buildings)
+            if (x.upgrades.contains(u.id) && BuildingCatalog.upgrades(x.type).contains(u)) return x;
+        return null;
+    }
+
+    /**
+     * Warum ist dieses Upgrade für dieses Gebäude nicht (mehr) kaufbar?
+     * null = kaufbar; sonst kurzer Anzeigetext für den Inspektor.
+     */
+    public String upgradeUnavailableReason(Building b, Upgrade u) {
+        if (b.upgrades.contains(u.id)) return null;   // "gekauft" zeigt die UI selbst
+        Building owner = globalUpgradeOwner(u);
+        if (owner != null && owner != b) return "farmweit aktiv";
+        if (u.grantsFlag != null && isUnlocked(u.grantsFlag) && !u.hasLocalEffect() && u.global == null)
+            return "schon freigeschaltet";
+        return null;
     }
 
     public boolean isEdictActive(Edict e) { return activeEdicts.contains(e); }
@@ -229,6 +264,11 @@ public class GameState {
     public void addAwareness(double d) { awareness = clamp(awareness + d, 0, 100); }
     /** Reputations-Faktor auf die Nachfrage (0.5 .. 1.4) - Ruf entscheidet, ob Bekanntheit KAUFT. */
     public double demandRepFactor() { return 0.5 + (reputation / 100.0) * 0.9; }
+
+    /** Ambiente-Wert der Farm (-20..60): Deko-Bauten heben ihn, Schandflecke senken ihn. */
+    public double getDecoScore() { return decoScore; }
+    /** Ambiente-Faktor auf die Nachfrage: schöne Farmen ziehen Kundschaft an (0.88 .. 1.30). */
+    public double decoDemandFactor() { return 1 + clamp(decoScore, -20, 50) * 0.006; }
 
     public WorkerPolicy getWorkerPolicy() { return workerPolicy; }
     public boolean setWorkerPolicy(WorkerPolicy p) {
@@ -341,6 +381,12 @@ public class GameState {
             pUse += s.powerUse;
         }
         wProvide += robots * 2;   // v3: jeder Roboter = +2 Arbeiter (Automatisierung)
+
+        // --- Ambiente (Deko-System): Summe aller Deko-Beiträge, geklemmt.
+        //     Wirkt auf Nachfrage, Bekanntheits-Zerfall und den Ruf-Sog (unten). ---
+        double decoSum = 0;
+        for (Building b : buildings) decoSum += b.lastStats.decoProduce;
+        decoScore = clamp(decoSum, -20, 60);
         workersAvail = (int) Math.round(wProvide);
         workersUsed = (int) Math.round(wNeed);
         powerProduced = (int) Math.round(pProd);
@@ -517,7 +563,9 @@ public class GameState {
         // --- Marketing: Streams bauen Bekanntheit auf (je Kanal nur bis zu seiner
         //     Sättigungsgrenze, mit abnehmendem Ertrag nahe der Grenze), Bekanntheit
         //     zerfällt langsam ohne Werbung. Nachfrage = f(Bekanntheit, Reputation). ---
-        awareness = Math.max(0, awareness - (0.1 + awareness * 0.01));   // Zerfall: Ruhm ist flüchtig
+        // Ambiente bremst den Zerfall: schöne Farmen bleiben im Gespräch (Besucherfotos).
+        double decay = (0.1 + awareness * 0.01) * (1 - clamp(decoScore, 0, 50) * 0.008);
+        awareness = Math.max(0, awareness - decay);   // Zerfall: Ruhm ist flüchtig
         double mktCost = 0;
         for (MarketingStream s : activeStreams) {
             double cap = s.capFor(reputation);
@@ -527,7 +575,8 @@ public class GameState {
         awareness = clamp(awareness, 0, 100);
         money -= mktCost;
         marketingCostLast = mktCost;
-        double demandLeft = (BASE_DEMAND + awareness * DEMAND_PER_AWARENESS) * demandRepFactor();
+        double demandLeft = (BASE_DEMAND + awareness * DEMAND_PER_AWARENESS) * demandRepFactor()
+            * decoDemandFactor();
         demandLast = demandLeft;
 
         // --- Märkte: verkaufen akzeptierte Tiers (wertvollste zuerst), begrenzt durch Nachfrage.
@@ -548,7 +597,7 @@ public class GameState {
                 double take = Math.min(avail, cap);
                 if (consumer) take = Math.min(take, demandLeft);
                 if (take <= 0) continue;
-                double unitPrice = t.baseValue * b.type.priceMult() * priceGlobal;
+                double unitPrice = t.baseValue * b.lastStats.priceMult * priceGlobal;
                 money += take * unitPrice;
                 incomeByType.merge(b.type, take * unitPrice, Double::sum);
                 addStock(t, -take);
@@ -567,9 +616,11 @@ public class GameState {
         // --- Reputation aus Gebäuden (Modi, Restaurant, Besucher, Solar, Kraftwerk ...) ---
         // v6: schwächerer Sog zur Mitte (40) - hoher Ruf erodiert langsam, niedriger
         // erholt sich nur zäh. Große Sprünge kommen aus Quests & Entscheidungen.
+        // Ambiente verschiebt die Sog-Mitte: eine schöne Farm stabilisiert den Ruf höher.
         for (Building b : buildings) reputation += b.lastStats.repPerTick;
         reputation += fm.repPerTick;
-        reputation += (40 - reputation) * 0.006;
+        double repCenter = 40 + clamp(decoScore, -20, 50) * 0.12;
+        reputation += (repCenter - reputation) * 0.006;
         reputation = clamp(reputation, 0, 100);
 
         // --- Betriebskosten ---
@@ -666,29 +717,38 @@ public class GameState {
         s.workerProvide = t.workerProvide; s.workerNeed = t.workerNeed;
         s.tier = t.producesTier() != null ? t.producesTier() : ShrimpTier.STANDARD;
         double rep = t.repProduce;
+        double deco = t.deco();
         if (t == BuildingType.SOLAR_ROOF) rep += 0.015;
         if (t == BuildingType.POWER_PLANT) rep -= 0.05;
         if (t == BuildingType.OLD_GENERATOR) rep -= 0.02;
 
+        // Modus + Upgrades zu kombinierten Faktoren einsammeln, dann in einem Zug anwenden.
+        // prodMult skaliert die Hauptproduktion UND die v3-Flows (Schalen/Boost/Roboter/Abfall).
+        double shrimpM = 1, powerM = 1, waterM = 1, feedM = 1, upkeepM = 1, capM = 1;
+        double prodM = 1, workerM = 1, priceM = 1;
         List<Mode> ms = BuildingCatalog.modes(t);
         if (b.mode >= 0 && b.mode < ms.size()) {
             Mode m = ms.get(b.mode);
             if (m.requiresFlag != null && !isUnlocked(m.requiresFlag)) m = ms.get(0);
-            s.shrimpProduce *= m.shrimpMult; s.powerUse *= m.powerMult; s.waterUse *= m.waterMult;
-            s.feedUse *= m.feedMult; s.upkeep *= m.upkeepMult; s.sellCap *= m.capMult;
-            s.powerProduce *= m.prodMult; s.waterProduce *= m.prodMult; s.feedProduce *= m.prodMult;
-            rep += m.repAdd;
+            shrimpM *= m.shrimpMult; powerM *= m.powerMult; waterM *= m.waterMult;
+            feedM *= m.feedMult; upkeepM *= m.upkeepMult; capM *= m.capMult;
+            prodM *= m.prodMult; workerM *= m.workerMult; priceM *= m.priceMult;
+            rep += m.repAdd; deco += m.decoAdd;
             if (m.tierOverride != null) s.tier = m.tierOverride;
         }
         for (String id : b.upgrades) {
             Upgrade u = findUpgrade(t, id);
             if (u == null) continue;
-            s.shrimpProduce *= u.shrimpMult; s.powerUse *= u.powerMult; s.waterUse *= u.waterMult;
-            s.feedUse *= u.feedMult; s.upkeep *= u.upkeepMult; s.sellCap *= u.capMult;
-            s.powerProduce *= u.prodMult; s.waterProduce *= u.prodMult; s.feedProduce *= u.prodMult;
-            rep += u.repAdd;
+            shrimpM *= u.shrimpMult; powerM *= u.powerMult; waterM *= u.waterMult;
+            feedM *= u.feedMult; upkeepM *= u.upkeepMult; capM *= u.capMult;
+            prodM *= u.prodMult; workerM *= u.workerMult; priceM *= u.priceMult;
+            rep += u.repAdd; deco += u.decoAdd;
             if (u.tierOverride != null) s.tier = u.tierOverride;
         }
+        s.shrimpProduce *= shrimpM; s.powerUse *= powerM; s.waterUse *= waterM;
+        s.feedUse *= feedM; s.upkeep *= upkeepM; s.sellCap *= capM;
+        s.powerProduce *= prodM; s.waterProduce *= prodM; s.feedProduce *= prodM;
+
         // HQ-Nähe-Bonus: kurze Wege zur Verwaltung. Bis zu +10% Output nahe am HQ,
         // linear abfallend mit der Distanz - Abstand ist nie ein Malus.
         double hq = hqProximityBoost(b);
@@ -703,16 +763,18 @@ public class GameState {
         if (s.waterProduce > 0) s.waterProduce *= fm.waterProduceMult;
         if (s.feedProduce > 0) s.feedProduce *= fm.feedProduceMult;
         if (t.isMarket()) s.sellCap *= fm.sellCapMult;
-        s.workerProvide = (int) Math.round(s.workerProvide * fm.workerMult);
+        s.workerProvide = (int) Math.round(s.workerProvide * workerM * fm.workerMult);
         if (!isTierUnlocked(s.tier)) s.tier = ShrimpTier.STANDARD;
         s.repPerTick = rep;
+        s.decoProduce = deco;
+        s.priceMult = t.priceMult() * priceM;
         Flows fl = t.flows();
-        s.shrimpUse = fl.shrimpUse;
-        s.shellProduce = fl.shellProduce; s.shellUse = fl.shellUse;
-        s.boostProduce = fl.boostProduce; s.boostUse = fl.boostUse;
-        s.robotProduce = fl.robotProduce; s.robotUse = fl.robotUse;
-        s.armyProduce = fl.armyProduce;
-        s.wasteProduce = fl.wasteProduce; s.wasteUse = fl.wasteUse;
+        s.shrimpUse = fl.shrimpUse * prodM;
+        s.shellProduce = fl.shellProduce * prodM; s.shellUse = fl.shellUse * prodM;
+        s.boostProduce = fl.boostProduce * prodM; s.boostUse = fl.boostUse * prodM;
+        s.robotProduce = fl.robotProduce * prodM; s.robotUse = fl.robotUse * prodM;
+        s.armyProduce = fl.armyProduce * prodM;
+        s.wasteProduce = fl.wasteProduce * prodM; s.wasteUse = fl.wasteUse * prodM;
         return s;
     }
 
@@ -726,9 +788,24 @@ public class GameState {
         double c = 0;
         for (Building b : buildings) {
             double[] s = b.type.storage();
-            if (s != null) c += s[idx];
+            if (s != null) c += s[idx] * storageMultOf(b);
         }
         return c;
+    }
+
+    /** Kombinierter Lager-Faktor eines Gebäudes aus Modus + Upgrades (Kühlhaus & Co.). */
+    public double storageMultOf(Building b) {
+        double m = 1;
+        List<Mode> ms = BuildingCatalog.modes(b.type);
+        if (b.mode >= 0 && b.mode < ms.size()) {
+            Mode md = ms.get(b.mode);
+            if (md.requiresFlag == null || isUnlocked(md.requiresFlag)) m *= md.storageMult;
+        }
+        for (String id : b.upgrades) {
+            Upgrade u = findUpgrade(b.type, id);
+            if (u != null) m *= u.storageMult;
+        }
+        return m;
     }
     public double getCapWater()  { return storageCap(0); }
     public double getCapFeed()   { return storageCap(1); }
@@ -884,6 +961,12 @@ public class GameState {
             }
         if (workerPolicy != WorkerPolicy.REGULAR) out.add("Arbeiter-Politik: " + workerPolicy.displayName);
         if (exportTariff > 0) out.add("Akwanov-Embargo: -" + (int) (exportTariff * 100) + "% Verkaufspreis");
+        if (Math.abs(decoScore) >= 0.5) {
+            long pct = Math.round((decoDemandFactor() - 1) * 100);
+            out.add("Ambiente " + (decoScore >= 0 ? "+" : "") + Math.round(decoScore)
+                + ": " + (pct >= 0 ? "+" : "") + pct + "% Nachfrage"
+                + (decoScore > 0 ? ", Bekanntheit hält länger, Ruf stabilisiert sich höher" : " (Schandflecke schrecken ab)"));
+        }
         if (!activeStreams.isEmpty()) {
             double c = 0;
             for (MarketingStream s : activeStreams) c += s.costPerDay;
@@ -931,4 +1014,177 @@ public class GameState {
     public boolean isGoalReached() { return goalReached; }
     public boolean isBankrupt()    { return bankrupt; }
     public Set<String> unlockedFlags() { return unlocked; }
+
+    // ===================== Speichern / Laden =====================
+    // Der Zustand wandert als key=value-Paare in eine Map; Datei-Format & Escaping
+    // übernimmt SaveManager. readSave ist das exakte Gegenstück zu writeSave.
+
+    /** Schreibt den kompletten Spielzustand in die Map (Schlüssel ohne '='). */
+    public void writeSave(java.util.Map<String, String> m) {
+        m.put("money", String.valueOf(money));
+        m.put("water", String.valueOf(water));
+        m.put("feed", String.valueOf(feed));
+        m.put("reputation", String.valueOf(reputation));
+        m.put("awareness", String.valueOf(awareness));
+        m.put("day", String.valueOf(day));
+        m.put("goalReached", String.valueOf(goalReached));
+        m.put("bankrupt", String.valueOf(bankrupt));
+        m.put("negativeStreak", String.valueOf(negativeStreak));
+        m.put("totalShrimpProduced", String.valueOf(totalShrimpProduced));
+        m.put("exportTariff", String.valueOf(exportTariff));
+        m.put("decoScore", String.valueOf(decoScore));
+        m.put("totalSold", String.valueOf(totalSold));
+        m.put("armyStrength", String.valueOf(armyStrength));
+        m.put("shells", String.valueOf(shells));
+        m.put("energy", String.valueOf(energy));
+        m.put("robots", String.valueOf(robots));
+        m.put("waste", String.valueOf(waste));
+        m.put("totalBoostProduced", String.valueOf(totalBoostProduced));
+        m.put("totalRobotsProduced", String.valueOf(totalRobotsProduced));
+        m.put("workerPolicy", workerPolicy.name());
+        m.put("daysShortFeed", String.valueOf(daysShortFeed));
+        m.put("daysShortWater", String.valueOf(daysShortWater));
+        m.put("daysShortPower", String.valueOf(daysShortPower));
+        m.put("lastStorageWarnDay", String.valueOf(lastStorageWarnDay));
+        m.put("lastWasteWarnDay", String.valueOf(lastWasteWarnDay));
+        m.put("lastWarnDay", String.valueOf(lastWarnDay));
+        m.put("eventDay", String.valueOf(eventSystem.lastEventDay()));
+        for (ShrimpTier t : ShrimpTier.values()) {
+            m.put("stock." + t.name(), String.valueOf(shrimpStock.getOrDefault(t, 0.0)));
+            m.put("prodTier." + t.name(), String.valueOf(producedByTier.getOrDefault(t, 0.0)));
+        }
+        m.put("unlocked", String.join(",", unlocked));
+        m.put("edicts", joinNames(activeEdicts));
+        m.put("streams", joinNames(activeStreams));
+        int n = 0;
+        for (Building b : buildings) {
+            m.put("b." + n, b.type.name() + "|" + b.zone.name() + "|" + b.col + "|" + b.row
+                + "|" + b.mode + "|" + b.placedOnDay + "|" + String.join(";", b.upgrades));
+            n++;
+        }
+        int ln = 0;
+        int from = Math.max(0, log.size() - 80);
+        for (int i = from; i < log.size(); i++) {
+            LogLine l = log.get(i);
+            m.put("log." + ln, l.kind + "|" + l.day + "|" + l.text);
+            ln++;
+        }
+        int an = 0;
+        for (String[] a : announcements) { m.put("ann." + an, a[0] + "|" + a[1]); an++; }
+    }
+
+    private static String joinNames(java.util.Collection<? extends Enum<?>> c) {
+        StringBuilder sb = new StringBuilder();
+        for (Enum<?> e : c) { if (sb.length() > 0) sb.append(','); sb.append(e.name()); }
+        return sb.toString();
+    }
+
+    /** Stellt einen Spielstand aus den key=value-Paaren wieder her. */
+    public static GameState readSave(java.util.Map<String, String> m) {
+        GameState gs = new GameState(new Random());
+        // Konstruktor-Nebenwirkungen (HQ, Start-Shrimps, Willkommens-Log) verwerfen
+        gs.buildings.clear();
+        for (Zone z : Zone.values()) gs.grids.put(z, new Building[ROWS][COLS]);
+        gs.log.clear();
+        gs.announcements.clear();
+        for (ShrimpTier t : ShrimpTier.values()) gs.shrimpStock.put(t, 0.0);
+
+        gs.money = d(m, "money", 2_500);
+        gs.water = d(m, "water", 80);
+        gs.feed = d(m, "feed", 60);
+        gs.reputation = d(m, "reputation", 40);
+        gs.awareness = d(m, "awareness", 0);
+        gs.day = i(m, "day", 0);
+        gs.goalReached = bo(m, "goalReached");
+        gs.bankrupt = bo(m, "bankrupt");
+        gs.negativeStreak = i(m, "negativeStreak", 0);
+        gs.totalShrimpProduced = d(m, "totalShrimpProduced", 0);
+        gs.exportTariff = d(m, "exportTariff", 0);
+        gs.decoScore = d(m, "decoScore", 0);
+        gs.totalSold = d(m, "totalSold", 0);
+        gs.armyStrength = d(m, "armyStrength", 0);
+        gs.shells = d(m, "shells", 0);
+        gs.energy = d(m, "energy", 0);
+        gs.robots = d(m, "robots", 0);
+        gs.waste = d(m, "waste", 0);
+        gs.totalBoostProduced = d(m, "totalBoostProduced", 0);
+        gs.totalRobotsProduced = d(m, "totalRobotsProduced", 0);
+        gs.daysShortFeed = i(m, "daysShortFeed", 0);
+        gs.daysShortWater = i(m, "daysShortWater", 0);
+        gs.daysShortPower = i(m, "daysShortPower", 0);
+        gs.lastStorageWarnDay = i(m, "lastStorageWarnDay", -100);
+        gs.lastWasteWarnDay = i(m, "lastWasteWarnDay", -100);
+        gs.lastWarnDay = i(m, "lastWarnDay", -100);
+        gs.eventSystem.restoreLastEventDay(i(m, "eventDay", -100));
+        try { gs.workerPolicy = WorkerPolicy.valueOf(m.getOrDefault("workerPolicy", "REGULAR")); }
+        catch (IllegalArgumentException ignored) { }
+        for (ShrimpTier t : ShrimpTier.values()) {
+            gs.shrimpStock.put(t, d(m, "stock." + t.name(), 0));
+            double p = d(m, "prodTier." + t.name(), 0);
+            if (p > 0) gs.producedByTier.put(t, p);
+        }
+        for (String f : split(m.get("unlocked"))) gs.unlocked.add(f);
+        for (String e : split(m.get("edicts"))) {
+            try { gs.activeEdicts.add(Edict.valueOf(e)); } catch (IllegalArgumentException ignored) { }
+        }
+        for (String s : split(m.get("streams"))) {
+            try { gs.activeStreams.add(MarketingStream.valueOf(s)); } catch (IllegalArgumentException ignored) { }
+        }
+        for (int n = 0; m.containsKey("b." + n); n++) {
+            String[] p = m.get("b." + n).split("\\|", -1);
+            if (p.length < 7) continue;
+            try {
+                BuildingType type = BuildingType.valueOf(p[0]);
+                Zone zone = Zone.valueOf(p[1]);
+                int col = Integer.parseInt(p[2]), row = Integer.parseInt(p[3]);
+                if (!gs.inBounds(col, row) || gs.grids.get(zone)[row][col] != null) continue;
+                Building b = new Building(type, zone, col, row);
+                b.mode = Integer.parseInt(p[4]);
+                b.placedOnDay = Integer.parseInt(p[5]);
+                if (!p[6].isEmpty()) for (String id : p[6].split(";")) b.upgrades.add(id);
+                gs.grids.get(zone)[row][col] = b;
+                gs.buildings.add(b);
+            } catch (IllegalArgumentException ignored) { }   // unbekannter Typ/Zone: überspringen
+        }
+        // Sicherheitsnetz: ohne HQ funktionieren Arbeiter & HQ-Bonus nicht
+        boolean hasHq = false;
+        for (Building b : gs.buildings) if (b.type == BuildingType.HEADQUARTERS) hasHq = true;
+        if (!hasHq) gs.place(BuildingType.HEADQUARTERS, Zone.PRODUKTION, COLS / 2, ROWS / 2, false);
+        for (int n = 0; m.containsKey("log." + n); n++) {
+            String[] p = m.get("log." + n).split("\\|", 3);
+            if (p.length < 3) continue;
+            try { gs.log.add(new LogLine(Integer.parseInt(p[1]), p[2], Integer.parseInt(p[0]))); }
+            catch (NumberFormatException ignored) { }
+        }
+        for (int n = 0; m.containsKey("ann." + n); n++) {
+            String[] p = m.get("ann." + n).split("\\|", 2);
+            if (p.length == 2) gs.announcements.add(new String[]{p[0], p[1]});
+        }
+        // Stats vorwärmen, damit Inspektor/HUD direkt nach dem Laden plausibel sind
+        FarmModifiers fm = new FarmModifiers();
+        for (Building b : gs.buildings)
+            for (String id : b.upgrades) {
+                Upgrade u = gs.findUpgrade(b.type, id);
+                if (u != null && u.global != null) fm.apply(u.global);
+            }
+        gs.workerPolicy.apply(fm);
+        for (Edict e : gs.activeEdicts) e.apply(fm);
+        for (Building b : gs.buildings) b.lastStats = gs.computeStats(b, fm);
+        return gs;
+    }
+
+    private static String[] split(String v) {
+        return (v == null || v.isEmpty()) ? new String[0] : v.split(",");
+    }
+    private static double d(java.util.Map<String, String> m, String k, double def) {
+        try { return Double.parseDouble(m.getOrDefault(k, String.valueOf(def))); }
+        catch (NumberFormatException e) { return def; }
+    }
+    private static int i(java.util.Map<String, String> m, String k, int def) {
+        try { return Integer.parseInt(m.getOrDefault(k, String.valueOf(def))); }
+        catch (NumberFormatException e) { return def; }
+    }
+    private static boolean bo(java.util.Map<String, String> m, String k) {
+        return Boolean.parseBoolean(m.getOrDefault(k, "false"));
+    }
 }

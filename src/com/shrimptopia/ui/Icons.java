@@ -31,8 +31,24 @@ public final class Icons {
             case ROBOT  -> robot(g, cx, cy, size, color);
             case SHIELD -> shield(g, cx, cy, size, color);
             case WASTE  -> waste(g, cx, cy, size, color);
+            case GARDEN -> decoFlower(g, cx, cy, size, color);
             default     -> { }
         }
+    }
+
+    /** Ambiente-Symbol: stilisierte Blüte (5 Blätter um einen Kern). */
+    private static void decoFlower(Graphics2D g, double cx, double cy, double size, Color color) {
+        Graphics2D gg = (Graphics2D) g.create();
+        gg.setColor(color);
+        double r = size * 0.20, pr = size * 0.16;
+        for (int i = 0; i < 5; i++) {
+            double a = Math.toRadians(90 + i * 72);
+            double px = cx + Math.cos(a) * r * 1.35, py = cy - Math.sin(a) * r * 1.35;
+            gg.fill(new java.awt.geom.Ellipse2D.Double(px - pr, py - pr, pr * 2, pr * 2));
+        }
+        gg.setColor(darker(color, 0.7));
+        gg.fill(new java.awt.geom.Ellipse2D.Double(cx - r * 0.7, cy - r * 0.7, r * 1.4, r * 1.4));
+        gg.dispose();
     }
 
     // ---------- Gebäudesymbole (auf farbiger Kachel, hell gezeichnet) ----------

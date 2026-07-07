@@ -23,6 +23,12 @@ public class Tutorial {
 
     public void skip() { active = false; }
 
+    /** Speichern/Laden: Fortschritt direkt setzen. */
+    public void restore(int index, boolean active) {
+        this.index = Math.max(0, Math.min(index, steps.size()));
+        this.active = active;
+    }
+
     // --- Aktions-Benachrichtigungen vom GameFrame ---
     public void onBuilt(BuildingType t) {
         TutorialStep c = current();

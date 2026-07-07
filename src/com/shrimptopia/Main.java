@@ -99,7 +99,71 @@ public class Main {
             gs.getMoney(), p3, gs.getAwareness(), gs.getDemandLast(), gs.getShrimpSoldLast(), gs.isBankrupt());
         if (gs.getMoney() <= p3) { ok = false; System.out.println("WARN: Hallen-Wirtschaft wächst nicht."); }
         if (gs.getAwareness() <= 5) { ok = false; System.out.println("WARN: Bekanntheit baut sich nicht auf."); }
+
+        // Phase 4: Farmweite Upgrades duerfen nur EINMAL gekauft werden (kein Stacking).
+        gs.addMoney(10_000);
+        gs.place(BuildingType.WATER_PLANT, 0, 2, true);
+        gs.place(BuildingType.WATER_PLANT, 1, 2, true);
+        Building wpA = gs.at(0, 2), wpB = gs.at(1, 2);
+        com.shrimptopia.model.Upgrade recycle = null;
+        for (com.shrimptopia.model.Upgrade u : com.shrimptopia.model.BuildingCatalog.upgrades(BuildingType.WATER_PLANT))
+            if (u.global != null) recycle = u;
+        boolean firstBuy = gs.buyUpgrade(wpA, recycle);
+        boolean secondBuy = gs.buyUpgrade(wpB, recycle);
+        if (!firstBuy || secondBuy) { ok = false; System.out.println("WARN: Farmweites Upgrade nicht exakt einmal kaufbar (1: " + firstBuy + ", 2: " + secondBuy + ")."); }
+        else System.out.println("Phase 4: Farmweites Upgrade nur einmal kaufbar - OK.");
+
+        // Phase 5: Ambiente wirkt (Deko-Bauten heben Nachfrage-Faktor).
+        gs.unlock("zone.EMPFANG", null);
+        gs.place(BuildingType.ZEN_GARDEN, com.shrimptopia.model.Zone.EMPFANG, 0, 0, false);
+        gs.place(BuildingType.FOUNTAIN,   com.shrimptopia.model.Zone.EMPFANG, 1, 0, false);
+        gs.place(BuildingType.MASCOT_STATUE, com.shrimptopia.model.Zone.EMPFANG, 2, 0, false);
+        gs.tick();
+        if (gs.getDecoScore() <= 0 || gs.decoDemandFactor() <= 1.0) {
+            ok = false;
+            System.out.println("WARN: Ambiente ohne Wirkung (Score " + gs.getDecoScore() + ", Faktor " + gs.decoDemandFactor() + ").");
+        } else System.out.printf("Phase 5: Ambiente %.0f -> Nachfrage-Faktor %.2f - OK.%n", gs.getDecoScore(), gs.decoDemandFactor());
+
+        // Phase 6: Speichern/Laden-Roundtrip (gegen ein Temp-Verzeichnis).
+        System.setProperty("shrimptopia.saves",
+            new File(System.getProperty("java.io.tmpdir"), "shrimptopia_selftest_saves").getAbsolutePath());
+        com.shrimptopia.quest.QuestSystem qs = new com.shrimptopia.quest.QuestSystem();
+        for (int i = 0; i < 30; i++) { gs.tick(); qs.update(gs); if (qs.hasPending()) qs.resolve(gs, 0); }
+        com.shrimptopia.tutorial.Tutorial tut = new com.shrimptopia.tutorial.Tutorial();
+        tut.skip();
+        boolean saved = com.shrimptopia.save.SaveManager.save(1, gs, qs, tut);
+        com.shrimptopia.save.SaveManager.Loaded loaded = com.shrimptopia.save.SaveManager.load(1);
+        if (!saved || loaded == null) { ok = false; System.out.println("WARN: Speichern/Laden fehlgeschlagen."); }
+        else {
+            GameState g2 = loaded.game();
+            boolean same = Math.abs(g2.getMoney() - gs.getMoney()) < 0.01
+                && g2.getDay() == gs.getDay()
+                && g2.buildingCount() == gs.buildingCount()
+                && Math.abs(g2.getShrimpTotal() - gs.getShrimpTotal()) < 0.01
+                && Math.abs(g2.getReputation() - gs.getReputation()) < 0.01
+                && g2.unlockedFlags().equals(gs.unlockedFlags())
+                && wpUpgradesEqual(gs, g2);
+            if (!same) { ok = false; System.out.println("WARN: Geladener Spielstand weicht ab."); }
+            else {
+                for (int i = 1; i <= 30; i++) { g2.tick(); if (!finite(g2)) { ok = false; break; } }
+                if (ok) System.out.printf("Phase 6: Save/Load-Roundtrip identisch (Tag %d, %.0f Geld, %d Gebäude) - OK.%n",
+                    g2.getDay(), g2.getMoney(), g2.buildingCount());
+            }
+            com.shrimptopia.save.SaveManager.delete(1);
+        }
+
         System.out.println(ok ? "SELFTEST OK" : "SELFTEST FAIL");
+    }
+
+    /** Vergleicht Modi & Upgrade-Sets aller Gebäude beider Spielstände (Reihenfolge der Listen). */
+    private static boolean wpUpgradesEqual(GameState a, GameState b) {
+        java.util.List<Building> la = a.buildings(), lb = b.buildings();
+        if (la.size() != lb.size()) return false;
+        for (int i = 0; i < la.size(); i++) {
+            Building x = la.get(i), y = lb.get(i);
+            if (x.type != y.type || x.mode != y.mode || !x.upgrades.equals(y.upgrades)) return false;
+        }
+        return true;
     }
 
     private static void tableRow(GameState gs) {
@@ -126,6 +190,7 @@ public class Main {
                 f.pack();
                 f.setSize(1440, 900);
                 f.validate();
+                f.debugCloseMainMenu();   // Hauptmenü öffnet beim Start - für die Snaps schließen
 
                 GameState gs = f.game();
 
@@ -134,6 +199,7 @@ public class Main {
                 //     Hallen-Bestückung unten unberührt bleibt.
                 GameFrame fg = new GameFrame();
                 fg.pack(); fg.setSize(1440, 900); fg.validate();
+                fg.debugCloseMainMenu();
                 GameState ggs = fg.game();
                 ggs.place(BuildingType.OLD_GENERATOR, Zone.PRODUKTION, 3, 2, false);
                 ggs.place(BuildingType.RAIN_BARREL,   Zone.PRODUKTION, 4, 2, false);
@@ -334,6 +400,12 @@ public class Main {
                 f.setZone(Zone.FORSCHUNG);  f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_forschung.png");
                 f.setZone(Zone.LOGISTIK);   f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_logistik.png");
                 f.setZone(Zone.EMPFANG);    f.validate(); snap(f.getRootPane(), "shrimptopia_v3_map_empfang.png");
+
+                // 10) Hauptmenü (Speichern/Laden/Löschen) über dem laufenden Spiel
+                f.debugOpenMainMenu();
+                f.validate();
+                snap(f.getRootPane(), "shrimptopia_v3_mainmenu.png");
+                f.debugCloseMainMenu();
             });
         } catch (Exception e) {
             System.out.println("GUITEST FAIL: " + e);

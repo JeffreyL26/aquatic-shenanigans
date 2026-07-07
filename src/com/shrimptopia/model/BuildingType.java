@@ -780,6 +780,37 @@ public enum BuildingType {
     /** Erzeugt dieses Gebäude Futter aus Wasser (Algen jeder Stufe)? */
     public boolean isAlgae()           { return this == ALGAE_FARM || this == ALGAE_BUCKET || this == PLANKTON_PRESS; }
 
+    // ===================== Ambiente (Deko-System) =====================
+    // Jedes Gebäude trägt zum farmweiten AMBIENTE bei: Deko-Bauten heben es,
+    // Industrie-Schandflecke senken es. Ambiente steigert Nachfrage, bremst den
+    // Bekanntheits-Zerfall und hebt den Ruf-Sog (siehe GameState.tick).
+    private static final java.util.EnumMap<BuildingType, Double> DECO = new java.util.EnumMap<>(BuildingType.class);
+    static {
+        // Schmuckstücke
+        DECO.put(ZEN_GARDEN,      5.0);
+        DECO.put(MASCOT_STATUE,   6.0);
+        DECO.put(FOUNTAIN,        4.0);
+        DECO.put(PETTING_POOL,    4.0);
+        DECO.put(BOYBAND_STAGE,   6.0);
+        DECO.put(VISITOR_CENTER,  3.0);
+        DECO.put(REEF_DOME,       4.0);
+        DECO.put(RESTAURANT,      2.0);
+        DECO.put(SOLAR_ROOF,      1.0);
+        DECO.put(WIND_TURBINE,    1.0);
+        DECO.put(CANTEEN,         1.0);
+        // Schandflecke
+        DECO.put(OLD_GENERATOR,  -2.0);
+        DECO.put(POWER_PLANT,    -4.0);
+        DECO.put(GEO_PLANT,      -1.0);
+        DECO.put(SHELL_PRESS,    -1.0);
+        DECO.put(SHRIMPBOOST_FACTORY, -1.0);
+        DECO.put(GUT_STATION,    -2.0);
+        DECO.put(BIOGAS_PLANT,   -2.0);
+        DECO.put(BLACK_MARKET,   -3.0);
+    }
+    /** Ambiente-Grundwert dieses Gebäudes (0 = neutral). */
+    public double deco() { return DECO.getOrDefault(this, 0.0); }
+
     // ===================== v3-Flows (Schalen/SHRIMPBOOST/Roboter/Armee) =====================
     private static final java.util.EnumMap<BuildingType, Flows> FLOWS = new java.util.EnumMap<>(BuildingType.class);
     static {

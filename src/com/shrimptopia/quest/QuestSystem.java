@@ -201,6 +201,67 @@ public class QuestSystem {
         return r;
     }
 
+    // ===================== Speichern / Laden =====================
+
+    /** Schreibt den Quest-Fortschritt in die Map (Katalog wird beim Laden neu aufgebaut). */
+    public void writeSave(java.util.Map<String, String> m) {
+        m.put("q.done", String.join(",", done));
+        m.put("q.triggered", String.join(",", triggered));
+        m.put("q.flags", String.join(",", flags));
+        m.put("q.armed", String.join(",", armed.keySet()));
+        StringBuilder pd = new StringBuilder();
+        for (Quest q : pending) { if (pd.length() > 0) pd.append(','); pd.append(q.id); }
+        m.put("q.pending", pd.toString());
+        StringBuilder ch = new StringBuilder();
+        for (Map.Entry<String, Integer> e : chosen.entrySet()) {
+            if (ch.length() > 0) ch.append(',');
+            ch.append(e.getKey()).append(':').append(e.getValue());
+        }
+        m.put("q.chosen", ch.toString());
+        m.put("q.lastShownDay", String.valueOf(lastShownDay));
+        m.put("q.rival", String.valueOf(rival));
+        if (lastEnding != null) m.put("q.lastEnding", lastEnding);
+        m.put("q.hintedQuestLog", String.valueOf(hintedQuestLog));
+        if (pendingMinigame != null) {
+            m.put("q.minigame", pendingMinigame);
+            m.put("q.minigameStake", String.valueOf(pendingMinigameStake));
+        }
+    }
+
+    /** Stellt den Quest-Fortschritt auf einem frisch erzeugten QuestSystem wieder her. */
+    public void readSave(java.util.Map<String, String> m) {
+        for (String id : splitCsv(m.get("q.done"))) done.add(id);
+        for (String id : splitCsv(m.get("q.triggered"))) triggered.add(id);
+        for (String f : splitCsv(m.get("q.flags"))) flags.add(f);
+        for (String id : splitCsv(m.get("q.armed"))) {
+            Quest q = byId.get(id);
+            if (q != null) armed.put(id, q);
+        }
+        for (String id : splitCsv(m.get("q.pending"))) {
+            Quest q = byId.get(id);
+            if (q != null) pending.add(q);
+        }
+        for (String pair : splitCsv(m.get("q.chosen"))) {
+            int c = pair.lastIndexOf(':');
+            if (c <= 0) continue;
+            try { chosen.put(pair.substring(0, c), Integer.parseInt(pair.substring(c + 1))); }
+            catch (NumberFormatException ignored) { }
+        }
+        try { lastShownDay = Integer.parseInt(m.getOrDefault("q.lastShownDay", "-100")); }
+        catch (NumberFormatException ignored) { }
+        try { rival = Integer.parseInt(m.getOrDefault("q.rival", "0")); }
+        catch (NumberFormatException ignored) { }
+        lastEnding = m.get("q.lastEnding");
+        hintedQuestLog = Boolean.parseBoolean(m.getOrDefault("q.hintedQuestLog", "false"));
+        pendingMinigame = m.get("q.minigame");
+        try { pendingMinigameStake = Double.parseDouble(m.getOrDefault("q.minigameStake", "1")); }
+        catch (NumberFormatException ignored) { }
+    }
+
+    private static String[] splitCsv(String v) {
+        return (v == null || v.isEmpty()) ? new String[0] : v.split(",");
+    }
+
     public void setFlag(String f) { flags.add(f); }
     public boolean hasFlag(String f) { return flags.contains(f); }
     public boolean isDone(String id) { return done.contains(id); }

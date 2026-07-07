@@ -25,6 +25,10 @@ public class EventSystem {
         buildCatalog();
     }
 
+    // --- Speichern/Laden: der Cooldown-Zähler ist der einzige Laufzeit-Zustand ---
+    public int lastEventDay() { return lastEventDay; }
+    public void restoreLastEventDay(int day) { lastEventDay = day; }
+
     private void buildCatalog() {
         add("Shrimp-Influencer zu Besuch",
             "Ein Shrimp-Influencer filmt deine Becken für 2 Mio. Follower. #ShrimpLife trendet.",

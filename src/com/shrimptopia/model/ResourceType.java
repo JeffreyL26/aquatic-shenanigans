@@ -16,7 +16,8 @@ public enum ResourceType {
     SHRIMPBOOST("SHRIMPBOOST",  "BOOST",   Palette.BOOST, IconKind.CAN),
     ROBOTS     ("Roboter",      "ROBOTER", Palette.ROBOT, IconKind.ROBOT),
     ARMY       ("Armee-Stärke", "ARMEE",   Palette.ARMY,  IconKind.SHIELD),
-    WASTE      ("Abfall",       "ABFALL",  Palette.WASTE, IconKind.WASTE);
+    WASTE      ("Abfall",       "ABFALL",  Palette.WASTE, IconKind.WASTE),
+    DECO       ("Ambiente",     "AMBIENTE",Palette.DECO,  IconKind.GARDEN);
 
     public final String displayName;
     /** Kurzform fürs schmale Top-HUD (max. ~8 Zeichen). */

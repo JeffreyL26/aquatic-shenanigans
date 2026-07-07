@@ -46,6 +46,7 @@ public class GameFrame extends JFrame {
     private QuestTreePanel questTree;
     private BuildMenuPanel buildMenu;
     private MinigamePanel minigame;
+    private MainMenuPanel mainMenu;
 
     public GameFrame() {
         super("ShrimpTopia v2 - Indoor Shrimp Farming Tycoon");
@@ -106,6 +107,9 @@ public class GameFrame extends JFrame {
         minigame = new MinigamePanel(this);
         getLayeredPane().add(minigame, JLayeredPane.DRAG_LAYER);   // über allem außer Glass-Pane
 
+        mainMenu = new MainMenuPanel(this);
+        getLayeredPane().add(mainMenu, JLayeredPane.DRAG_LAYER);   // Hauptmenü: über allen Spiel-Overlays
+
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
@@ -128,10 +132,13 @@ public class GameFrame extends JFrame {
                     questTree.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
                 if (minigame != null && minigame.isVisible())
                     minigame.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+                if (mainMenu != null && mainMenu.isVisible())
+                    mainMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
             }
         });
         animTimer.start();
         updateOverlays();   // startet mit dem Tutorial
+        openMainMenu();     // Begrüßung: erst das Hauptmenü, das Spiel wartet dahinter
     }
 
     private void onTick(ActionEvent e) {
@@ -164,6 +171,12 @@ public class GameFrame extends JFrame {
     private String[] pendingAnnouncement;
 
     private void updateOverlays() {
+        // Hauptmenü offen? Dann warten alle Spiel-Popups (die Glass-Pane läge sonst DARÜBER).
+        if (mainMenu.isVisible()) {
+            overlay.hideOverlay();
+            applyTimerState();
+            return;
+        }
         // Läuft ein Minigame, pausiert alles andere - Popups warten, bis es vorbei ist.
         if (minigame.isVisible()) {
             overlay.hideOverlay();
@@ -225,7 +238,8 @@ public class GameFrame extends JFrame {
     private void applyTimerState() {
         if (userPaused || overlayShowing() || (almanac != null && almanac.isVisible())
             || (questTree != null && questTree.isVisible())
-            || (minigame != null && minigame.isVisible())) timer.stop();
+            || (minigame != null && minigame.isVisible())
+            || (mainMenu != null && mainMenu.isVisible())) timer.stop();
         else timer.start();
         topBar.setPausedVisual(userPaused);
     }
@@ -446,13 +460,53 @@ public class GameFrame extends JFrame {
         refreshAll();
     }
 
+    // ===================== Hauptmenü & Spielstände =====================
+
+    public void openMainMenu() {
+        mainMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        getLayeredPane().moveToFront(mainMenu);
+        mainMenu.open();
+        updateOverlays();   // versteckt laufende Popups/Tutorial, solange das Menü offen ist
+    }
+    public void afterMainMenuClosed() { refreshAll(); updateOverlays(); }
+    public boolean mainMenuVisible() { return mainMenu != null && mainMenu.isVisible(); }
+
+    /** Ersetzt das laufende Spiel durch einen geladenen Spielstand (Muster wie restartGame). */
+    public void applyLoadedGame(com.shrimptopia.save.SaveManager.Loaded l) {
+        game = l.game();
+        questSystem = l.quests();
+        tutorial = l.tutorial();
+        currentZone = Zone.PRODUKTION;
+        selectedBuilding = null;
+        tool = Tool.NONE; selectedType = null;
+        pendingOutcome = null;
+        pendingAnnouncement = null;
+        highlightBuild = null;
+        minigame.forceClose();
+        if (buildMenu.isVisible()) buildMenu.setVisible(false);
+        if (almanac.isVisible()) almanac.setVisible(false);
+        if (questTree.isVisible()) questTree.setVisible(false);
+        userPaused = false;
+        speed = 1;
+        topBar.selectSpeed(1);
+        inspector.setBuilding(null);
+        timer.setDelay(delayForSpeed(speed));
+        game.log("Spielstand geladen - weiter geht's an Tag " + game.getDay() + ".", GameState.LOG_GOOD);
+        refreshAll();
+        updateOverlays();
+    }
+
     // ===================== Tastenkürzel =====================
 
     private void installKeyBindings() {
         JComponent root = getRootPane();
         bind(root, KeyEvent.VK_ESCAPE, "cancel", () -> {
+            if (mainMenu.isVisible()) { mainMenu.close(); return; }
             if (buildMenu.isVisible()) { buildMenu.close(); return; }
-            clearTool();
+            if (almanac.isVisible()) { almanac.close(); return; }
+            if (questTree.isVisible()) { questTree.close(); return; }
+            if (tool != Tool.NONE) { clearTool(); return; }
+            openMainMenu();
         });
         bind(root, KeyEvent.VK_SPACE, "pause", () -> setPaused(!userPaused));
         bind(root, KeyEvent.VK_1, "s1", () -> setSpeed(1));
@@ -494,8 +548,12 @@ public class GameFrame extends JFrame {
     public void debugForceQuest(String id) { questSystem.forceStart(id); refreshAll(); updateOverlays(); }
     public void debugScrollQuestTree(int y) { questTree.scrollTo(y); }
 
+    public void debugOpenMainMenu() { openMainMenu(); }
+    public void debugCloseMainMenu() { if (mainMenu.isVisible()) mainMenu.close(); }
+
     public GameState game()            { return game; }
     public QuestSystem questSystem()    { return questSystem; }
+    public Tutorial tutorial()         { return tutorial; }
     public Tool tool()                 { return tool; }
     public BuildingType selectedType() { return selectedType; }
     public Zone currentZone()          { return currentZone; }

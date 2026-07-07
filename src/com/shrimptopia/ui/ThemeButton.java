@@ -51,7 +51,9 @@ public final class ThemeButton {
         ButtonModel m = b.getModel();
         int w = b.getWidth(), h = b.getHeight();
 
-        Color bg = selected ? accent
+        boolean disabled = !b.isEnabled();
+        Color bg = disabled ? Icons.darker(Palette.PANEL_LIGHT, 0.85)
+                 : selected ? accent
                  : m.isPressed() ? Icons.darker(base, 0.8)
                  : m.isRollover() ? Palette.PANEL_HOVER : base;
         g.setColor(bg);
@@ -62,7 +64,7 @@ public final class ThemeButton {
             g.drawRoundRect(0, 1, w - 2, h - 3, 10, 10);
         }
 
-        g.setColor(selected ? Palette.BG_DARK : Palette.TEXT);
+        g.setColor(disabled ? new Color(150, 166, 176, 120) : selected ? Palette.BG_DARK : Palette.TEXT);
         FontMetrics fm = g.getFontMetrics(b.getFont());
         g.setFont(b.getFont());
         String text = TextUtil.clip(fm, b.getText(), w - 12);

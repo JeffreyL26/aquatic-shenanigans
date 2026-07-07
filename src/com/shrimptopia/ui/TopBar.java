@@ -52,9 +52,10 @@ public class TopBar extends JPanel {
         alm.addActionListener(e -> frame.openAlmanac(0));
         controls.add(alm);
 
-        ThemeButton.FlatButton neu = new ThemeButton.FlatButton("Neu");
-        neu.addActionListener(e -> frame.restartGame());
-        controls.add(neu);
+        ThemeButton.FlatButton menu = new ThemeButton.FlatButton("Menü");
+        menu.setToolTipText("Hauptmenü: Speichern, Laden, Neues Spiel (ESC)");
+        menu.addActionListener(e -> frame.openMainMenu());
+        controls.add(menu);
 
         add(controls, BorderLayout.EAST);
     }
@@ -143,6 +144,7 @@ public class TopBar extends JPanel {
             if (gs.isUnlocked("build.robotworks")) order.add(ResourceType.ROBOTS);
             if (gs.getArmy() > 0 || gs.isUnlocked("build.barracks")) order.add(ResourceType.ARMY);
             if (gs.getWaste() > 0 || gs.isUnlocked("build.gut_station")) order.add(ResourceType.WASTE);
+            if (Math.abs(gs.getDecoScore()) >= 0.5) order.add(ResourceType.DECO);
             lastOrder = order;
             int n = order.size();
             int pad = 12;
@@ -238,6 +240,13 @@ public class TopBar extends JPanel {
                     boolean full = gs.getWaste() >= gs.getCapWaste() - 0.5;
                     sub = full ? "läuft über!" : "entsorgen";
                     subColor = full ? Palette.BAD : Palette.TEXT_DIM;
+                }
+                case DECO        -> {
+                    double ds = gs.getDecoScore();
+                    value = (ds >= 0 ? "+" : "") + fmtInt(ds);
+                    long pct = Math.round((gs.decoDemandFactor() - 1) * 100);
+                    sub = "Nachfrage " + (pct >= 0 ? "+" : "") + pct + "%";
+                    subColor = ds >= 0 ? Palette.GOOD : Palette.BAD;
                 }
                 default -> { value = ""; sub = ""; }
             }
