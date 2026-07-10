@@ -190,7 +190,12 @@ public class Main {
                 f.pack();
                 f.setSize(1440, 900);
                 f.validate();
-                f.debugCloseMainMenu();   // Hauptmenü öffnet beim Start - für die Snaps schließen
+                // Titelbildschirm (öffnet beim Start) festhalten, dann für die Spiel-Snaps schließen.
+                // Erneut öffnen, damit die Bounds zur finalen Fenstergröße passen (Resize-Events
+                // laufen im Test erst nach diesem Block).
+                f.openTitleMenu();
+                snap(f.getRootPane(), "shrimptopia_v7_title.png");
+                f.debugCloseMainMenu();
 
                 GameState gs = f.game();
 

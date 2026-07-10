@@ -113,7 +113,7 @@ public class GameFrame extends JFrame {
         installKeyBindings();
 
         timer = new Timer(delayForSpeed(speed), this::onTick);
-        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); buildMenu.tickGlow(); sideBar.tickGlow(); topBar.tickCritical(); });
+        animTimer = new Timer(60, e -> { mapPanel.advanceAnim(); logPanel.repaint(); buildMenu.tickGlow(); sideBar.tickGlow(); topBar.tickCritical(); mainMenu.tickAnim(); });
 
         refreshAll();
         pack();
@@ -138,7 +138,7 @@ public class GameFrame extends JFrame {
         });
         animTimer.start();
         updateOverlays();   // startet mit dem Tutorial
-        openMainMenu();     // Begrüßung: erst das Hauptmenü, das Spiel wartet dahinter
+        openTitleMenu();    // klassischer Titelbildschirm: erst das Menü, das Spiel wartet unsichtbar dahinter
     }
 
     private void onTick(ActionEvent e) {
@@ -468,6 +468,14 @@ public class GameFrame extends JFrame {
         mainMenu.open();
         updateOverlays();   // versteckt laufende Popups/Tutorial, solange das Menü offen ist
     }
+
+    /** Titelbildschirm beim Spielstart: Vollbild-Szene statt Overlay über dem Spielfeld. */
+    public void openTitleMenu() {
+        mainMenu.setBounds(0, 0, getLayeredPane().getWidth(), getLayeredPane().getHeight());
+        getLayeredPane().moveToFront(mainMenu);
+        mainMenu.openTitle();
+        updateOverlays();
+    }
     public void afterMainMenuClosed() { refreshAll(); updateOverlays(); }
     public boolean mainMenuVisible() { return mainMenu != null && mainMenu.isVisible(); }
 
@@ -501,7 +509,8 @@ public class GameFrame extends JFrame {
     private void installKeyBindings() {
         JComponent root = getRootPane();
         bind(root, KeyEvent.VK_ESCAPE, "cancel", () -> {
-            if (mainMenu.isVisible()) { mainMenu.close(); return; }
+            // Titelbildschirm lässt sich nicht "wegdrücken" - nur Neues Spiel/Laden/Beenden.
+            if (mainMenu.isVisible()) { if (!mainMenu.isTitle()) mainMenu.close(); return; }
             if (buildMenu.isVisible()) { buildMenu.close(); return; }
             if (almanac.isVisible()) { almanac.close(); return; }
             if (questTree.isVisible()) { questTree.close(); return; }
