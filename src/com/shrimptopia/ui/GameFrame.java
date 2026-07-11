@@ -559,6 +559,8 @@ public class GameFrame extends JFrame {
 
     public void debugOpenMainMenu() { openMainMenu(); }
     public void debugCloseMainMenu() { if (mainMenu.isVisible()) mainMenu.close(); }
+    /** Spult die Titelbildschirm-Animation vor (Intro & Szene), z.B. für Snapshots. */
+    public void debugTickTitle(int ticks) { for (int i = 0; i < ticks; i++) mainMenu.tickAnim(); }
 
     public GameState game()            { return game; }
     public QuestSystem questSystem()    { return questSystem; }

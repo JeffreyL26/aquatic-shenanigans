@@ -192,9 +192,13 @@ public class Main {
                 f.validate();
                 // Titelbildschirm (öffnet beim Start) festhalten, dann für die Spiel-Snaps schließen.
                 // Erneut öffnen, damit die Bounds zur finalen Fenstergröße passen (Resize-Events
-                // laufen im Test erst nach diesem Block).
+                // laufen im Test erst nach diesem Block); Animation vorspulen, damit Intro,
+                // Held-Shrimp und Tagline im Bild sind.
                 f.openTitleMenu();
+                f.debugTickTitle(45);
                 snap(f.getRootPane(), "shrimptopia_v7_title.png");
+                f.debugTickTitle(200);
+                snap(f.getRootPane(), "shrimptopia_v7_title2.png");
                 f.debugCloseMainMenu();
 
                 GameState gs = f.game();
